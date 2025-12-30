@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "tiers": {
+    "common": [
+      { "text": "base", "weight": 10 },
+      { "text": "mint", "weight": 9 },
+      { "text": "coin", "weight": 8 },
+      { "text": "blue", "weight": 8 },
+      { "text": "cook", "weight": 7 },
+      { "text": "ship", "weight": 7 },
+      { "text": "chad", "weight": 6 },
+      { "text": "gwei", "weight": 5 },
+      { "text": "mode", "weight": 5 },
+      { "text": "warp", "weight": 5 },
+      { "text": "degen", "weight": 4 },
+      { "text": "feed", "weight": 4 },
+      { "text": "burn", "weight": 3 }
+    ],
+    "mid": [
+      { "text": "onchain", "weight": 10 },
+      { "text": "builder", "weight": 9 },
+      { "text": "summer", "weight": 8 },
+      { "text": "optimism", "weight": 7 },
+      { "text": "farcaster", "weight": 10 },
+      { "text": "coinbase", "weight": 8 },
+      { "text": "frames", "weight": 9 },
+      { "text": "zora", "weight": 7 },
+      { "text": "superchain", "weight": 6 },
+      { "text": "stand with crypto", "weight": 6 },
+      { "text": "smart wallet", "weight": 10 }
+    ],
+    "expert": [
+      { "text": "based is for everyone", "weight": 10 },
+      { "text": "stay based", "weight": 10 },
+      { "text": "jesse pollak", "weight": 8 },
+      { "text": "eip-4844", "weight": 6 },
+      { "text": "blobs are here", "weight": 7 },
+      { "text": "it's not a jpeg", "weight": 5 },
+      { "text": "mint the moment", "weight": 6 }
+    ]
+  }
+}

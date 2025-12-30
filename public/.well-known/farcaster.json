@@ -1,0 +1,18 @@
+{
+    "accountAssociation": {
+        "header": "eyJmaWQiOjg4NzcsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg3MDRhNTU5NGQzMThjOThhMTFmNzhkMmQ3YjAzYTc3OTlmNDM4MzQ0In0",
+        "payload": "eyJkb21haW4iOiJ3b3JkLXJhaW4uYmFzZS5vcmcifQ",
+        "signature": "MHhkYTAxMjM0NTY3ODkwYWJjZGVmMTIzNDU2Nzg5MGFiY2RlZjEyMzQ1Njc4OTBhYmNkZWYxMjM0NTY3ODkwYWJjZGVmMTIzNDU2Nzg5MGFiY2RlZjEyMzQ1Njc4OTBhYmNkZWYxYg"
+    },
+    "frame": {
+        "version": "1",
+        "name": "Word Rain",
+        "iconUrl": "https://word-rain.base.org/icon.png",
+        "homeUrl": "https://word-rain.base.org",
+        "imageUrl": "https://word-rain.base.org/splash.png",
+        "buttonTitle": "Play Word Rain",
+        "splashImageUrl": "https://word-rain.base.org/splash.png",
+        "splashBackgroundColor": "#050505",
+        "webhookUrl": "https://word-rain.base.org/api/webhook"
+    }
+}
