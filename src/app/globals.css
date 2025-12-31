@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: var(--font-space), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  
   --color-background: #050505;
   --color-surface: #111111;
   --color-accent: #0052FF;
@@ -9,8 +12,10 @@
 
 @layer base {
   body {
-    @apply bg-[var(--color-background)] text-white antialiased overflow-hidden;
-    font-family: var(--font-inter), sans-serif;
+    background-color: var(--color-background);
+    color: #fff;
+    @apply antialiased overflow-hidden;
+    font-family: var(--font-sans);
   }
 }
 

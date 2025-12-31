@@ -58,9 +58,9 @@ export default function GameOverlay() {
                         {score > 0 && (
                             <button
                                 onClick={shareScore}
-                                className="w-full py-4 border border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-white font-medium tracking-tight text-sm transition-colors flex items-center justify-center gap-2"
+                                className="w-full py-4 border border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-white font-medium tracking-tight text-sm transition-colors flex items-center justify-center gap-2 uppercase font-mono"
                             >
-                                Share on Warpcast
+                                Share on Base App
                             </button>
                         )}
 
