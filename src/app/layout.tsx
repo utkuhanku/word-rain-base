@@ -20,14 +20,14 @@ export const metadata: Metadata = {
   other: {
     "fc:frame": JSON.stringify({
       version: "next",
-      imageUrl: "https://word-rain.base.org/splash.png",
+      imageUrl: "https://word-rain-base.vercel.app/splash.png",
       button: {
         title: "Play Word Rain",
         action: {
           type: "launch_frame",
           name: "Word Rain",
-          url: "https://word-rain.base.org",
-          splashImageUrl: "https://word-rain.base.org/splash.png",
+          url: "https://word-rain-base.vercel.app",
+          splashImageUrl: "https://word-rain-base.vercel.app/splash.png",
           splashBackgroundColor: "#050505",
         },
       },

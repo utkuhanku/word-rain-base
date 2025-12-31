@@ -70,7 +70,7 @@ export default function GameOverlay() {
                                 onClick={() => submitScore(score)}
                                 className="text-xs text-[#0052FF] hover:text-blue-400 font-mono underline underline-offset-4 mt-2"
                             >
-                                Submit Logic Score (Onchain)
+                                Submit Logic Score (0.15 USDC)
                             </button>
                         )}
                     </div>

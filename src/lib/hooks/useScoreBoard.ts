@@ -1,60 +1,43 @@
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
-import { ScoreBoardABI, SCOREBOARD_ADDRESS } from '@/contracts/ScoreBoardABI';
-import { useEffect } from 'react';
-import { useGameStore } from '@/lib/store/gameStore';
+import { useAccount, useWriteContract } from 'wagmi';
 
 export function useScoreBoard() {
     const { address, isConnected } = useAccount();
-    const setBestScore = useGameStore((state) => state.setBestScore);
-    const bestScore = useGameStore((state) => state.bestScore);
-
-    // Read Best Score
-    const { data: onchainBestScore, refetch } = useReadContract({
-        address: SCOREBOARD_ADDRESS,
-        abi: ScoreBoardABI,
-        functionName: 'getBestScore',
-        args: [address as `0x${string}`],
-        query: {
-            enabled: isConnected && !!address,
-        }
-    });
-
-    // Write Score
     const { writeContractAsync } = useWriteContract();
-
-    // Sync Onchain Score to Store
-    useEffect(() => {
-        if (onchainBestScore) {
-            const score = Number(onchainBestScore);
-            if (score > bestScore) {
-                setBestScore(score);
-            }
-        }
-    }, [onchainBestScore, bestScore, setBestScore]);
 
     const submitScore = async (score: number) => {
         if (!isConnected || !address) return;
 
-        // Only submit if it beats the best score (logic can be client-side optimization)
-        // But usually contract checks too.
-
         try {
+            // USDC on Base
+            const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+            const RECIPIENT = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
+            const AMOUNT = 150000n; // 0.15 USDC (6 decimals)
+
             await writeContractAsync({
-                address: SCOREBOARD_ADDRESS,
-                abi: ScoreBoardABI,
-                functionName: 'submitScore',
-                args: [BigInt(score)],
+                address: USDC_ADDRESS,
+                abi: [{
+                    name: 'transfer',
+                    type: 'function',
+                    stateMutability: 'nonpayable',
+                    inputs: [
+                        { name: 'to', type: 'address' },
+                        { name: 'amount', type: 'uint256' }
+                    ],
+                    outputs: [{ type: 'bool' }]
+                }],
+                functionName: 'transfer',
+                args: [RECIPIENT, AMOUNT],
             });
 
-            // Optimistic update? Or wait for refetch.
-            // For MVP, we just let it happen.
+            console.log("0.15 USDC Transfer initiated for score:", score);
         } catch (e) {
-            console.error("Failed to submit score:", e);
+            console.error("Failed to submit score (USDC Transfer):", e);
         }
     };
 
     return {
         submitScore,
-        refetchBestScore: refetch
+        // Mock refetch for now as we removed the read logic
+        refetchBestScore: async () => { }
     };
 }

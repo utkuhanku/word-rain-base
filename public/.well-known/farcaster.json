@@ -7,12 +7,12 @@
     "frame": {
         "version": "1",
         "name": "Word Rain",
-        "iconUrl": "https://word-rain.base.org/icon.png",
-        "homeUrl": "https://word-rain.base.org",
-        "imageUrl": "https://word-rain.base.org/splash.png",
+        "iconUrl": "https://word-rain-base.vercel.app/icon.png",
+        "homeUrl": "https://word-rain-base.vercel.app",
+        "imageUrl": "https://word-rain-base.vercel.app/splash.png",
         "buttonTitle": "Play Word Rain",
-        "splashImageUrl": "https://word-rain.base.org/splash.png",
+        "splashImageUrl": "https://word-rain-base.vercel.app/splash.png",
         "splashBackgroundColor": "#050505",
-        "webhookUrl": "https://word-rain.base.org/api/webhook"
+        "webhookUrl": "https://word-rain-base.vercel.app/api/webhook"
     }
 }
