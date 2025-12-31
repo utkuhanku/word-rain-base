@@ -1,9 +1,18 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { http, createConfig } from 'wagmi';
 import { base } from 'wagmi/chains';
+import { coinbaseWallet } from 'wagmi/connectors';
 
-export const config = getDefaultConfig({
-    appName: 'Word Rain',
-    projectId: 'd578673a0058e104526df613dcf58849', // Public testing ID, users should replace for mainnet
+export const config = createConfig({
     chains: [base],
+    multiInjectedProviderDiscovery: false,
+    connectors: [
+        coinbaseWallet({
+            appName: 'Word Rain',
+            preference: 'smartWalletOnly',
+        }),
+    ],
+    transports: {
+        [base.id]: http(),
+    },
     ssr: true,
 });

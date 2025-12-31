@@ -2,12 +2,14 @@ import GameCanvas from "@/components/game/GameCanvas";
 import HUD from "@/components/game/HUD";
 import GameOverlay from "@/components/game/GameOverlay";
 import TutorialOverlay from "@/components/game/TutorialOverlay";
-import WalletButton from "@/components/ui/WalletButton";
+import GameWallet from "@/components/ui/GameWallet";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 relative">
-      <WalletButton />
+      <div className="absolute top-4 right-4 z-50">
+        <GameWallet />
+      </div>
       <div className="z-10 text-center flex flex-col items-center">
         <div className="mb-12 space-y-2">
           <h1 className="text-4xl font-black tracking-tighter text-white/90">

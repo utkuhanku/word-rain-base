@@ -16,11 +16,13 @@ export class GameEngine {
     // Difficulty State
     spawnTimer: number = 0;
     spawnInterval: number = 1500; // Start spawn rate (ms)
-    baseSpeed: number = 1.0;
+    baseSpeed: number = 2.0; // Increased start speed
     difficultyTimer: number = 0; // Track time to ramp up
 
     // Visuals
     activeTypedChain: string = "";
+    activeWrongChar: string | null = null;
+    wrongCharTimer: number = 0;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -68,7 +70,7 @@ export class GameEngine {
         this.lastTime = time;
 
         this.update(dt);
-        this.renderer.draw(this.entities, this.activeTypedChain);
+        this.renderer.draw(this.entities, this.activeTypedChain, this.activeWrongChar);
 
         this.animationFrameId = requestAnimationFrame(this.loop.bind(this));
     }
@@ -80,6 +82,13 @@ export class GameEngine {
             this.spawnInterval = Math.max(500, this.spawnInterval - 100);
             this.baseSpeed += 0.2;
             this.difficultyTimer = 0;
+        }
+
+        if (this.wrongCharTimer > 0) {
+            this.wrongCharTimer -= dt;
+            if (this.wrongCharTimer <= 0) {
+                this.activeWrongChar = null;
+            }
         }
 
         // 2. Spawning
@@ -141,8 +150,12 @@ export class GameEngine {
 
         char = char.toUpperCase();
 
+        // Reset wrong char state initially
+        // Note: we might want to keep it if we want to show multiple?
+        // For now, let's just show the LATEST wrong char, or clear if correct.
+
         // Strategy: Find candidates that match the input char at their current index
-        // Prioritize: 
+        // Prioritize:
         // 1. Words already partially matched (sticky focus)
         // 2. Lowest Y (closest to danger)
 
@@ -152,8 +165,15 @@ export class GameEngine {
         });
 
         if (candidates.length === 0) {
+            // MISSED / WRONG INPUT
+            // Trigger visual feedback for wrong char
+            this.activeWrongChar = char;
+            this.wrongCharTimer = 1000; // Show for 1s or until next key
             return;
         }
+
+        // Correct Input - Clear wrong char
+        this.activeWrongChar = null;
 
         // Sort candidates
         candidates.sort((a, b) => {

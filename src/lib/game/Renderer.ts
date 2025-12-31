@@ -15,7 +15,7 @@ export class GameRenderer {
         this.ctx.clearRect(0, 0, this.width, this.height);
     }
 
-    draw(entities: WordEntity[], activeTypedChain: string = "") {
+    draw(entities: WordEntity[], activeTypedChain: string = "", activeWrongChar: string | null = null) {
         this.clear();
 
         // Draw Text
@@ -59,6 +59,27 @@ export class GameRenderer {
             this.ctx.shadowBlur = 20;
             this.ctx.fillText(activeTypedChain, cx, cy);
             this.ctx.shadowBlur = 0;
+
+            // Draw Wrong Char (if exists) appended effectively
+            if (activeWrongChar) {
+                const currentWidth = this.ctx.measureText(activeTypedChain).width;
+                const wcX = cx + (currentWidth / 2) + 20; // Offset to right
+
+                this.ctx.fillStyle = "#FF0033"; // Sharp Red
+                this.ctx.shadowColor = "#FF0033";
+                this.ctx.shadowBlur = 10;
+                this.ctx.fillText(activeWrongChar, wcX, cy);
+                this.ctx.shadowBlur = 0;
+            }
+        } else if (activeWrongChar) {
+            // Case where no valid chain but wrong char typed (start of word error)
+            const cx = this.width / 2;
+            const cy = deckY + (deckHeight / 2);
+            const fontSize = 48;
+            this.ctx.font = `700 ${fontSize}px Inter, sans-serif`;
+
+            this.ctx.fillStyle = "#FF0033";
+            this.ctx.fillText(activeWrongChar, cx, cy);
         } else {
             // Placeholder hint
             const fontSize = 14;
