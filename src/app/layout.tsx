@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { Providers } from "./providers";
+import FarcasterProvider from "@/components/FarcasterProvider";
 import "@coinbase/onchainkit/styles.css";
 import "./globals.css";
 
@@ -46,7 +47,9 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${mono.variable} antialiased bg-[#050505] text-white`}
       >
         <Providers>
-          {children}
+          <FarcasterProvider>
+            {children}
+          </FarcasterProvider>
         </Providers>
       </body>
     </html>
