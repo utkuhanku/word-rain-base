@@ -28,12 +28,32 @@ export default function IdentityReveal({ onComplete }: IdentityRevealProps) {
         return () => clearTimeout(safety);
     }, [isRevealing, onComplete]);
 
-    // Fetch Identity (Farcaster > Basename > Address)
+    import sdk from "@farcaster/frame-sdk";
+
+    // ...
+
+    // Fetch Identity (Frame Context > Farcaster Auth > Basename > Address)
     useEffect(() => {
         const fetchIdentity = async () => {
+            // 1. Frame Context (Base App / Warpcast) - AUTO CONNECT
+            try {
+                const context = await sdk.context;
+                if (context?.user?.username) {
+                    setDisplayName(context.user.username.toUpperCase());
+                    return; // Found identity, stop here
+                }
+            } catch (e) {
+                console.warn("Frame SDK context not available:", e);
+            }
+
+            // 2. AuthKit (Manual Sign In)
             if (isAuthenticated && profile?.username) {
                 setDisplayName(profile.username.toUpperCase());
-            } else if (address) {
+                return;
+            }
+
+            // 3. Wallet Connection
+            if (address) {
                 try {
                     const name = await getName({ address, chain: base });
                     setDisplayName((name ?? "PLAYER ONE").toUpperCase());
