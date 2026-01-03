@@ -13,6 +13,16 @@
         "buttonTitle": "Play Word Rain",
         "splashImageUrl": "https://word-rain-base.vercel.app/splash.png",
         "splashBackgroundColor": "#050505",
+        "splashImageUrl": "https://word-rain-base.vercel.app/splash.png",
+        "splashBackgroundColor": "#050505",
         "webhookUrl": "https://word-rain-base.vercel.app/api/webhook"
-    }
+    },
+    "primaryCategory": "games",
+    "tags": [
+        "words",
+        "typing",
+        "puzzle",
+        "reflex",
+        "base"
+    ]
 }
