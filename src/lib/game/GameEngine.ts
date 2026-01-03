@@ -16,8 +16,10 @@ export class GameEngine {
     // Difficulty State
     spawnTimer: number = 0;
     spawnInterval: number = 1500; // Start spawn rate (ms)
-    baseSpeed: number = 2.0; // Increased start speed
-    difficultyTimer: number = 0; // Track time to ramp up
+    private baseSpeed: number = 3.5;
+    private spawnRate: number = 2000;
+    private lastSpawnTime: number = 0;
+    private difficultyTimer: number = 0; // Fixed: Added missing property
 
     // Visuals
     activeTypedChain: string = "";
@@ -37,6 +39,20 @@ export class GameEngine {
         ctx.scale(dpr, dpr);
 
         this.renderer = new GameRenderer(ctx, rect.width, rect.height);
+    }
+
+    resize() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = this.canvas.getBoundingClientRect();
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+
+        // Update renderer dimensions
+        this.renderer.width = rect.width;
+        this.renderer.height = rect.height;
+
+        const ctx = this.canvas.getContext('2d');
+        if (ctx) ctx.scale(dpr, dpr);
     }
 
     start() {

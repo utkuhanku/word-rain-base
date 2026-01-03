@@ -27,7 +27,7 @@ export class GameRenderer {
         }
 
         // Input Deck (Footer)
-        const deckHeight = 100;
+        const deckHeight = 160; // Increased visual deck height
         const deckY = this.height - deckHeight;
 
         // Draw Deck Background
@@ -103,15 +103,19 @@ export class GameRenderer {
         // 2. Unmatched Part (White)
         const unmatchedStr = text.substring(matchedIndex);
 
+        // 3. Danger Zone Logic
+        const dangerThreshold = this.height - 250; // Approaching footer
+        const isDanger = y > dangerThreshold;
+
         // Draw matched
-        this.ctx.fillStyle = "#0052FF"; // Base Blue
-        this.ctx.shadowColor = "#0052FF";
-        this.ctx.shadowBlur = 10;
+        this.ctx.fillStyle = isDanger ? "#FF3333" : "#0052FF"; // Red if danger, else Blue
+        this.ctx.shadowColor = isDanger ? "#FF3333" : "#0052FF";
+        this.ctx.shadowBlur = isDanger ? 25 : 10; // Intense glow for danger
         this.ctx.fillText(matchedStr, startX + (matchedWidth / 2), y);
         this.ctx.shadowBlur = 0; // Reset shadow
 
         // Draw unmatched
-        this.ctx.fillStyle = "#FFFFFF";
+        this.ctx.fillStyle = isDanger ? "#FFCCCC" : "#FFFFFF"; // Red tint if danger
 
         const unmatchedWidth = this.ctx.measureText(unmatchedStr).width;
         this.ctx.fillText(unmatchedStr, startX + matchedWidth + (unmatchedWidth / 2), y);

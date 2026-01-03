@@ -86,6 +86,15 @@ export default function GameCanvas() {
         }
     }, [status]);
 
+    // Handle Resize (Keyboard up/down)
+    useEffect(() => {
+        const handleResize = () => {
+            engineRef.current?.resize();
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const handleMobileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         const char = e.target.value.slice(-1); // Get last char
         if (char && engineRef.current) {
@@ -106,7 +115,8 @@ export default function GameCanvas() {
             <input
                 ref={inputRef}
                 type="text"
-                className="absolute opacity-0 top-0 left-0 h-0 w-0 pointer-events-none md:pointer-events-auto"
+                className="absolute opacity-0 top-0 left-0 h-0 w-0 pointer-events-none md:pointer-events-auto text-[16px]" // 16px prevents iOS zoom
+                style={{ fontSize: '16px' }} // Double insurance
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
