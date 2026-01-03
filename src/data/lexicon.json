@@ -57,6 +57,22 @@
       {
         "text": "WOW",
         "weight": 30
+      },
+      {
+        "text": "BM",
+        "weight": 60
+      },
+      {
+        "text": "ZORA",
+        "weight": 70
+      },
+      {
+        "text": "JESSE",
+        "weight": 70
+      },
+      {
+        "text": "BASEAPP",
+        "weight": 80
       }
     ],
     "mid": [
@@ -107,6 +123,18 @@
       {
         "text": "TOMORROW",
         "weight": 40
+      },
+      {
+        "text": "WARPCAST",
+        "weight": 80
+      },
+      {
+        "text": "BASEPOSTING",
+        "weight": 70
+      },
+      {
+        "text": "CREATOR COIN",
+        "weight": 60
       }
     ],
     "expert": [
