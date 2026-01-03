@@ -11,7 +11,7 @@ export function useScoreBoard() {
             // USDC on Base
             const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
             const RECIPIENT = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
-            const AMOUNT = 150000n; // 0.15 USDC (6 decimals)
+            const AMOUNT = BigInt(150000); // 0.15 USDC (6 decimals)
 
             await writeContractAsync({
                 address: USDC_ADDRESS,
