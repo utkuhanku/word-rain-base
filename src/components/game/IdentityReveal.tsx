@@ -10,6 +10,8 @@ interface IdentityRevealProps {
     onComplete: () => void;
 }
 
+import sdk from "@farcaster/frame-sdk";
+
 export default function IdentityReveal({ onComplete }: IdentityRevealProps) {
     const { address, isConnected } = useAccount();
     const { isAuthenticated, profile } = useProfile(); // Farcaster Auth
@@ -28,7 +30,7 @@ export default function IdentityReveal({ onComplete }: IdentityRevealProps) {
         return () => clearTimeout(safety);
     }, [isRevealing, onComplete]);
 
-    import sdk from "@farcaster/frame-sdk";
+
 
     // ...
 
