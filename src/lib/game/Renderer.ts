@@ -34,13 +34,16 @@ export class GameRenderer {
         this.ctx.fillStyle = "#111111"; // Surface color
         this.ctx.fillRect(0, deckY, this.width, deckHeight);
 
-        // Top Border logic
-        this.ctx.strokeStyle = "#222222";
-        this.ctx.lineWidth = 1;
+        // Top Border logic of Deck (Death Line)
+        this.ctx.strokeStyle = "#FF3333"; // Red Warning Line
+        this.ctx.lineWidth = 2;
+        this.ctx.shadowColor = "#FF3333";
+        this.ctx.shadowBlur = 15;
         this.ctx.beginPath();
         this.ctx.moveTo(0, deckY);
         this.ctx.lineTo(this.width, deckY);
         this.ctx.stroke();
+        this.ctx.shadowBlur = 0;
 
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
