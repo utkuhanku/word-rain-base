@@ -68,9 +68,55 @@ export default function GameCanvas() {
         prevLives.current = lives;
     }, [lives]);
 
+    // Mobile Virtual Keyboard Handling
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const refocusInput = () => {
+        if (status === 'playing' && inputRef.current) {
+            inputRef.current.focus();
+        }
+    };
+
+    // Keep focus for mobile typing
+    useEffect(() => {
+        if (status === 'playing') {
+            refocusInput();
+            const interval = setInterval(refocusInput, 1000); // Ensure focus stays
+            return () => clearInterval(interval);
+        }
+    }, [status]);
+
+    const handleMobileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const char = e.target.value.slice(-1); // Get last char
+        if (char && engineRef.current) {
+            engineRef.current.handleInput(char);
+        }
+        // Reset to keep input clean but maintain focus context
+        e.target.value = '';
+    };
+
     return (
-        <div className={`w-full h-full relative ${isHit ? 'animate-shake' : ''}`}>
+        <div
+            className={`w-full h-full relative ${isHit ? 'animate-shake' : ''}`}
+            onClick={refocusInput} // Tap anywhere to bring up keyboard
+        >
             <div className={`absolute inset-0 bg-red-500/20 pointer-events-none transition-opacity duration-100 z-10 ${isHit ? 'opacity-100' : 'opacity-0'}`} />
+
+            {/* Hidden Input Proxy for Mobile Keyboard */}
+            <input
+                ref={inputRef}
+                type="text"
+                className="absolute opacity-0 top-0 left-0 h-0 w-0 pointer-events-none md:pointer-events-auto"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
+                onChange={handleMobileInput}
+                onBlur={() => {
+                    // Optional: Visual cue that keyboard is gone?
+                }}
+            />
+
             <canvas
                 ref={canvasRef}
                 className="w-full h-full block touch-none select-none relative z-0"
