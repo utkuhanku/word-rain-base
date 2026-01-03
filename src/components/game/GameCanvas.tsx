@@ -41,8 +41,9 @@ export default function GameCanvas() {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (status !== 'playing') return;
 
-            // Prevent default behavior for game keys if needed, 
-            // but for typing games, usually not needed unless capturing Tab/Space explicitly for mechanics.
+            // Prevent duplicate input from Virtual Keyboard
+            // If the event comes from our hidden input, let onChange handle it
+            if (e.target === inputRef.current) return;
 
             // We only care about A-Z usually, maybe Space.
             if (e.key.length === 1) {

@@ -116,14 +116,16 @@ export class GameEngine {
 
         // 3. Move Entities & Check Life
         const height = this.canvas.height / (window.devicePixelRatio || 1); // Logical height
+        const DECK_HEIGHT = 160;
+        const DEATH_Y = height - DECK_HEIGHT;
 
         // Iterate backwards to safely remove
         for (let i = this.entities.length - 1; i >= 0; i--) {
             const entity = this.entities[i];
             entity.update(dt);
 
-            // Hit Floor logic
-            if (entity.y > height + 20) {
+            // Hit Death Line logic
+            if (entity.y > DEATH_Y) {
                 this.handleLifeLost(entity);
                 this.entities.splice(i, 1);
             }
