@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import { useState, useEffect } from 'react';
 import GameCanvas from "@/components/game/GameCanvas";
 import HUD from "@/components/game/HUD";
 import PaygateOverlay from "@/components/game/PaygateOverlay";
