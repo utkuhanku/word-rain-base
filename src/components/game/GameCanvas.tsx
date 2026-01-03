@@ -86,13 +86,31 @@ export default function GameCanvas() {
         }
     }, [status]);
 
-    // Handle Resize (Keyboard up/down)
+    // Handle Resize (Mobile Keyboard reliability)
     useEffect(() => {
         const handleResize = () => {
-            engineRef.current?.resize();
+            // Use visualViewport if available for accurate keyboard height
+            if (window.visualViewport && canvasRef.current && engineRef.current) {
+                const vv = window.visualViewport;
+                // Force canvas to match visual viewport height (minus header offset if needed)
+                // However, since we rely on CSS flex-1 container, simple triggering resize() on engine might trigger re-measure of container
+                engineRef.current.resize();
+            } else {
+                engineRef.current?.resize();
+            }
         };
+
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleResize);
+        }
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', handleResize);
+            }
+        };
     }, []);
 
     const handleMobileInput = (e: React.ChangeEvent<HTMLInputElement>) => {

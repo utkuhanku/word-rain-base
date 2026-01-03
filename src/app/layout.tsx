@@ -21,6 +21,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  interactiveWidget: 'resizes-content', // Forces layout resize when keyboard opens
 };
 
 export const metadata: Metadata = {
