@@ -15,19 +15,30 @@ export default function IdentityReveal({ onComplete }: IdentityRevealProps) {
     const [displayedText, setDisplayedText] = useState('');
     const [isRevealing, setIsRevealing] = useState(true);
 
+    // Safety: Force complete after 6 seconds max to prevent blocking
+    useEffect(() => {
+        const safety = setTimeout(() => {
+            if (isRevealing) {
+                setIsRevealing(false);
+                onComplete();
+            }
+        }, 6000);
+        return () => clearTimeout(safety);
+    }, [isRevealing, onComplete]);
+
     // Fetch Basename or Address
     useEffect(() => {
         const fetchIdentity = async () => {
+            // ... existing fetch logic
             if (address) {
                 try {
                     const name = await getName({ address, chain: base });
-                    // Uppercase for impact
                     setDisplayName((name ?? "PLAYER ONE").toUpperCase());
                 } catch {
                     setDisplayName("PLAYER ONE");
                 }
             } else {
-                setDisplayName("CONNECTING...");
+                setDisplayName("PLAYER ONE"); // Default immediately if not connected
             }
         };
         fetchIdentity();

@@ -15,7 +15,7 @@ export default function Home() {
   useEffect(() => {
     // Force container scaling for Virtual Keyboard
     const handleResize = () => {
-      if (window.visualViewport) {
+      if (window.visualViewport && window.visualViewport.height > 100) {
         setViewportHeight(window.visualViewport.height);
       } else {
         setViewportHeight(window.innerHeight);
