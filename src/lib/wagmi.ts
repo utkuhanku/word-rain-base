@@ -1,6 +1,6 @@
 import { http, createConfig } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { coinbaseWallet } from 'wagmi/connectors';
+import { coinbaseWallet, injected } from 'wagmi/connectors';
 
 export const config = createConfig({
     chains: [base],
@@ -10,6 +10,7 @@ export const config = createConfig({
             appName: 'Word Rain',
             preference: 'smartWalletOnly',
         }),
+        injected(),
     ],
     transports: {
         [base.id]: http(),

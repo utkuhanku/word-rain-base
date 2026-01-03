@@ -3,13 +3,17 @@
 import { useState } from 'react';
 import { useGameStore } from '@/lib/store/gameStore';
 import { useAccount, useWriteContract } from 'wagmi';
+import { useConnect } from 'wagmi';
+import { useProfile } from '@farcaster/auth-kit';
 
 export default function PaygateOverlay() {
     const status = useGameStore((state) => state.status);
     const score = useGameStore((state) => state.score);
     const resetGame = useGameStore((state) => state.resetGame);
     const { isConnected } = useAccount();
+    const { connect, connectors } = useConnect();
     const { writeContractAsync } = useWriteContract();
+    const { isAuthenticated } = useProfile();
 
     const [isPaid, setIsPaid] = useState(false);
     const [isPaying, setIsPaying] = useState(false);
@@ -74,10 +78,17 @@ export default function PaygateOverlay() {
         }
     };
 
+    const handleConnect = () => {
+        const coinbaseConnector = connectors.find(c => c.id === 'coinbaseWalletSDK');
+        if (coinbaseConnector) {
+            connect({ connector: coinbaseConnector });
+        }
+    };
+
     if (status !== 'game_over') return null;
 
     return (
-        <div className="absolute inset-0 z-40 bg-[#050505]/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
+        <div className="absolute inset-0 z-50 bg-[#050505] flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
 
             {!isPaid ? (
                 // STATE 1: UNPAID (Game Over)
@@ -96,7 +107,7 @@ export default function PaygateOverlay() {
                             Retry Run
                         </button>
 
-                        {isConnected && (
+                        {isConnected ? (
                             <button
                                 onClick={handlePayment}
                                 disabled={isPaying}
@@ -104,10 +115,13 @@ export default function PaygateOverlay() {
                             >
                                 {isPaying ? "Verifying..." : "Unlock Leaderboard (0.15 USDC)"}
                             </button>
-                        )}
-
-                        {!isConnected && (
-                            <div className="text-xs text-zinc-600 font-mono">Connect Wallet to Submit Score</div>
+                        ) : (
+                            <button
+                                onClick={handleConnect}
+                                className="w-full py-4 border border-zinc-700 bg-zinc-900/50 hover:bg-zinc-800 text-white font-mono tracking-tight text-xs uppercase transition-all"
+                            >
+                                {isAuthenticated ? "Identity Verified → Connect Wallet to Pay" : "Connect Wallet to Submit Score"}
+                            </button>
                         )}
                     </div>
                 </div>
