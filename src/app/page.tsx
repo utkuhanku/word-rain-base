@@ -6,12 +6,21 @@ import GameWallet from "@/components/ui/GameWallet";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 relative">
-      <div className="absolute top-4 right-4 z-50">
+    <main className="flex h-[100dvh] w-full flex-col items-center justify-between p-2 md:p-4 relative overflow-hidden">
+
+      {/* Header - Compact */}
+      <div className="w-full flex justify-between items-center z-50 px-2 py-2 md:absolute md:top-4 md:right-4 md:block md:w-auto">
+        <div className="text-left md:hidden">
+          <h1 className="text-lg font-black tracking-tight leading-none text-white/90">WORD RAIN</h1>
+          <p className="text-[10px] text-zinc-500 font-mono tracking-widest">V1.1</p>
+        </div>
         <GameWallet />
       </div>
-      <div className="z-10 text-center flex flex-col items-center">
-        <div className="mb-12 space-y-2">
+
+      <div className="z-10 flex flex-col items-center flex-1 w-full max-w-md h-full min-h-0 pb-safe">
+
+        {/* Desktop Title (Hidden on Mobile) */}
+        <div className="hidden md:block mb-8 space-y-2 text-center">
           <h1 className="text-4xl font-black tracking-tighter text-white/90">
             Word Rain
           </h1>
@@ -20,10 +29,13 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="w-[100vw] h-[100dvh] md:w-[600px] md:h-[800px] md:max-h-[90vh] md:border md:border-white/5 md:rounded-3xl bg-[#050505] relative overflow-hidden shadow-2xl shadow-black/50 ring-1 ring-white/5">
+        {/* Game Container - Grows to fill space */}
+        <div className="w-full flex-1 md:h-[800px] md:flex-none md:max-h-[90vh] md:border md:border-white/5 md:rounded-3xl bg-[#050505] relative overflow-hidden shadow-2xl shadow-black/50 ring-1 ring-white/5 flex flex-col">
           <HUD />
           <TutorialOverlay />
-          <GameCanvas />
+          <div className="flex-1 relative w-full h-full min-h-0">
+            <GameCanvas />
+          </div>
           <GameOverlay />
         </div>
       </div>
