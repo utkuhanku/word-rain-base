@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAccount, useEnsName } from 'wagmi';
 import { getName } from '@coinbase/onchainkit/identity';
 import { base } from 'viem/chains';
+import { useProfile } from '@farcaster/auth-kit';
 
 interface IdentityRevealProps {
     onComplete: () => void;
@@ -11,6 +12,7 @@ interface IdentityRevealProps {
 
 export default function IdentityReveal({ onComplete }: IdentityRevealProps) {
     const { address, isConnected } = useAccount();
+    const { isAuthenticated, profile } = useProfile(); // Farcaster Auth
     const [displayName, setDisplayName] = useState<string>('INITIATE');
     const [displayedText, setDisplayedText] = useState('');
     const [isRevealing, setIsRevealing] = useState(true);
@@ -26,11 +28,12 @@ export default function IdentityReveal({ onComplete }: IdentityRevealProps) {
         return () => clearTimeout(safety);
     }, [isRevealing, onComplete]);
 
-    // Fetch Basename or Address
+    // Fetch Identity (Farcaster > Basename > Address)
     useEffect(() => {
         const fetchIdentity = async () => {
-            // ... existing fetch logic
-            if (address) {
+            if (isAuthenticated && profile?.username) {
+                setDisplayName(profile.username.toUpperCase());
+            } else if (address) {
                 try {
                     const name = await getName({ address, chain: base });
                     setDisplayName((name ?? "PLAYER ONE").toUpperCase());
@@ -38,11 +41,11 @@ export default function IdentityReveal({ onComplete }: IdentityRevealProps) {
                     setDisplayName("PLAYER ONE");
                 }
             } else {
-                setDisplayName("PLAYER ONE"); // Default immediately if not connected
+                setDisplayName("PLAYER ONE");
             }
         };
         fetchIdentity();
-    }, [address]);
+    }, [address, isAuthenticated, profile]);
 
     // Decode Animation
     useEffect(() => {
