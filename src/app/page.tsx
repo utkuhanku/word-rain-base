@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useGameStore } from '@/lib/store/gameStore';
 import GameCanvas from "@/components/game/GameCanvas";
 import HUD from "@/components/game/HUD";
 import PaygateOverlay from "@/components/game/PaygateOverlay";
@@ -11,6 +12,14 @@ import IdentityReveal from "@/components/game/IdentityReveal";
 export default function Home() {
   const [identityRevealed, setIdentityRevealed] = useState(false);
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+
+  // Game Actions
+  const resetGame = useGameStore((state) => state.resetGame);
+
+  const handleIdentityComplete = () => {
+    setIdentityRevealed(true);
+    resetGame(); // Triggers status: 'playing'
+  };
 
   useEffect(() => {
     // Force container scaling for Virtual Keyboard
@@ -43,7 +52,7 @@ export default function Home() {
     >
 
       {/* Identity Reveal Animation */}
-      {!identityRevealed && <IdentityReveal onComplete={() => setIdentityRevealed(true)} />}
+      {!identityRevealed && <IdentityReveal onComplete={handleIdentityComplete} />}
 
       {/* Header - Compact */}
       <div className={`w-full flex justify-between items-center z-50 px-2 py-2 md:absolute md:top-4 md:right-4 md:block md:w-auto transition-opacity duration-1000 ${identityRevealed ? 'opacity-100' : 'opacity-0'}`}>

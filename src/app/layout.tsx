@@ -42,6 +42,7 @@ export const metadata: Metadata = {
         },
       },
     }),
+    "base:app_id": "6958cb544d3a403912ed8b3a", // Base App Verification
   },
 };
 
