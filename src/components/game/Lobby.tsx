@@ -55,32 +55,44 @@ export default function Lobby({ onStart }: LobbyProps) {
         init();
     }, [address]);
 
-    // 2. Handle Entry (Active Auth)
+    // 2. Handle Entry (Active Quick Auth)
     const handleInitialize = useCallback(async () => {
-        // If we already have a name (Context or Wallet), just start
-        if (displayName) {
-            onStart();
-            return;
-        }
+        if (displayName) return onStart();
 
-        // If no identity, try Native Frame SIWF
         try {
-            const result = await sdk.actions.signIn({ nonce: "wordrain" });
-            // Result contains { signature, message, authMethod }
-            // We assume success if we get here. 
+            // New Quick Auth Flow
+            // NOTE: The user requested "Native Quick Auth". 
+            // `sdk.quickAuth.getToken()` is the OIDC flow, but `sdk.actions.signIn` is the SIWF flow.
+            // The docs say "Quick Auth" serves a session token.
+            // Let's try `sdk.quickAuth.getToken()` first as it aligns with the backend lib usage.
 
-            // Note: We can't easily get the username client-side from the signature 
-            // without a backend or extra API call. For now, we accept the auth 
-            // and proceed. The Game HUD will eventually resolve the wallet/identity 
-            // if they connect their wallet.
+            // However, Frame SDK types might only expose `quickAuth` on the `experimental` or main object.
+            // Let's try to access `sdk.quickAuth` if available.
 
-            setDisplayName("VERIFIED user");
-            setTimeout(onStart, 500);
-            return;
+            // Check if quickAuth exists (it should based on types.d.ts)
+            if (sdk.quickAuth) {
+                const { token } = await sdk.quickAuth.getToken();
+                // Verify on backend
+                const res = await fetch('/api/auth/verify', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.fid) {
+                    setDisplayName(`FID #${data.fid}`);
+                    setTimeout(onStart, 800);
+                    return;
+                }
+            } else {
+                // Fallback to signIn (SIWF) if quickAuth not available on this version
+                const result = await sdk.actions.signIn({ nonce: "wordrain" });
+                setDisplayName("VERIFIED");
+                setTimeout(onStart, 500);
+            }
 
         } catch (e) {
-            console.warn("Sign In failed or cancelled:", e);
-            // If native auth fails, just start as Anonymous/Wallet flow
+            console.warn("Auth failed:", e);
+            // Fallback to Anonymous
             onStart();
         }
     }, [displayName, onStart]);
