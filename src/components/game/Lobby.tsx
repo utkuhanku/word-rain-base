@@ -179,6 +179,17 @@ export default function Lobby({ onStart }: LobbyProps) {
                             <div className="absolute inset-0 bg-[#0052FF] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left -z-0 opacity-20" />
                         </motion.button>
 
+                        {/* Error Feedback */}
+                        {errorMsg && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="text-red-500 font-mono text-xs text-center max-w-[80vw] break-words bg-red-500/10 p-2 rounded"
+                            >
+                                ERROR: {errorMsg}
+                            </motion.div>
+                        )}
+
                         {/* Hidden Fallback - Clean UI */}
 
                     </motion.div>
