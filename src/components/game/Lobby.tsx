@@ -91,10 +91,10 @@ export default function Lobby({ onStart }: LobbyProps) {
                 setTimeout(onStart, 500);
             }
 
-        } catch (e) {
+        } catch (e: any) {
             console.warn("Auth failed:", e);
-            // Fallback to Anonymous
-            onStart();
+            setErrorMsg(e.message || "Auth Failed");
+            // Do NOT start automatically on error
         }
     }, [displayName, onStart]);
 
