@@ -65,13 +65,19 @@ export default function Lobby({ onStart }: LobbyProps) {
 
         // If no identity, try Native Frame SIWF
         try {
-            const result = await sdk.actions.signIn({ nonce: "wordrain" }); // Nonce is arbitrary for client-only
-            if (result.user?.username) {
-                setDisplayName(result.user.username.toUpperCase());
-                // Small delay to show the name before starting
-                setTimeout(onStart, 800);
-                return;
-            }
+            const result = await sdk.actions.signIn({ nonce: "wordrain" });
+            // Result contains { signature, message, authMethod }
+            // We assume success if we get here. 
+
+            // Note: We can't easily get the username client-side from the signature 
+            // without a backend or extra API call. For now, we accept the auth 
+            // and proceed. The Game HUD will eventually resolve the wallet/identity 
+            // if they connect their wallet.
+
+            setDisplayName("VERIFIED user");
+            setTimeout(onStart, 500);
+            return;
+
         } catch (e) {
             console.warn("Sign In failed or cancelled:", e);
             // If native auth fails, just start as Anonymous/Wallet flow
