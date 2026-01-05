@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAccount } from 'wagmi';
-import { useProfile } from '@farcaster/auth-kit';
 import { getName } from '@coinbase/onchainkit/identity';
 import { base } from 'viem/chains';
-import sdk from "@farcaster/frame-sdk";
+import sdk, { type Context } from "@farcaster/frame-sdk";
 import GameWallet from '../ui/GameWallet';
 
 interface LobbyProps {
@@ -14,59 +13,76 @@ interface LobbyProps {
 }
 
 export default function Lobby({ onStart }: LobbyProps) {
-    const { address, isConnected } = useAccount();
-    const { isAuthenticated, profile } = useProfile();
+    const { address } = useAccount();
 
     // Identity State
     const [displayName, setDisplayName] = useState<string>('');
     const [isChecking, setIsChecking] = useState(true);
     const [isReady, setIsReady] = useState(false);
+    const [context, setContext] = useState<Context.FrameContext | null>(null);
 
-    // Fetch Identity Logic (Consolidated from IdentityReveal)
+    // 1. Initial Identity Check (Passive)
     useEffect(() => {
-        const resolveIdentity = async () => {
+        const init = async () => {
             setIsChecking(true);
-
-            // 1. Frame Context
             try {
-                const context = await sdk.context;
-                if (context?.user?.username) {
-                    setDisplayName(context.user.username.toUpperCase());
-                    setIsChecking(false);
-                    return;
+                const ctx = await sdk.context;
+                setContext(ctx);
+
+                // Auto-detect from context
+                if (ctx?.user?.username) {
+                    setDisplayName(ctx.user.username.toUpperCase());
+                } else if (address) {
+                    // Fallback to Wallet if already connected
+                    try {
+                        const name = await getName({ address, chain: base });
+                        setDisplayName((name ?? "PLAYER ONE").toUpperCase());
+                    } catch {
+                        setDisplayName("PLAYER ONE");
+                    }
                 }
             } catch (e) {
-                // Ignore frame error
-            }
-
-            // 2. Farcaster Auth
-            if (isAuthenticated && profile?.username) {
-                setDisplayName(profile.username.toUpperCase());
-                setIsChecking(false);
-                return;
-            }
-
-            // 3. Wallet
-            if (address) {
-                try {
-                    const name = await getName({ address, chain: base });
-                    setDisplayName((name ?? "PLAYER ONE").toUpperCase());
-                } catch {
+                console.warn("SDK Context Error:", e);
+                // Fallback to address if SDK fails (e.g. desktop browser)
+                if (address) {
                     setDisplayName("PLAYER ONE");
                 }
-            } else {
-                setDisplayName(""); // Anonymous
+            } finally {
+                setIsChecking(false);
+                setTimeout(() => sdk.actions.ready(), 500); // Signal readiness
             }
-            setIsChecking(false);
         };
+        init();
+    }, [address]);
 
-        resolveIdentity();
-    }, [address, isAuthenticated, profile]);
+    // 2. Handle Entry (Active Auth)
+    const handleInitialize = useCallback(async () => {
+        // If we already have a name (Context or Wallet), just start
+        if (displayName) {
+            onStart();
+            return;
+        }
+
+        // If no identity, try Native Frame SIWF
+        try {
+            const result = await sdk.actions.signIn({ nonce: "wordrain" }); // Nonce is arbitrary for client-only
+            if (result.user?.username) {
+                setDisplayName(result.user.username.toUpperCase());
+                // Small delay to show the name before starting
+                setTimeout(onStart, 800);
+                return;
+            }
+        } catch (e) {
+            console.warn("Sign In failed or cancelled:", e);
+            // If native auth fails, just start as Anonymous/Wallet flow
+            onStart();
+        }
+    }, [displayName, onStart]);
 
     // Ready State Animation
     useEffect(() => {
         if (!isChecking) {
-            const timer = setTimeout(() => setIsReady(true), 500);
+            const timer = setTimeout(() => setIsReady(true), 300);
             return () => clearTimeout(timer);
         }
     }, [isChecking]);
@@ -116,26 +132,41 @@ export default function Lobby({ onStart }: LobbyProps) {
                             className="bg-white/5 border border-white/10 px-6 py-3 rounded-full backdrop-blur-md"
                         >
                             {displayName ? (
-                                <span className="text-white font-mono text-sm tracking-widest">
+                                <span className="text-white font-mono text-sm tracking-widest flex items-center gap-2">
                                     IDENTITY: <span className="text-[#0052FF] font-bold">{displayName}</span>
                                 </span>
                             ) : (
-                                <GameWallet />
+                                // While unidentified, show distinct GameWallet or just "Anonymous"
+                                <div className="text-zinc-500 font-mono text-xs tracking-widest">
+                                    UNIDENTIFIED ENTITY
+                                </div>
                             )}
                         </motion.div>
 
                         {/* Start Button */}
                         <motion.button
-                            onClick={onStart}
+                            onClick={handleInitialize}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             className="group relative px-12 py-6 bg-white text-black font-black font-mono text-xl tracking-widest uppercase overflow-hidden"
                         >
                             <span className="relative z-10 group-hover:tracking-[0.2em] transition-all duration-300">
-                                Initialize
+                                {displayName ? "ENTER SYSTEM" : "INITIALIZE"}
                             </span>
                             <div className="absolute inset-0 bg-[#0052FF] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left -z-0 opacity-20" />
                         </motion.button>
+
+                        {/* Desktop / Fallback Wallet (Only if needed) */}
+                        {!displayName && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 1.5 }}
+                                className="scale-90 opacity-50 hover:opacity-100 transition-opacity"
+                            >
+                                <GameWallet />
+                            </motion.div>
+                        )}
 
                     </motion.div>
                 ) : (
