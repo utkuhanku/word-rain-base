@@ -20,6 +20,7 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [isChecking, setIsChecking] = useState(true);
     const [isReady, setIsReady] = useState(false);
     const [context, setContext] = useState<Context.FrameContext | null>(null);
+    const [errorMsg, setErrorMsg] = useState<string>('');
 
     // 1. Initial Identity Check (Passive)
     useEffect(() => {
