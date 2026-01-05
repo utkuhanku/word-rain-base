@@ -159,13 +159,10 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         CONNECTED VIA {context?.user ? 'WARPCAST' : 'WALLET'}
                                     </span>
                                 </>
-                            ) : (
-                                // While unidentified, show distinct GameWallet or just "Anonymous"
-                                <div className="text-zinc-500 font-mono text-xs tracking-widest">
-                                    UNIDENTIFIED ENTITY
-                                </div>
                             )}
                         </motion.div>
+
+                        {/* Start Button */}
 
                         {/* Start Button */}
                         <motion.button
