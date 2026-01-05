@@ -22,6 +22,15 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [context, setContext] = useState<Context.FrameContext | null>(null);
     const [errorMsg, setErrorMsg] = useState<string>('');
 
+    // 0. Ensure Frame is Ready (Fixes Infinite Loader)
+    useEffect(() => {
+        const signalReady = async () => {
+            // Give the app a moment to hydrate
+            setTimeout(() => sdk.actions.ready(), 200);
+        };
+        signalReady();
+    }, []);
+
     // 1. Initial Identity Check (Passive)
     useEffect(() => {
         const init = async () => {
