@@ -135,12 +135,17 @@ export default function Lobby({ onStart }: LobbyProps) {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 1.0 }}
-                            className="bg-white/5 border border-white/10 px-6 py-3 rounded-full backdrop-blur-md"
+                            className="bg-white/5 border border-white/10 px-6 py-3 rounded-full backdrop-blur-md flex flex-col items-center gap-1"
                         >
                             {displayName ? (
-                                <span className="text-white font-mono text-sm tracking-widest flex items-center gap-2">
-                                    IDENTITY: <span className="text-[#0052FF] font-bold">{displayName}</span>
-                                </span>
+                                <>
+                                    <span className="text-white font-mono text-sm tracking-widest flex items-center gap-2">
+                                        IDENTITY: <span className="text-[#0052FF] font-bold">{displayName}</span>
+                                    </span>
+                                    <span className="text-[10px] text-zinc-500 font-mono tracking-[0.2em] uppercase">
+                                        CONNECTED VIA {context?.user ? 'WARPCAST' : 'WALLET'}
+                                    </span>
+                                </>
                             ) : (
                                 // While unidentified, show distinct GameWallet or just "Anonymous"
                                 <div className="text-zinc-500 font-mono text-xs tracking-widest">
@@ -162,17 +167,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                             <div className="absolute inset-0 bg-[#0052FF] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left -z-0 opacity-20" />
                         </motion.button>
 
-                        {/* Desktop / Fallback Wallet (Only if needed) */}
-                        {!displayName && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 1.5 }}
-                                className="scale-90 opacity-50 hover:opacity-100 transition-opacity"
-                            >
-                                <GameWallet />
-                            </motion.div>
-                        )}
+                        {/* Hidden Fallback - Clean UI */}
 
                     </motion.div>
                 ) : (

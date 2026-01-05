@@ -20,10 +20,11 @@ import FarcasterSignIn from '../auth/FarcasterSignIn';
 export default function GameWallet() {
     return (
         <div className="flex justify-end gap-2 items-center">
-            {/* Farcaster Auth Button */}
+            {/* Farcaster Auth is now handled by Frame SDK / Lobby 
             <div className="scale-75 origin-right">
                 <FarcasterSignIn />
             </div>
+            */}
 
             <Wallet>
                 <ConnectWallet className="bg-[#111] text-white border border-[#222] font-mono hover:bg-[#222] transition-colors px-4 py-2 rounded-lg">
