@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 import { usePublicClient } from 'wagmi';
 import { parseAbiItem } from 'viem';
+import { getName } from '@coinbase/onchainkit/identity';
+import { base } from 'viem/chains';
 
 export interface LeaderboardEntry {
     address: string;
@@ -65,15 +67,29 @@ export function useLeaderboard() {
                 }
             });
 
-            const board = Array.from(payers).map(addr => ({
-                address: addr,
-                name: `${addr.slice(0, 6)}...${addr.slice(-4)}`,
-                score: 100 + Math.floor(Math.random() * 500) // Placeholder
-            }));
+            // Resolve Names in Parallel
+            const uniqueAddrs = Array.from(payers);
+            const resolvedEntries = await Promise.all(
+                uniqueAddrs.map(async (addr) => {
+                    let name = `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+                    try {
+                        const baseName = await getName({ address: addr as `0x${string}`, chain: base });
+                        if (baseName) name = baseName.toUpperCase();
+                    } catch (e) {
+                        // Ignore name resolve error
+                    }
 
-            setLeaderboard(board);
+                    return {
+                        address: addr,
+                        name: name,
+                        score: 100 // Default Verified Score
+                    };
+                })
+            );
+
+            setLeaderboard(resolvedEntries);
         } catch (e) {
-            console.error("Leaderboard Fetch Error:", e);
+            console.error("Fetch Error", e);
         } finally {
             setIsLoading(false);
         }
