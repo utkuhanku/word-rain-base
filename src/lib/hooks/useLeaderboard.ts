@@ -128,4 +128,3 @@ export function useLeaderboard() {
 
     return { leaderboard, isLoading, fetchLeaderboard };
 }
-```
