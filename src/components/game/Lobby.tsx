@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAccount } from 'wagmi';
 import { getName } from '@coinbase/onchainkit/identity';
 import { base } from 'viem/chains';
+import sdk, { type Context } from "@farcaster/frame-sdk";
+import GlobalLeaderboard from './GlobalLeaderboard';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard'; // Import hook at top
 
 // ... inside Component
