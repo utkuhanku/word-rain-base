@@ -15,17 +15,57 @@ export default function PaygateOverlay() {
     const { writeContractAsync } = useWriteContract();
     const { isAuthenticated } = useProfile();
 
-    const [isPaid, setIsPaid] = useState(false);
-    const [isPaying, setIsPaying] = useState(false);
+    const [realLeaderboard, setRealLeaderboard] = useState<{ name: string, score: number }[]>([]);
+    const [isLoadingLeaderboard, setIsLoading] = useState(false);
+    const publicClient = usePublicClient();
 
-    // Mock Leaderboard Data
-    const LEADERBOARD = [
-        { name: 'brian.eth', score: 342 },
-        { name: 'jesse.base.eth', score: 289 },
-        { name: 'based_god', score: 210 },
-        { name: 'word_ninja', score: 156 },
-        { name: 'rain_maker', score: 142 },
-    ];
+    // Fetch REAL transfer events
+    const fetchLeaderboard = async () => {
+        setIsLoading(true);
+        try {
+            // USDC on Base
+            const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+            const RECIPIENT = "0x6edd22E9792132614dD487aC6434dec3709b79A8"; // Game Wallet
+
+            // Get logs for Transfer(from, to, value)
+            const logs = await publicClient?.getLogs({
+                address: USDC_ADDRESS,
+                event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+                args: {
+                    to: RECIPIENT
+                },
+                fromBlock: 24700000n, // Approx start block or Recent to save RPC calls
+                toBlock: 'latest'
+            });
+
+            // Process logs
+            const payers = new Set<string>();
+            logs?.forEach(log => {
+                // Check value approx 0.15 USDC (150000)
+                if (log.args.value && log.args.value >= 150000n) {
+                    payers.add(log.args.from!);
+                }
+            });
+
+            // Map to Display Objects (Mock scores for now as score isn't onchain, just access)
+            const board = Array.from(payers).map(addr => ({
+                name: `${addr.slice(0, 6)}...${addr.slice(-4)}`, // Ideally resolve Basename
+                score: 100 + Math.floor(Math.random() * 500) // Placeholder Score until ScoreBoard contract integration
+            }));
+
+            setRealLeaderboard(board);
+
+        } catch (e) {
+            console.error("Leaderboard Fetch Error:", e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Auto-fetch on mount if Game Over
+    useState(() => {
+        if (status === 'game_over') fetchLeaderboard();
+    }, [status]);
 
     // Hype Sentences
     const HYPE_PHRASES = [
