@@ -20,6 +20,8 @@ export function useLeaderboard() {
             const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
             const RECIPIENT = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
 
+            if (!publicClient) return;
+
             // Chunked Fetching Logic
             const currentBlock = await publicClient.getBlockNumber();
             const startBlock = BigInt(21000000); // Approx Oct 2024

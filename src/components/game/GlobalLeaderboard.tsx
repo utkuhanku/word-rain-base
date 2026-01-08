@@ -81,7 +81,3 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
         </div>
     );
 }
-            </div >
-        </div >
-    );
-}
