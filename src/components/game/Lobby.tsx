@@ -131,13 +131,13 @@ export default function Lobby({ onStart }: LobbyProps) {
     }, [isChecking]);
 
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full relative z-20 overflow-hidden">
+        <div className="fixed inset-0 w-full h-[100dvh] overflow-hidden bg-[#050505] flex flex-col items-center z-20">
             {/* Background Ambience */}
-            <div className="absolute inset-0 pointer-events-none -z-10 bg-[#050505]">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] bg-[#0052FF]/10 blur-[150px] rounded-full animate-pulse" />
+            <div className="absolute inset-0 pointer-events-none -z-10">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] bg-[#0052FF]/10 blur-[150px] rounded-full animate-pulse opacity-50" />
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
                 {/* Grid Overlay */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_60%,transparent_100%)]" />
             </div>
 
             {/* Leaderboard Overlay */}
@@ -148,106 +148,103 @@ export default function Lobby({ onStart }: LobbyProps) {
             </AnimatePresence>
 
             <AnimatePresence mode="wait">
-                {isReady && !showLeaderboard ? (  // Only show main lobby if leaderboard is hidden
+                {isReady && !showLeaderboard ? (
                     <motion.div
                         key="main-interface"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, scale: 1.05, filter: "blur(20px)" }}
-                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                        className="flex flex-col items-center justify-between h-[80vh] py-12 w-full max-w-lg mx-auto relative"
+                        exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+                        transition={{ duration: 0.8 }}
+                        className="flex flex-col justify-between w-full h-full max-w-md mx-auto p-6 relative z-10"
                     >
-                        {/* Top Protocol Status */}
-                        <div className="w-full flex justify-between items-center px-6 border-b border-white/5 pb-4">
+                        {/* Header Status */}
+                        <div className="w-full flex justify-between items-center py-4 border-b border-white/5">
                             <div className="flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                                <span className="text-[10px] font-mono text-zinc-500 tracking-[0.2em]">SYSTEM ONLINE</span>
+                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                                <span className="text-[10px] font-mono text-zinc-500 tracking-[0.2em] uppercase">System Online</span>
                             </div>
                             <span className="text-[10px] font-mono text-zinc-600 tracking-widest">V.2.0.4</span>
                         </div>
 
-                        {/* Center Content */}
-                        <div className="flex flex-col items-center gap-8 relative z-10">
-                            {/* Main Title */}
-                            <div className="relative">
+                        {/* Center Hero */}
+                        <div className="flex-grow flex flex-col items-center justify-center gap-6 -mt-12">
+                            {/* Main Title - Responsive Sizing */}
+                            <div className="relative text-center">
                                 <motion.h1
-                                    className="text-7xl md:text-9xl font-black tracking-[-0.05em] text-white font-space leading-[0.85]"
-                                    initial={{ y: 40, opacity: 0 }}
+                                    className="text-[3.5rem] leading-[0.85] md:text-8xl font-black tracking-[-0.05em] text-white font-space"
+                                    initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                    transition={{ duration: 0.8, ease: "circOut" }}
                                 >
                                     WORD<br />
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-tr from-zinc-400 to-white/50">RAIN</span>
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-zinc-300 to-zinc-600 block mt-1">
+                                        RAIN
+                                    </span>
                                 </motion.h1>
                                 <motion.div
-                                    className="absolute -right-4 top-0 text-[#0052FF] text-[10px] font-mono tracking-widest border border-[#0052FF] px-1 rounded animate-pulse"
+                                    className="absolute -right-2 top-0 text-[#0052FF] text-[9px] font-mono tracking-widest border border-[#0052FF]/30 px-1.5 py-0.5 rounded animate-pulse"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.8 }}
+                                    transition={{ delay: 1 }}
                                 >
                                     BETA
                                 </motion.div>
                             </div>
 
-                            {/* Dynamic Identity Pill */}
+                            {/* Pilot Identity */}
                             <motion.div
                                 initial={{ scale: 0.9, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 0.5 }}
-                                className="group relative px-6 py-2 bg-white/[0.03] border border-white/10 rounded-full backdrop-blur-md overflow-hidden"
+                                transition={{ delay: 0.4 }}
+                                className="mt-4 px-6 py-2 bg-white/[0.02] border border-white/10 rounded-full backdrop-blur-md flex items-center gap-3"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                <div className="w-1.5 h-1.5 bg-[#0052FF] rotate-45 shadow-[0_0_10px_#0052FF]" />
                                 {displayName ? (
-                                    <span className="text-zinc-300 font-mono text-xs tracking-widest flex items-center gap-3">
-                                        <div className="w-2 h-2 bg-[#0052FF] rotate-45" />
+                                    <span className="text-xs font-mono tracking-[0.15em] text-zinc-400">
                                         PILOT: <span className="text-white font-bold">{displayName}</span>
                                     </span>
                                 ) : (
-                                    <span className="text-zinc-500 font-mono text-xs tracking-widest flex items-center gap-2">
-                                        <span className="animate-pulse">_</span> WAITING FOR LINK
+                                    <span className="text-xs font-mono tracking-[0.15em] text-zinc-600 animate-pulse">
+                                        ESTABLISHING LINK...
                                     </span>
                                 )}
                             </motion.div>
                         </div>
 
-                        {/* Bottom Actions */}
-                        <div className="w-full px-8 pb-8 flex flex-col gap-3">
+                        {/* Bottom Controls */}
+                        <div className="w-full flex flex-col gap-3 pb-8">
                             {!isMenuOpen ? (
-                                // AUTH / START BUTTON
                                 <motion.button
                                     onClick={handleInitialize}
-                                    whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
-                                    className="w-full relative group h-16 bg-white text-black font-space font-bold text-lg tracking-widest uppercase overflow-hidden"
+                                    className="w-full h-14 bg-white text-black font-space font-bold text-lg tracking-widest uppercase relative overflow-hidden group hover:scale-[1.02] transition-transform"
                                 >
-                                    <div className="absolute inset-0 bg-[#0052FF] translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out" />
-                                    <span className="relative z-10 flex items-center justify-center gap-3 group-hover:text-white transition-colors duration-300">
+                                    <div className="absolute inset-0 bg-zinc-200 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
                                         [{!displayName && context?.client ? "Connect Farcaster" : (displayName ? "Initialize System" : "Connect Identity")}]
                                     </span>
                                 </motion.button>
                             ) : (
-                                // MAIN MENU
-                                <div className="flex flex-col gap-3 w-full animate-in slide-in-from-bottom-5 duration-500 fade-in">
+                                <div className="flex flex-col gap-3 w-full animate-in slide-in-from-bottom-5 fade-in duration-300">
                                     <button
                                         onClick={onStart}
-                                        className="w-full h-14 bg-white hover:bg-zinc-200 text-black font-space font-bold tracking-widest uppercase transition-all flex items-center justify-between px-6 group"
+                                        className="w-full h-14 bg-white text-black font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 hover:bg-zinc-200 transition-colors"
                                     >
                                         <span>Start Mission</span>
-                                        <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                                        <span>→</span>
                                     </button>
 
                                     <button
                                         onClick={handleOpenLeaderboard}
-                                        className="w-full h-14 border border-white/20 hover:border-[#0052FF] hover:bg-[#0052FF]/5 text-zinc-400 hover:text-[#0052FF] font-mono text-sm tracking-widest uppercase transition-all flex items-center justify-between px-6"
+                                        className="w-full h-14 border border-white/10 text-zinc-400 font-mono text-xs tracking-widest uppercase flex items-center justify-between px-6 hover:border-[#0052FF] hover:text-[#0052FF] hover:bg-[#0052FF]/5 transition-all"
                                     >
                                         <span>{isCheckingList ? "Scanning..." : "Global Elite_"}</span>
-                                        <span className="text-[10px] border border-current px-1 rounded opacity-50">0.15 USDC</span>
+                                        <span className="opacity-50 border border-current px-1.5 py-0.5 rounded-[2px] text-[9px]">0.15 USDC</span>
                                     </button>
                                 </div>
                             )}
 
-                            {/* Terms / Footer */}
-                            <div className="flex justify-between items-center text-[9px] font-mono text-zinc-700 pt-4">
+                            <div className="flex justify-between items-center text-[10px] font-mono text-zinc-700 mt-2">
                                 <span>SECURE CONNECTION</span>
                                 <span>BASE MAINNET</span>
                             </div>
@@ -256,14 +253,13 @@ export default function Lobby({ onStart }: LobbyProps) {
                         {/* Error Toast */}
                         {errorMsg && (
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="absolute bottom-24 bg-red-500 text-white font-mono text-[10px] px-4 py-2"
+                                className="absolute bottom-24 left-6 right-6 bg-red-500/10 border border-red-500/50 text-red-500 font-mono text-[10px] px-4 py-2 text-center backdrop-blur-md"
                             >
-                                ERROR: {errorMsg}
+                                {errorMsg}
                             </motion.div>
                         )}
-
                     </motion.div>
                 ) : null}
 
@@ -272,9 +268,9 @@ export default function Lobby({ onStart }: LobbyProps) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 flex items-center justify-center bg-black z-50 text-white font-mono text-xs tracking-[0.5em]"
+                        className="fixed inset-0 flex items-center justify-center bg-[#050505] z-50 text-white font-mono text-[10px] tracking-[0.5em]"
                     >
-                        <span className="animate-pulse">LOADING ASSETS...</span>
+                        <span className="animate-pulse">LOADING RESOURCES...</span>
                     </motion.div>
                 )}
             </AnimatePresence>
