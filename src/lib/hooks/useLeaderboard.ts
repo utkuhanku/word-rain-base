@@ -24,12 +24,12 @@ export function useLeaderboard() {
 
             if (!publicClient) return;
 
-            // Chunked Fetching Logic
+            // Batched Chunk Fetching to avoid RPC Rate Limits
             const currentBlock = await publicClient.getBlockNumber();
             const startBlock = BigInt(21000000); // Approx Oct 2024
-            const range = currentBlock - startBlock;
-            const CHUNK_SIZE = BigInt(1000000); // 1M blocks per chunk (try aggressive first)
+            const CHUNK_SIZE = BigInt(200000); // 200k blocks (safer for high volume USDC)
 
+            // Create chunks
             const chunks = [];
             let from = startBlock;
             while (from <= currentBlock) {
@@ -38,30 +38,36 @@ export function useLeaderboard() {
                 from = to + BigInt(1);
             }
 
-            console.log(`Scanning ${chunks.length} chunks from ${startBlock} to ${currentBlock}`);
+            console.log(`Queueing ${chunks.length} scan jobs...`);
 
-            const results = await Promise.all(chunks.map(async ({ from, to }) => {
-                try {
-                    return await publicClient.getLogs({
-                        address: USDC_ADDRESS,
-                        event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-                        args: { to: RECIPIENT },
-                        fromBlock: from,
-                        toBlock: to
-                    });
-                } catch (err) {
-                    console.error(`Fetch failed for chunk ${from}-${to}`, err);
-                    return [];
-                }
-            }));
+            // Process in batches of 3
+            const BATCH_SIZE = 3;
+            const allLogs = [];
 
-            const logs = results.flat();
-            console.log("Total Leaderboard Logs Found:", logs.length);
+            for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+                const batch = chunks.slice(i, i + BATCH_SIZE);
+                const batchResults = await Promise.all(batch.map(async ({ from, to }) => {
+                    try {
+                        return await publicClient.getLogs({
+                            address: USDC_ADDRESS,
+                            event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+                            args: { to: RECIPIENT },
+                            fromBlock: from,
+                            toBlock: to
+                        });
+                    } catch (err) {
+                        console.warn(`Scan missed chunk ${from}-${to}`, err);
+                        return []; // Skip failed chunk to keep others
+                    }
+                }));
+                allLogs.push(...batchResults.flat());
+            }
+
+            console.log("Scan Complete. Total Logs:", allLogs.length);
 
             const payers = new Set<string>();
-            logs.forEach(log => {
+            allLogs.forEach(log => {
                 const val = log.args.value;
-                // Fix: Ensure value check handles verified payment size (0.15 USDC = 150000)
                 if (val && val >= BigInt(150000)) {
                     payers.add(log.args.from!);
                 }
