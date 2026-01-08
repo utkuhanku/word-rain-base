@@ -27,9 +27,11 @@ export function useLeaderboard() {
                 args: {
                     to: RECIPIENT
                 },
-                fromBlock: BigInt(24700000), // Approx start block or Recent
+                fromBlock: BigInt(21000000), // Lowered to capture earlier payments (Approx Oct 2024)
                 toBlock: 'latest'
             });
+
+            console.log("Leaderboard Logs Found:", logs?.length); // Debug
 
             const payers = new Set<string>();
             logs?.forEach(log => {
