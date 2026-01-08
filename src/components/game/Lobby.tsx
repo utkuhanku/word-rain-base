@@ -162,7 +162,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 animate={{ y: 0 }}
                                 transition={{ duration: 0.8, delay: 0.2 }}
                             >
-                                NEO RAIN
+                                WORD RAIN
                             </motion.h1>
                             <motion.div
                                 className="flex items-center justify-center gap-2 text-[#0052FF] text-xs font-mono tracking-[0.5em] uppercase"
@@ -171,7 +171,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 transition={{ delay: 0.6 }}
                             >
                                 <span className="w-2 h-2 bg-[#0052FF] rounded-full animate-ping" />
-                                System Online
+                                BASE ONLINE
                             </motion.div>
                         </div>
 

@@ -24,44 +24,39 @@ export function useLeaderboard() {
 
             if (!publicClient) return;
 
-            // Batched Chunk Fetching to avoid RPC Rate Limits
+            // Optimistic Recursive Fetching (Binary Split on Error)
+            // This attempts to fetch the whole range first, and splits only if necessary.
+            // Much faster than pessimistic chunking on good RPCs.
+
+            const getLogsRecursive = async (from: bigint, to: bigint): Promise<any[]> => {
+                if (from > to) return [];
+                try {
+                    return await publicClient.getLogs({
+                        address: USDC_ADDRESS,
+                        event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+                        args: { to: RECIPIENT },
+                        fromBlock: from,
+                        toBlock: to
+                    });
+                } catch (err: any) {
+                    // If range is too large or rate limited, split in half
+                    const mid = from + (to - from) / BigInt(2);
+                    if (mid === from) return []; // Can't split further
+
+                    // Parallel fetch subsections
+                    const [left, right] = await Promise.all([
+                        getLogsRecursive(from, mid),
+                        getLogsRecursive(mid + BigInt(1), to)
+                    ]);
+                    return [...left, ...right];
+                }
+            };
+
             const currentBlock = await publicClient.getBlockNumber();
-            const startBlock = BigInt(21000000); // Approx Oct 2024
-            const CHUNK_SIZE = BigInt(200000); // 200k blocks (safer for high volume USDC)
+            const startBlock = BigInt(21000000);
 
-            // Create chunks
-            const chunks = [];
-            let from = startBlock;
-            while (from <= currentBlock) {
-                const to = from + CHUNK_SIZE > currentBlock ? currentBlock : from + CHUNK_SIZE;
-                chunks.push({ from, to });
-                from = to + BigInt(1);
-            }
-
-            console.log(`Queueing ${chunks.length} scan jobs...`);
-
-            // Process in batches of 3
-            const BATCH_SIZE = 3;
-            const allLogs = [];
-
-            for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
-                const batch = chunks.slice(i, i + BATCH_SIZE);
-                const batchResults = await Promise.all(batch.map(async ({ from, to }) => {
-                    try {
-                        return await publicClient.getLogs({
-                            address: USDC_ADDRESS,
-                            event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-                            args: { to: RECIPIENT },
-                            fromBlock: from,
-                            toBlock: to
-                        });
-                    } catch (err) {
-                        console.warn(`Scan missed chunk ${from}-${to}`, err);
-                        return []; // Skip failed chunk to keep others
-                    }
-                }));
-                allLogs.push(...batchResults.flat());
-            }
+            console.log(`Starting Recursive Scan: ${startBlock} -> ${currentBlock}`);
+            const allLogs = await getLogsRecursive(startBlock, currentBlock);
 
             console.log("Scan Complete. Total Logs:", allLogs.length);
 
