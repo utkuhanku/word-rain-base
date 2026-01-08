@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameStore } from '@/lib/store/gameStore';
-import { useAccount, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract, usePublicClient } from 'wagmi';
 import { useConnect } from 'wagmi';
 import { useProfile } from '@farcaster/auth-kit';
+import { parseAbiItem } from 'viem';
 
 export default function PaygateOverlay() {
     const status = useGameStore((state) => state.status);
@@ -13,7 +14,8 @@ export default function PaygateOverlay() {
     const { isConnected } = useAccount();
     const { connect, connectors } = useConnect();
     const { writeContractAsync } = useWriteContract();
-    const { isAuthenticated } = useProfile();
+    const [isPaid, setIsPaid] = useState(false);
+    const [isPaying, setIsPaying] = useState(false);
 
     const [realLeaderboard, setRealLeaderboard] = useState<{ name: string, score: number }[]>([]);
     const [isLoadingLeaderboard, setIsLoading] = useState(false);
@@ -63,7 +65,7 @@ export default function PaygateOverlay() {
     };
 
     // Auto-fetch on mount if Game Over
-    useState(() => {
+    useEffect(() => {
         if (status === 'game_over') fetchLeaderboard();
     }, [status]);
 
@@ -181,7 +183,7 @@ export default function PaygateOverlay() {
                             <span className="font-mono font-bold text-[#0052FF]">{score}</span>
                         </div>
 
-                        {LEADERBOARD.map((entry, i) => (
+                        {realLeaderboard.map((entry, i) => (
                             <div key={i} className="flex justify-between items-center p-4 bg-white/5 border border-white/5 rounded-lg">
                                 <span className="font-mono text-sm text-zinc-400">{i + 1}. {entry.name}</span>
                                 <span className="font-mono text-sm text-white">{entry.score}</span>
