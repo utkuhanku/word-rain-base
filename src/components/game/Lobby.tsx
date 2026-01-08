@@ -21,6 +21,7 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [isReady, setIsReady] = useState(false);
     const [context, setContext] = useState<Context.FrameContext | null>(null);
     const [errorMsg, setErrorMsg] = useState<string>('');
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
 
     // 0. Ensure Frame is Ready (Fixes Infinite Loader)
     useEffect(() => {
@@ -122,8 +123,15 @@ export default function Lobby({ onStart }: LobbyProps) {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-[#0052FF]/5 blur-[120px] rounded-full animate-pulse" />
             </div>
 
+            {/* Leaderboard Overlay */}
+            <AnimatePresence>
+                {showLeaderboard && (
+                    <GlobalLeaderboard onClose={() => setShowLeaderboard(false)} />
+                )}
+            </AnimatePresence>
+
             <AnimatePresence mode="wait">
-                {isReady ? (
+                {isReady && !showLeaderboard ? (  // Only show main lobby if leaderboard is hidden
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -170,8 +178,9 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 </>
                             ) : (
                                 // While unidentified, show placeholder
-                                <div className="text-zinc-500 font-mono text-xs tracking-widest">
-                                    UNIDENTIFIED ENTITY
+                                <div className="text-zinc-500 font-mono text-xs tracking-widest flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-zinc-500 rounded-full animate-pulse" />
+                                    WAITING FOR AUTH
                                 </div>
                             )}
                         </motion.div>
@@ -187,23 +196,23 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 {!displayName && (
                                     // Icon based on context (Farcaster vs Base)
                                     context?.client ? (
-                                        <div className="w-5 h-5 bg-[#855DCD] rounded-full" /> // Farcaster Purple Dot
+                                        <div className="w-5 h-5 bg-[#855DCD] rounded-full" />
                                     ) : (
-                                        <div className="w-5 h-5 bg-[#0052FF] rounded-full" /> // Base Blue Dot
+                                        <div className="w-5 h-5 bg-[#0052FF] rounded-full" />
                                     )
                                 )}
-                                {displayName ? "ENTER SYSTEM" : (context?.client ? "VERIFY ID" : "CONNECT IDENTITY")}
+                                {displayName ? "ENTER SYSTEM" : (context?.client ? "VERIFY FARCASTER" : "CONNECT IDENTITY")}
                             </span>
                             <div className="absolute inset-0 bg-[#0052FF] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left -z-0 opacity-20" />
                         </motion.button>
 
-                        {/* Leaderboard Toggle - Only if not "game_over" since Paygate handles that */}
+                        {/* Leaderboard Toggle */}
                         <motion.button
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 0.5 }}
                             whileHover={{ opacity: 1 }}
-                            onClick={() => alert("Leaderboard Loading... (Under Construction)")} // Placeholder until component extraction
-                            className="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-white transition-colors"
+                            onClick={() => setShowLeaderboard(true)}
+                            className="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-white transition-colors border-b border-transparent hover:border-white"
                         >
                             [ VIEW GLOBAL_ELITE ]
                         </motion.button>
@@ -222,12 +231,15 @@ export default function Lobby({ onStart }: LobbyProps) {
                         {/* Hidden Fallback - Clean UI */}
 
                     </motion.div>
-                ) : (
+                ) : null}
+
+                {(!isReady) && (
                     // Loading State
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-white font-mono text-xs tracking-[0.5em] animate-pulse"
+                        exit={{ opacity: 0 }}
+                        className="text-white font-mono text-xs tracking-[0.5em] animate-pulse absolute"
                     >
                         ESTABLISHING LINK...
                     </motion.div>
