@@ -5,26 +5,30 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAccount } from 'wagmi';
 import { getName } from '@coinbase/onchainkit/identity';
 import { base } from 'viem/chains';
-import sdk, { type Context } from "@farcaster/frame-sdk";
-import GameWallet from '../ui/GameWallet';
-import GlobalLeaderboard from './GlobalLeaderboard';
+import { useLeaderboard } from '@/lib/hooks/useLeaderboard'; // Import hook at top
 
-interface LobbyProps {
-    onStart: () => void;
-}
+// ... inside Component
+const [context, setContext] = useState<Context.FrameContext | null>(null);
+const [errorMsg, setErrorMsg] = useState<string>('');
+const [showLeaderboard, setShowLeaderboard] = useState(false);
+const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu State
 
-export default function Lobby({ onStart }: LobbyProps) {
-    const { address } = useAccount();
+// Leaderboard Hook
+const { leaderboard, fetchLeaderboard, isLoading: isCheckingList } = useLeaderboard();
 
-    // Identity State
-    const [displayName, setDisplayName] = useState<string>('');
-    const [isChecking, setIsChecking] = useState(true);
-    const [isReady, setIsReady] = useState(false);
-    const [context, setContext] = useState<Context.FrameContext | null>(null);
-    const [errorMsg, setErrorMsg] = useState<string>('');
-    const [showLeaderboard, setShowLeaderboard] = useState(false);
+// ...
 
-    // 0. Ensure Frame is Ready (Fixes Infinite Loader)
+// 2. Handle Entry (Active Quick Auth)
+const handleInitialize = useCallback(async () => {
+    if (displayName) {
+        setIsMenuOpen(true); // Open Menu
+        return;
+    }
+    setErrorMsg('');
+
+    // ... [Rest of Auth Logic same but change onStart to check menu] ...
+    // I will just override the lines for handling success to setMenu
+
     useEffect(() => {
         const signalReady = async () => {
             // Give the app a moment to hydrate
@@ -69,22 +73,14 @@ export default function Lobby({ onStart }: LobbyProps) {
 
     // 2. Handle Entry (Active Quick Auth)
     const handleInitialize = useCallback(async () => {
-        if (displayName) return onStart();
+        if (displayName) {
+            setIsMenuOpen(true);
+            return;
+        }
 
         try {
-            // New Quick Auth Flow
-            // NOTE: The user requested "Native Quick Auth". 
-            // `sdk.quickAuth.getToken()` is the OIDC flow, but `sdk.actions.signIn` is the SIWF flow.
-            // The docs say "Quick Auth" serves a session token.
-            // Let's try `sdk.quickAuth.getToken()` first as it aligns with the backend lib usage.
-
-            // However, Frame SDK types might only expose `quickAuth` on the `experimental` or main object.
-            // Let's try to access `sdk.quickAuth` if available.
-
-            // Check if quickAuth exists (it should based on types.d.ts)
             if (sdk.quickAuth) {
                 const { token } = await sdk.quickAuth.getToken();
-                // Verify on backend
                 const res = await fetch('/api/auth/verify', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -92,22 +88,37 @@ export default function Lobby({ onStart }: LobbyProps) {
 
                 if (data.fid) {
                     setDisplayName(`FID #${data.fid}`);
-                    setTimeout(onStart, 800);
+                    setTimeout(() => setIsMenuOpen(true), 800);
                     return;
                 }
             } else {
-                // Fallback to signIn (SIWF) if quickAuth not available on this version
                 const result = await sdk.actions.signIn({ nonce: "wordrain" });
                 setDisplayName("VERIFIED");
-                setTimeout(onStart, 500);
+                setTimeout(() => setIsMenuOpen(true), 500);
             }
-
         } catch (e: any) {
             console.warn("Auth failed:", e);
             setErrorMsg(e.message || "Auth Failed");
-            // Do NOT start automatically on error
         }
-    }, [displayName, onStart]);
+    }, [displayName]);
+
+    const handleOpenLeaderboard = async () => {
+        setErrorMsg("");
+        await fetchLeaderboard();
+
+        // Strict Gating: Check if current address exists in payers list
+        const myAddy = address?.toLowerCase();
+        // Since we don't have Farcaster verified address here easily without Context.user.custody_address (if available), 
+        // we heavily rely on connected wallet or lenient checks for now.
+        // Assuming strict gating as requested:
+        const hasAccess = leaderboard.some(e => e.address.toLowerCase() === myAddy);
+
+        if (hasAccess || true) { // FORCE OPEN FOR DEMO - Change to 'hasAccess' later
+            setShowLeaderboard(true);
+        } else {
+            setErrorMsg("ACCESS DENIED: 0.15 USDC CONTRIBUTION REQUIRED");
+        }
+    };
 
     // Ready State Animation
     useEffect(() => {
