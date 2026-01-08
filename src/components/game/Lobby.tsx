@@ -7,6 +7,7 @@ import { getName } from '@coinbase/onchainkit/identity';
 import { base } from 'viem/chains';
 import sdk, { type Context } from "@farcaster/frame-sdk";
 import GameWallet from '../ui/GameWallet';
+import GlobalLeaderboard from './GlobalLeaderboard';
 
 interface LobbyProps {
     onStart: () => void;

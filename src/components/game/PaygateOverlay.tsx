@@ -162,7 +162,7 @@ export default function PaygateOverlay() {
                                 onClick={handleConnect}
                                 className="w-full py-4 border border-zinc-700 bg-zinc-900/50 hover:bg-zinc-800 text-white font-mono tracking-tight text-xs uppercase transition-all"
                             >
-                                {isAuthenticated ? "Identity Verified → Connect Wallet to Pay" : "Connect Wallet to Submit Score"}
+                                Connect Wallet to Submit Score
                             </button>
                         )}
                     </div>

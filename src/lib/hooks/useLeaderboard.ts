@@ -26,13 +26,13 @@ export function useLeaderboard() {
                 args: {
                     to: RECIPIENT
                 },
-                fromBlock: 24700000n, // Approx start block or Recent
+                fromBlock: BigInt(24700000), // Approx start block or Recent
                 toBlock: 'latest'
             });
 
             const payers = new Set<string>();
             logs?.forEach(log => {
-                if (log.args.value && log.args.value >= 150000n) {
+                if (log.args.value && log.args.value >= BigInt(150000)) {
                     payers.add(log.args.from!);
                 }
             });
