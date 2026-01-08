@@ -134,6 +134,7 @@ export default function Lobby({ onStart }: LobbyProps) {
             <AnimatePresence mode="wait">
                 {isReady && !showLeaderboard ? (  // Only show main lobby if leaderboard is hidden
                     <motion.div
+                        key="main-interface"
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
@@ -173,9 +174,6 @@ export default function Lobby({ onStart }: LobbyProps) {
                                     <span className="text-white font-mono text-sm tracking-widest flex items-center gap-2">
                                         IDENTITY: <span className="text-[#0052FF] font-bold">{displayName}</span>
                                     </span>
-                                    <span className="text-[10px] text-zinc-500 font-mono tracking-[0.2em] uppercase">
-                                        CONNECTED VIA {context?.user ? 'WARPCAST' : 'WALLET'}
-                                    </span>
                                 </>
                             ) : (
                                 // While unidentified, show placeholder
@@ -186,37 +184,49 @@ export default function Lobby({ onStart }: LobbyProps) {
                             )}
                         </motion.div>
 
-                        {/* Start Button */}
-                        <motion.button
-                            onClick={handleInitialize}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="group relative px-12 py-6 bg-white text-black font-black font-mono text-xl tracking-widest uppercase overflow-hidden"
-                        >
-                            <span className="relative z-10 group-hover:tracking-[0.2em] transition-all duration-300 flex items-center gap-2">
-                                {!displayName && (
-                                    // Icon based on context (Farcaster vs Base)
-                                    context?.client ? (
-                                        <div className="w-5 h-5 bg-[#855DCD] rounded-full" />
-                                    ) : (
-                                        <div className="w-5 h-5 bg-[#0052FF] rounded-full" />
-                                    )
-                                )}
-                                {displayName ? "ENTER SYSTEM" : (context?.client ? "VERIFY FARCASTER" : "CONNECT IDENTITY")}
-                            </span>
-                            <div className="absolute inset-0 bg-[#0052FF] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left -z-0 opacity-20" />
-                        </motion.button>
-
-                        {/* Leaderboard Toggle */}
-                        <motion.button
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 0.5 }}
-                            whileHover={{ opacity: 1 }}
-                            onClick={() => setShowLeaderboard(true)}
-                            className="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-white transition-colors border-b border-transparent hover:border-white"
-                        >
-                            [ VIEW GLOBAL_ELITE ]
-                        </motion.button>
+                        {!isMenuOpen ? (
+                            // AUTH BUTTON
+                            <motion.button
+                                onClick={handleInitialize}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="group relative px-12 py-6 bg-white text-black font-black font-mono text-xl tracking-widest uppercase overflow-hidden"
+                            >
+                                <span className="relative z-10 group-hover:tracking-[0.2em] transition-all duration-300 flex items-center gap-2">
+                                    {!displayName && (
+                                        // Icon based on context (Farcaster vs Base)
+                                        context?.client ? (
+                                            <div className="w-5 h-5 bg-[#855DCD] rounded-full" />
+                                        ) : (
+                                            <div className="w-5 h-5 bg-[#0052FF] rounded-full" />
+                                        )
+                                    )}
+                                    {!displayName && context?.client ? "VERIFY FARCASTER" : (displayName ? "ENTER SYSTEM" : "CONNECT IDENTITY")}
+                                </span>
+                                <div className="absolute inset-0 bg-[#0052FF] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left -z-0 opacity-20" />
+                            </motion.button>
+                        ) : (
+                            // MAIN MENU
+                            <div className="flex flex-col gap-4 w-64">
+                                <motion.button
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    onClick={onStart} // Start Game
+                                    className="w-full py-4 bg-white text-black font-black font-mono text-lg tracking-widest uppercase hover:bg-zinc-200 transition-colors"
+                                >
+                                    PLAY MISSION
+                                </motion.button>
+                                <motion.button
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    onClick={handleOpenLeaderboard}
+                                    className="w-full py-4 border border-[#0052FF] text-[#0052FF] font-black font-mono text-lg tracking-widest uppercase hover:bg-[#0052FF]/10 transition-colors"
+                                >
+                                    {isCheckingList ? "SCANNING..." : "GLOBAL ELITE"}
+                                </motion.button>
+                            </div>
+                        )}
 
                         {/* Error Feedback */}
                         {errorMsg && (

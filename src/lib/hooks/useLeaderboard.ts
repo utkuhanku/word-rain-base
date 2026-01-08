@@ -3,6 +3,7 @@ import { usePublicClient } from 'wagmi';
 import { parseAbiItem } from 'viem';
 
 export interface LeaderboardEntry {
+    address: string;
     name: string;
     score: number;
 }
@@ -38,6 +39,7 @@ export function useLeaderboard() {
             });
 
             const board = Array.from(payers).map(addr => ({
+                address: addr,
                 name: `${addr.slice(0, 6)}...${addr.slice(-4)}`,
                 score: 100 + Math.floor(Math.random() * 500) // Placeholder
             }));
