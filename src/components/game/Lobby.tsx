@@ -183,10 +183,29 @@ export default function Lobby({ onStart }: LobbyProps) {
                             whileTap={{ scale: 0.95 }}
                             className="group relative px-12 py-6 bg-white text-black font-black font-mono text-xl tracking-widest uppercase overflow-hidden"
                         >
-                            <span className="relative z-10 group-hover:tracking-[0.2em] transition-all duration-300">
-                                {displayName ? "ENTER SYSTEM" : "INITIALIZE"}
+                            <span className="relative z-10 group-hover:tracking-[0.2em] transition-all duration-300 flex items-center gap-2">
+                                {!displayName && (
+                                    // Icon based on context (Farcaster vs Base)
+                                    context?.client ? (
+                                        <div className="w-5 h-5 bg-[#855DCD] rounded-full" /> // Farcaster Purple Dot
+                                    ) : (
+                                        <div className="w-5 h-5 bg-[#0052FF] rounded-full" /> // Base Blue Dot
+                                    )
+                                )}
+                                {displayName ? "ENTER SYSTEM" : (context?.client ? "VERIFY ID" : "CONNECT IDENTITY")}
                             </span>
                             <div className="absolute inset-0 bg-[#0052FF] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left -z-0 opacity-20" />
+                        </motion.button>
+
+                        {/* Leaderboard Toggle - Only if not "game_over" since Paygate handles that */}
+                        <motion.button
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.5 }}
+                            whileHover={{ opacity: 1 }}
+                            onClick={() => alert("Leaderboard Loading... (Under Construction)")} // Placeholder until component extraction
+                            className="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-white transition-colors"
+                        >
+                            [ VIEW GLOBAL_ELITE ]
                         </motion.button>
 
                         {/* Error Feedback */}
