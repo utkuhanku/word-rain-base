@@ -1,152 +1,82 @@
 import { useState, useCallback } from 'react';
 import { usePublicClient } from 'wagmi';
-import { parseAbiItem } from 'viem';
 import { getName } from '@coinbase/onchainkit/identity';
 import { base } from 'viem/chains';
+import { ScoreRegistryABI } from '@/lib/abi/ScoreRegistryABI';
 
-export interface LeaderboardEntry {
+type LeaderboardEntry = {
     address: string;
+    score: number;
+    timestamp: number;
     name: string;
-    score: number; // Placeholder for future GameScore
-    blockNumber: number; // Used for sorting (Newest first)
-}
+    txHash: string;
+};
 
-const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-const RECIPIENT = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
-const START_BLOCK = BigInt(21000000); // Approx. deployment
-const INITIAL_CHUNK = BigInt(10000);
-const MIN_AMOUNT = BigInt(150000);
+// TODO: User must set this env var after deployment
+const REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_SCORE_REGISTRY_ADDRESS as `0x${string}` || "0x0000000000000000000000000000000000000000";
+const START_BLOCK = BigInt(3000000);
 
 export function useLeaderboard() {
+    const publicClient = usePublicClient();
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [scanProgress, setScanProgress] = useState<string>("");
-    const publicClient = usePublicClient();
 
     const fetchLeaderboard = useCallback(async () => {
         if (!publicClient) return;
 
-        // 1. Chain Validation
-        try {
-            const chainId = await publicClient.getChainId();
-            if (chainId !== 8453) {
-                console.error("Wrong Network: Connect to Base (8453)");
-                setScanProgress("Wrong Network");
-                return;
-            }
-        } catch (e) {
-            console.error("Chain ID Check Failed", e);
+        if (!REGISTRY_ADDRESS || REGISTRY_ADDRESS === "0x0000000000000000000000000000000000000000") {
+            console.warn("Registry not set.");
             return;
         }
 
         setIsLoading(true);
-        setScanProgress("Initializing...");
+        console.log("[Leaderboard] Fetching Onchain Scores...");
 
         try {
-            const currentBlock = await publicClient.getBlockNumber();
-            let pointer = currentBlock;
-            const seen = new Set<string>();
-            // const foundEntries: LeaderboardEntry[] = []; // Accumulate temporarily // This line was commented out in the instruction, so keeping it out.
+            const logs = await publicClient.getLogs({
+                address: REGISTRY_ADDRESS,
+                event: ScoreRegistryABI[0], // ScoreSubmitted
+                fromBlock: START_BLOCK,
+                toBlock: 'latest'
+            });
 
-            // Progressive Backward Scan
-            while (pointer > START_BLOCK) {
-                // Adaptive Chunking Logic
-                let currentChunkSize = INITIAL_CHUNK;
-                let logs = null;
-                let retries = 0;
+            // Parse and format entries
+            const entries: LeaderboardEntry[] = await Promise.all(logs.map(async (log) => {
+                const { player, score, timestamp } = log.args;
 
-                while (!logs && retries < 3) {
-                    const from = pointer - currentChunkSize > START_BLOCK ? pointer - currentChunkSize : START_BLOCK;
-                    const to = pointer;
-
-                    try {
-                        logs = await publicClient.getLogs({
-                            address: USDC_ADDRESS,
-                            event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-                            args: { to: RECIPIENT },
-                            fromBlock: from,
-                            toBlock: to
-                        });
-
-                        // If successful, update pointer for next loop
-                        // BUT we need to handle the loop correctly. 
-                        // The outer loop decrements pointer by chunkSize.
-                        // Here we just found a valid chunk size.
-                    } catch (err) {
-                        console.warn(`Chunk ${from}-${to} failed. Retrying with smaller size...`);
-                        currentChunkSize = currentChunkSize / BigInt(2); // Halve the chunk
-                        if (currentChunkSize < BigInt(1000)) currentChunkSize = BigInt(1000); // Floor
-                        retries++;
-                        await new Promise(r => setTimeout(r, 200)); // Backoff
+                // Fetch ENS/Basename if possible
+                let displayName = undefined;
+                try {
+                    if (player) {
+                        const name = await getName({ address: player, chain: base });
+                        if (name) displayName = name;
                     }
-                }
+                } catch (e) { /* ignore name fetch error */ }
 
-                // If completely failed after retries, skip this range (or partial fail)
-                if (!logs) {
-                    console.error(`Failed to scan range ending at ${pointer} after retries.`);
-                    // Move pointer anyway to avoid infinite loop
-                    pointer = pointer - INITIAL_CHUNK;
-                    continue;
-                }
+                return {
+                    address: player || "0x...",
+                    score: Number(score || BigInt(0)),
+                    timestamp: Number(timestamp || BigInt(0)),
+                    txHash: log.transactionHash,
+                    name: displayName || `${player?.slice(0, 6)}...${player?.slice(-4)}`
+                };
+            }));
 
-                // Process Logs
-                const newEntries: LeaderboardEntry[] = [];
-                for (const log of logs) {
-                    const val = log.args.value;
-                    const addr = log.args.from;
+            // Sort by Score (Desc) then Timestamp (Desc)
+            entries.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return b.timestamp - a.timestamp;
+            });
 
-                    if (val && val >= MIN_AMOUNT && addr && !seen.has(addr)) {
-                        seen.add(addr);
+            setLeaderboard(entries);
+            console.log(`[Leaderboard] Loaded ${entries.length} scores.`);
 
-                        const entry: LeaderboardEntry = {
-                            address: addr,
-                            name: `${addr.slice(0, 6)}...${addr.slice(-4)}`,
-                            score: 100,
-                            blockNumber: Number(log.blockNumber)
-                        };
-                        newEntries.push(entry);
-
-                        // Resolve Name (Background)
-                        getName({ address: addr as `0x${string}`, chain: base })
-                            .then(n => {
-                                if (n) {
-                                    setLeaderboard(curr => curr.map(item => item.address === addr ? { ...item, name: n.toUpperCase() } : item));
-                                }
-                            }).catch(() => { });
-                    }
-                }
-
-                if (newEntries.length > 0) {
-                    setLeaderboard(prev => {
-                        const combined = [...prev, ...newEntries];
-                        // Sort: Score Desc, then Block Desc (Newest First)
-                        return combined.sort((a, b) => {
-                            if (b.score !== a.score) return b.score - a.score;
-                            return b.blockNumber - a.blockNumber;
-                        });
-                    });
-                }
-
-                // Move Pointer
-                pointer = pointer - currentChunkSize;
-
-                // Update Progress
-                const total = Number(currentBlock - START_BLOCK);
-                const done = Number(currentBlock - pointer);
-                const percent = Math.floor((done / total) * 100);
-                setScanProgress(`${percent}%`);
-
-                await new Promise(r => setTimeout(r, 20)); // Yield to UI
-            }
-
-        } catch (e) {
-            console.error("Global Scan Critical Failure", e);
+        } catch (err) {
+            console.error("[Leaderboard] Fetch Error:", err);
         } finally {
             setIsLoading(false);
-            setScanProgress("Synced");
         }
     }, [publicClient]);
 
-    return { leaderboard, isLoading, scanProgress, fetchLeaderboard };
+    return { leaderboard, isLoading, fetchLeaderboard };
 }
-
