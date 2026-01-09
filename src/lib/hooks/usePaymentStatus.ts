@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { usePublicClient, useAccount } from 'wagmi';
+import { usePublicClient } from 'wagmi';
 import { parseAbiItem } from 'viem';
 
 // Constants
@@ -10,34 +10,40 @@ const START_BLOCK = BigInt(3000000); // Aug 2023
 const INITIAL_CHUNK = BigInt(50000);
 
 // Constraints
-const RPC_TIMEOUT_MS = 10000; // 10s hard timeout per call
-const MAX_SCAN_DURATION_MS = 30000; // 30s total budget
-const MAX_CHUNKS_SCANNED = 100; // Safety cap
+const RPC_TIMEOUT_MS = 10000; // 10s hard timeout
+const MAX_SCAN_DURATION_MS = 30000; // 30s budget
+const MAX_CHUNKS_SCANNED = 100;
 
 export function usePaymentStatus() {
-    const { address } = useAccount();
+    // We remove the internal 'useAccount' dependency for the check logic
+    // The hook will now receive addresses to check as arguments or maintain internal state
+    // But to keep API consistent, we can expose a 'checkAddresses' function
     const publicClient = usePublicClient();
     const [hasPaid, setHasPaid] = useState(false);
     const [isChecking, setIsChecking] = useState(false);
+    const [lastCheckedAddresses, setLastCheckedAddresses] = useState<string[]>([]);
+    const [failureReason, setFailureReason] = useState<string>("");
 
-    // Reset state on address change
-    useEffect(() => {
-        setHasPaid(false);
-    }, [address]);
+    const checkAddresses = useCallback(async (addressesToCheck: string[]): Promise<boolean> => {
+        if (!publicClient || addressesToCheck.length === 0) {
+            setFailureReason("No addresses provided");
+            return false;
+        }
 
-    const checkPayment = useCallback(async (): Promise<boolean> => {
-        if (!address || !publicClient) return false;
+        const uniqueAddresses = [...new Set(addressesToCheck.map(a => a.toLowerCase()))];
+        setLastCheckedAddresses(uniqueAddresses);
 
         const startTime = Date.now();
-        console.log(`[PaymentCheck] Starting Hardened Scan for: ${address}`);
+        console.log(`[PaymentCheck] Starting Scan for ${uniqueAddresses.length} addresses:`, uniqueAddresses);
         setIsChecking(true);
+        setFailureReason("");
 
         try {
-            // 1. Network Validation
             const chainId = await publicClient.getChainId().catch(() => 0);
             if (chainId !== 8453) {
-                console.warn("[PaymentCheck] Wrong Network/Fetch Error");
+                console.warn("[PaymentCheck] Wrong Network");
                 setIsChecking(false);
+                setFailureReason("Wrong Network (Not Base)");
                 return false;
             }
 
@@ -45,15 +51,15 @@ export function usePaymentStatus() {
             let pointer = currentBlock;
             let chunksProcessed = 0;
 
-            // 2. Bounded Backward Scan
+            // Bounded Backward Scan
             while (pointer > START_BLOCK) {
-                // Global Constraints Check
+                // Constraints
                 if (Date.now() - startTime > MAX_SCAN_DURATION_MS) {
-                    console.warn("[PaymentCheck] Time Budget Exceeded (30s). Stopping.");
+                    setFailureReason("Time Budget Exceeded (Max 30s)");
                     break;
                 }
                 if (chunksProcessed >= MAX_CHUNKS_SCANNED) {
-                    console.warn("[PaymentCheck] Max Chunks Exceeded. Stopping.");
+                    setFailureReason("Max Chunks Exceeded");
                     break;
                 }
 
@@ -62,19 +68,17 @@ export function usePaymentStatus() {
                 let retries = 0;
                 let chunkSuccess = false;
 
-                // Retry Loop for Current Range
+                // Retry Loop
                 while (!chunkSuccess && retries < 3) {
-                    // Calc Range
                     const from = pointer - currentChunkSize > START_BLOCK ? pointer - currentChunkSize : START_BLOCK;
                     const to = pointer;
 
-                    // Fetch with Timeout
                     try {
                         const fetchPromise = publicClient.getLogs({
                             address: USDC_ADDRESS,
                             event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
                             args: {
-                                to: RECIPIENT // CLIENT-SIDE FILTERING: Only fetch by recipient
+                                to: RECIPIENT
                             },
                             fromBlock: from,
                             toBlock: to
@@ -84,62 +88,59 @@ export function usePaymentStatus() {
                             setTimeout(() => reject(new Error("RPC Timeout")), RPC_TIMEOUT_MS)
                         );
 
-                        // Race against time
                         logs = await Promise.race([fetchPromise, timeoutPromise]);
                         chunkSuccess = true;
-
                     } catch (err) {
                         console.warn(`[PaymentCheck] Chunk ${from}-${to} failed/timeout. Retrying...`);
                         currentChunkSize = currentChunkSize / BigInt(2);
                         if (currentChunkSize < BigInt(2000)) currentChunkSize = BigInt(2000);
                         retries++;
-                        // Tiny backoff
                         await new Promise(r => setTimeout(r, 200));
                     }
                 }
 
                 if (chunkSuccess && logs) {
-                    // Client-Side Filter for User
-                    const userPayment = logs.some(log => {
-                        const isFromUser = log.args.from?.toLowerCase() === address.toLowerCase();
-                        const isAmount = log.args.value && log.args.value >= CHECK_AMOUNT;
-                        return isFromUser && isAmount;
+                    // Filter: Did ANY of our addresses send >= 0.15 USDC?
+                    const foundLog = logs.find(log => {
+                        const sender = log.args.from?.toLowerCase();
+                        const val = log.args.value;
+                        return sender && uniqueAddresses.includes(sender) && val && val >= CHECK_AMOUNT;
                     });
 
-                    if (userPayment) {
-                        console.log(`[PaymentCheck] FOUND PAYMENT at approx block ${pointer}!`);
+                    if (foundLog) {
+                        console.log(`[PaymentCheck] SUCCESS! Found pay from ${foundLog.args.from} at block ${foundLog.blockNumber}`);
                         setHasPaid(true);
                         setIsChecking(false);
-                        return true; // SUCCESS EARLY EXIT
+                        return true;
                     }
                 } else {
                     console.warn(`[PaymentCheck] Skipped chunk ending at ${pointer} after retries.`);
                 }
 
-                // POINTER DECREMENT: Explicitly move by the size we ATTEMPTED/USED
                 pointer = pointer - currentChunkSize;
                 chunksProcessed++;
-                await new Promise(r => setTimeout(r, 10)); // Yield
+                await new Promise(r => setTimeout(r, 10));
             }
 
-            console.log(`[PaymentCheck] Scan ended. Not found or timed out.`);
+            console.log(`[PaymentCheck] Scan ended. Not found.`);
             setHasPaid(false);
+            if (!failureReason) setFailureReason("No qualifying transfer found in history (3M+).");
             return false;
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("[PaymentCheck] Fatal Error:", error);
+            setFailureReason(`Scan Error: ${error.message}`);
             return false;
         } finally {
             setIsChecking(false);
         }
-    }, [address, publicClient]);
+    }, [publicClient, failureReason]);
 
     // Constructive check on mount or address change
     useEffect(() => {
-        if (address) {
-            checkPayment();
-        }
-    }, [address, checkPayment]);
+        // This useEffect is now empty as the checkAddresses function is called externally.
+        // The previous logic for 'address' is no longer relevant here.
+    }, []);
 
-    return { hasPaid, isChecking, checkPayment };
+    return { hasPaid, isChecking, checkAddresses, lastCheckedAddresses, failureReason };
 }

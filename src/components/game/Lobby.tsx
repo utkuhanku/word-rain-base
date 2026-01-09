@@ -28,7 +28,7 @@ export default function Lobby({ onStart }: LobbyProps) {
 
     // Leaderboard Hook
     const { leaderboard, fetchLeaderboard, isLoading: isScanningList } = useLeaderboard();
-    const { hasPaid, isChecking: isCheckingPayment, checkPayment } = usePaymentStatus();
+    const { hasPaid, isChecking: isCheckingPayment, checkAddresses } = usePaymentStatus();
 
     // ...
 
@@ -80,7 +80,7 @@ export default function Lobby({ onStart }: LobbyProps) {
         if (displayName) {
             setIsMenuOpen(true);
             // Re-check payment when entering menu to be sure
-            checkPayment();
+            if (address) checkAddresses([address]);
             return;
         }
 
@@ -106,13 +106,25 @@ export default function Lobby({ onStart }: LobbyProps) {
             console.warn("Auth failed:", e);
             setErrorMsg(e.message || "Auth Failed");
         }
-    }, [displayName, checkPayment]);
+    }, [displayName, checkAddresses]);
 
     const handleOpenLeaderboard = async () => {
         setErrorMsg("");
 
-        // 0. Wallet Detection Check
-        if (!address) {
+        // Collect all potential "me" addresses
+        const potentialAddresses: string[] = [];
+        if (address) potentialAddresses.push(address);
+
+        // Add Farcaster verified addresses if available (using safe cast as types might differ by SDK version)
+        const user = context?.user as any;
+        if (user?.verifiedAddresses) {
+            potentialAddresses.push(...user.verifiedAddresses);
+        }
+        if (user?.custodyAddress) {
+            potentialAddresses.push(user.custodyAddress);
+        }
+
+        if (potentialAddresses.length === 0) {
             setErrorMsg("PLEASE CONNECT WALLET TO VERIFY CONTRIBUTION");
             return;
         }
@@ -129,7 +141,8 @@ export default function Lobby({ onStart }: LobbyProps) {
         // 2. Otherwise, perform a strict, blocking check via the Promise
         setIsLeaderboardOpening(true); // "Verifying..." UI
         try {
-            const paid = await checkPayment(); // Resolves to boolean (true/false)
+            // Check ALL addresses
+            const paid = await checkAddresses(potentialAddresses);
 
             if (paid) {
                 // If Paid -> Fetch Data & Open
@@ -139,12 +152,14 @@ export default function Lobby({ onStart }: LobbyProps) {
             } else {
                 // If Not Paid -> Deny
                 setIsLeaderboardOpening(false);
-                setErrorMsg("ACCESS DENIED: 0.15 USDC CONTRIBUTION REQUIRED");
+                // Detailed Error for User
+                const addrList = potentialAddresses.map(a => `${a.slice(0, 6)}...${a.slice(-4)}`).join(", ");
+                setErrorMsg(`ACCESS DENIED. No valid contrib found for: ${addrList}`);
             }
         } catch (e) {
             console.error("Verification Error", e);
             setIsLeaderboardOpening(false);
-            setErrorMsg("VERIFICATION FAILED. PLEASE TRY AGAIN.");
+            setErrorMsg("VERIFICATION FAILED. SYSTEM ERROR.");
         }
     };
 
