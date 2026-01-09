@@ -8,6 +8,7 @@ const RECIPIENT = "0x6edd22E9792132614dD487aC6434dec3709b79A8"; // Game Wallet
 const CHECK_AMOUNT = BigInt(150000); // 0.15 USDC (6 decimals)
 // FIXED: Lower start block to roughly Aug 2023 (Base Launch) to catch all history
 const START_BLOCK = BigInt(3000000);
+const INITIAL_CHUNK = BigInt(50000); // Start nicely aggressive for check
 
 export function usePaymentStatus() {
     const { address } = useAccount();
@@ -20,54 +21,82 @@ export function usePaymentStatus() {
         setHasPaid(false);
     }, [address]);
 
-    const checkPayment = useCallback(async () => {
-        if (!address || !publicClient) return;
+    const checkPayment = useCallback(async (): Promise<boolean> => {
+        if (!address || !publicClient) return false;
 
-        console.log(`[PaymentDebug] Checking: ${address}`);
+        console.log(`[PaymentCheck] Starting Scan for: ${address}`);
         setIsChecking(true);
+
         try {
-            // 1. Validate Network (Optional but good safety)
             const chainId = await publicClient.getChainId();
-            console.log(`[PaymentDebug] ChainID: ${chainId}`);
             if (chainId !== 8453) {
-                console.warn("[PaymentDebug] Wrong Network");
+                console.warn("[PaymentCheck] Wrong Network");
                 setIsChecking(false);
-                return;
+                return false;
             }
 
-            // Fetch ALL transfers to recipient (Client-side filter for robustness)
-            // Some RPCs struggle with 'from' + 'to' indexed filters combined with large ranges
-            const logs = await publicClient.getLogs({
-                address: USDC_ADDRESS,
-                event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-                args: {
-                    to: RECIPIENT
-                },
-                fromBlock: START_BLOCK,
-                toBlock: 'latest'
-            });
+            const currentBlock = await publicClient.getBlockNumber();
+            let pointer = currentBlock;
 
-            console.log(`[PaymentDebug] Total Recipient Logs Found: ${logs.length}`);
+            // Adaptive Backward Scan (Early Exit)
+            // We search backwards because recent payments are more likely for active users.
+            while (pointer > START_BLOCK) {
+                let currentChunkSize = INITIAL_CHUNK;
+                let logs = null;
+                let retries = 0;
 
-            // Filter for THIS user in memory
-            const userPayment = logs.find(log => {
-                const isFromUser = log.args.from?.toLowerCase() === address.toLowerCase();
-                const isAmount = log.args.value && log.args.value >= CHECK_AMOUNT;
-                return isFromUser && isAmount;
-            });
+                while (!logs && retries < 3) {
+                    const from = pointer - currentChunkSize > START_BLOCK ? pointer - currentChunkSize : START_BLOCK;
+                    const to = pointer;
 
-            if (userPayment) {
-                console.log(`[PaymentDebug] PAYMENT FOUND! Block: ${userPayment.blockNumber}, Val: ${userPayment.args.value}`);
-                setHasPaid(true);
-            } else {
-                console.log(`[PaymentDebug] No matching payment found for ${address} in ${logs.length} transfers.`);
-                setHasPaid(false); // Explicit false
+                    try {
+                        const chunkLogs = await publicClient.getLogs({
+                            address: USDC_ADDRESS,
+                            event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+                            args: {
+                                from: address, // We CAN use from filter here if we iterate chunks, usually safer on RPC limits
+                                to: RECIPIENT
+                            },
+                            fromBlock: from,
+                            toBlock: to
+                        });
+                        logs = chunkLogs;
+                    } catch (err) {
+                        console.warn(`[PaymentCheck] Chunk ${from}-${to} failed. Retrying...`);
+                        currentChunkSize = currentChunkSize / BigInt(2);
+                        if (currentChunkSize < BigInt(2000)) currentChunkSize = BigInt(2000);
+                        retries++;
+                        await new Promise(r => setTimeout(r, 200));
+                    }
+                }
+
+                if (!logs) {
+                    console.error(`[PaymentCheck] Failed to scan range ending at ${pointer}`);
+                    pointer = pointer - INITIAL_CHUNK;
+                    continue;
+                }
+
+                // Check for payment in this chunk
+                const validPayment = logs.some(log => log.args.value && log.args.value >= CHECK_AMOUNT);
+
+                if (validPayment) {
+                    console.log(`[PaymentCheck] FOUND PAYMENT at block ${pointer}!`);
+                    setHasPaid(true);
+                    setIsChecking(false);
+                    return true; // EARLY EXIT
+                }
+
+                pointer = pointer - currentChunkSize;
+                await new Promise(r => setTimeout(r, 10)); // Tiny yield
             }
+
+            console.log(`[PaymentCheck] Scan complete. No payment found.`);
+            setHasPaid(false);
+            return false;
+
         } catch (error) {
-            console.error("[PaymentDebug] Check Failed:", error);
-            // Don't set false here, keep previous state or neutral? 
-            // Setting false might lock out a paid user due to RPC error. 
-            // Better to just log.
+            console.error("[PaymentCheck] Scan Error:", error);
+            return false;
         } finally {
             setIsChecking(false);
         }

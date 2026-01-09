@@ -111,21 +111,27 @@ export default function Lobby({ onStart }: LobbyProps) {
     const handleOpenLeaderboard = async () => {
         setErrorMsg("");
 
-        // GATING LOGIC: Purely based on usePaymentStatus
+        // If already known as paid, open immediately
         if (hasPaid) {
             setIsLeaderboardOpening(true);
-            await fetchLeaderboard(); // Trigger fresh scan
+            await fetchLeaderboard();
+            setIsLeaderboardOpening(false);
+            setShowLeaderboard(true);
+            return;
+        }
+
+        // Otherwise, verify strictly
+        // setIsCheckingPayment(true); // Explicit loading state for UI - this is handled by usePaymentStatus
+        const paid = await checkPayment(); // Await the BOOLEAN result
+        // setIsCheckingPayment(false); // Handled by usePaymentStatus
+
+        if (paid) {
+            setIsLeaderboardOpening(true);
+            await fetchLeaderboard();
             setIsLeaderboardOpening(false);
             setShowLeaderboard(true);
         } else {
-            // Re-check one last time in case it just happened
-            await checkPayment();
-            // We can't immediately check 'hasPaid' here because state updates strictly after render.
-            // But usually the effect runs on mount. 
-            // If still false, show error.
-            if (!hasPaid) {
-                setErrorMsg("ACCESS DENIED: 0.15 USDC CONTRIBUTION REQUIRED");
-            }
+            setErrorMsg("ACCESS DENIED: 0.15 USDC CONTRIBUTION REQUIRED");
         }
     };
 
