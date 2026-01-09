@@ -5,7 +5,7 @@ import { ScoreRegistryABI } from '@/lib/abi/ScoreRegistryABI';
 // Configuration
 // TODO: User must set this env var after deployment
 const REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_SCORE_REGISTRY_ADDRESS as `0x${string}` || "0xB97f1EABb2A68ef8c885D363431C4bBD74Fda12a";
-const START_BLOCK = BigInt(3000000);
+const START_BLOCK = BigInt(38000000);
 
 export function usePaymentStatus() {
     const publicClient = usePublicClient();
@@ -58,7 +58,7 @@ export function usePaymentStatus() {
 
             console.log(`[ScoreCheck] No on-chain score submissions found.`);
             setHasPaid(false);
-            setFailureReason("No on-chain score found. Please submit a score to join.");
+            setFailureReason("Submit a score once to unlock.");
             return false;
 
         } catch (error: any) {
