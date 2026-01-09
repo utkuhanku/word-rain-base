@@ -246,7 +246,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         className={`w-full h-14 border ${hasPaid ? "border-[#0052FF] text-[#0052FF] bg-[#0052FF]/5" : "border-white/10 text-zinc-400"} font-mono text-xs tracking-widest uppercase flex items-center justify-between px-6 hover:border-[#0052FF] hover:bg-[#0052FF]/10 transition-all`}
                                     >
                                         <span className="flex items-center gap-2">
-                                            {isLeaderboardOpening ? "Decrypting..." : (hasPaid ? "Open Global Elite" : "Access Denied")}
+                                            {isLeaderboardOpening ? "Syncing..." : (hasPaid ? "Verified Agents Registry" : "Access Denied")}
                                             {hasPaid && <div className="w-1.5 h-1.5 bg-[#0052FF] rounded-full animate-pulse" />}
                                         </span>
                                         {!hasPaid && <span className="opacity-50 border border-current px-1.5 py-0.5 rounded-[2px] text-[9px]">0.15 USDC</span>}

@@ -14,11 +14,24 @@ export function usePaymentStatus() {
     const [hasPaid, setHasPaid] = useState(false);
     const [isChecking, setIsChecking] = useState(false);
 
+    // Reset state whenever address changes (Deterministic State)
+    useEffect(() => {
+        setHasPaid(false);
+    }, [address]);
+
     const checkPayment = useCallback(async () => {
         if (!address || !publicClient) return;
 
         setIsChecking(true);
         try {
+            // 1. Validate Network (Optional but good safety)
+            const chainId = await publicClient.getChainId();
+            if (chainId !== 8453) {
+                console.warn("Payment check skipped: Wrong Network");
+                setIsChecking(false);
+                return;
+            }
+
             // Check strictly for transfers FROM user TO game wallet
             const logs = await publicClient.getLogs({
                 address: USDC_ADDRESS,
@@ -36,9 +49,14 @@ export function usePaymentStatus() {
 
             if (validPayment) {
                 setHasPaid(true);
+            } else {
+                setHasPaid(false); // Explicit false
             }
         } catch (error) {
             console.error("Payment check failed:", error);
+            // Don't set false here, keep previous state or neutral? 
+            // Setting false might lock out a paid user due to RPC error. 
+            // Better to just log.
         } finally {
             setIsChecking(false);
         }
@@ -46,8 +64,10 @@ export function usePaymentStatus() {
 
     // Constructive check on mount or address change
     useEffect(() => {
-        checkPayment();
-    }, [checkPayment]);
+        if (address) {
+            checkPayment();
+        }
+    }, [address, checkPayment]);
 
     return { hasPaid, isChecking, checkPayment };
 }
