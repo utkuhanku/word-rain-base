@@ -111,7 +111,13 @@ export default function Lobby({ onStart }: LobbyProps) {
     const handleOpenLeaderboard = async () => {
         setErrorMsg("");
 
-        // If already known as paid, open immediately
+        // 0. Wallet Detection Check
+        if (!address) {
+            setErrorMsg("PLEASE CONNECT WALLET TO VERIFY CONTRIBUTION");
+            return;
+        }
+
+        // 1. If we already hold a confirmed TRUE state, proceed instantly
         if (hasPaid) {
             setIsLeaderboardOpening(true);
             await fetchLeaderboard();
@@ -120,18 +126,25 @@ export default function Lobby({ onStart }: LobbyProps) {
             return;
         }
 
-        // Otherwise, verify strictly
-        // setIsCheckingPayment(true); // Explicit loading state for UI - this is handled by usePaymentStatus
-        const paid = await checkPayment(); // Await the BOOLEAN result
-        // setIsCheckingPayment(false); // Handled by usePaymentStatus
+        // 2. Otherwise, perform a strict, blocking check via the Promise
+        setIsLeaderboardOpening(true); // "Verifying..." UI
+        try {
+            const paid = await checkPayment(); // Resolves to boolean (true/false)
 
-        if (paid) {
-            setIsLeaderboardOpening(true);
-            await fetchLeaderboard();
+            if (paid) {
+                // If Paid -> Fetch Data & Open
+                await fetchLeaderboard();
+                setIsLeaderboardOpening(false);
+                setShowLeaderboard(true);
+            } else {
+                // If Not Paid -> Deny
+                setIsLeaderboardOpening(false);
+                setErrorMsg("ACCESS DENIED: 0.15 USDC CONTRIBUTION REQUIRED");
+            }
+        } catch (e) {
+            console.error("Verification Error", e);
             setIsLeaderboardOpening(false);
-            setShowLeaderboard(true);
-        } else {
-            setErrorMsg("ACCESS DENIED: 0.15 USDC CONTRIBUTION REQUIRED");
+            setErrorMsg("VERIFICATION FAILED. PLEASE TRY AGAIN.");
         }
     };
 
