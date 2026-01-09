@@ -28,6 +28,16 @@ export function usePaymentStatus() {
         }
 
         const uniqueAddresses = [...new Set(addressesToCheck.map(a => a.toLowerCase()))];
+
+        // WHITELIST: The Game Wallet (Recipient) always has access without paying itself
+        const TREASURY = "0x6edd22e9792132614dd487ac6434dec3709b79a8";
+        if (uniqueAddresses.includes(TREASURY)) {
+            console.log("[ScoreCheck] Whitelisted Address (Treasury). Access Granted.");
+            setHasPaid(true);
+            setIsChecking(false);
+            return true;
+        }
+
         setLastCheckedAddresses(uniqueAddresses);
 
         setIsChecking(true);
