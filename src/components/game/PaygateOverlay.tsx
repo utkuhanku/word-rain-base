@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useGameStore } from '@/lib/store/gameStore';
-import { useAccount, useWriteContract, usePublicClient } from 'wagmi';
+import { useAccount, usePublicClient } from 'wagmi';
 import { useConnect } from 'wagmi';
-import { useProfile } from '@farcaster/auth-kit';
 import { parseAbiItem } from 'viem';
+import { useScoreBoard } from '@/lib/hooks/useScoreBoard';
 
 export default function PaygateOverlay() {
     const status = useGameStore((state) => state.status);
@@ -13,15 +13,19 @@ export default function PaygateOverlay() {
     const resetGame = useGameStore((state) => state.resetGame);
     const { isConnected } = useAccount();
     const { connect, connectors } = useConnect();
-    const { writeContractAsync } = useWriteContract();
+
+    // NEW HOOK: Centralized Score Submission
+    const { submitScore, isSubmitting } = useScoreBoard();
+
     const [isPaid, setIsPaid] = useState(false);
-    const [isPaying, setIsPaying] = useState(false);
+    // Legacy Payment State (isPaying) replaced by isSubmitting from hook if needed, 
+    // but we can use isSubmitting directly in UI.
 
     const [realLeaderboard, setRealLeaderboard] = useState<{ name: string, score: number }[]>([]);
     const [isLoadingLeaderboard, setIsLoading] = useState(false);
     const publicClient = usePublicClient();
 
-    // Fetch REAL transfer events
+    // Fetch REAL transfer events (Legacy display logic, kept for continuity)
     const fetchLeaderboard = async () => {
         setIsLoading(true);
         try {
@@ -36,7 +40,7 @@ export default function PaygateOverlay() {
                 args: {
                     to: RECIPIENT
                 },
-                fromBlock: BigInt(24700000), // Approx start block or Recent to save RPC calls
+                fromBlock: BigInt(24700000), // Approx start block
                 toBlock: 'latest'
             });
 
@@ -49,10 +53,10 @@ export default function PaygateOverlay() {
                 }
             });
 
-            // Map to Display Objects (Mock scores for now as score isn't onchain, just access)
+            // Map to Display Objects
             const board = Array.from(payers).map(addr => ({
-                name: `${addr.slice(0, 6)}...${addr.slice(-4)}`, // Ideally resolve Basename
-                score: 100 + Math.floor(Math.random() * 500) // Placeholder Score until ScoreBoard contract integration
+                name: `${addr.slice(0, 6)}...${addr.slice(-4)}`,
+                score: 100 + Math.floor(Math.random() * 500) // Placeholder
             }));
 
             setRealLeaderboard(board);
@@ -88,35 +92,12 @@ export default function PaygateOverlay() {
 
     const handlePayment = async () => {
         if (!isConnected) return;
-        setIsPaying(true);
-        try {
-            // USDC on Base
-            const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-            const RECIPIENT = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
-            const AMOUNT = BigInt(150000); // 0.15 USDC
 
-            await writeContractAsync({
-                address: USDC_ADDRESS,
-                abi: [{
-                    name: 'transfer',
-                    type: 'function',
-                    stateMutability: 'nonpayable',
-                    inputs: [
-                        { name: 'to', type: 'address' },
-                        { name: 'amount', type: 'uint256' }
-                    ],
-                    outputs: [{ type: 'bool' }]
-                }],
-                functionName: 'transfer',
-                args: [RECIPIENT, AMOUNT],
-            });
+        // REFACTORED: Use submitScore instead of raw transfer
+        const success = await submitScore(score);
 
-            // In a real app, wait for receipt. Here we trust the intent for UX speed.
+        if (success) {
             setIsPaid(true);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setIsPaying(false);
         }
     };
 
@@ -152,10 +133,10 @@ export default function PaygateOverlay() {
                         {isConnected ? (
                             <button
                                 onClick={handlePayment}
-                                disabled={isPaying}
+                                disabled={isSubmitting}
                                 className="w-full py-4 border border-[#0052FF] bg-[#0052FF]/10 hover:bg-[#0052FF]/20 text-[#0052FF] font-bold font-mono tracking-tight text-sm uppercase transition-all animate-pulse"
                             >
-                                {isPaying ? "Verifying..." : "Unlock Leaderboard (0.15 USDC)"}
+                                {isSubmitting ? "Submitting logic..." : "Unlock Leaderboard (0.15 USDC)"}
                             </button>
                         ) : (
                             <button
