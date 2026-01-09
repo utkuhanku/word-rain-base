@@ -10,7 +10,16 @@ export default function GameOverlay() {
     const resetGame = useGameStore((state) => state.resetGame);
 
     const { isConnected } = useAccount();
-    const { submitScore } = useScoreBoard();
+    const { submitScore, isSubmitting, errorMsg } = useScoreBoard(); // Added hook hooks
+
+    const handleOnchainSubmit = async () => {
+        if (score <= 0) return;
+        const success = await submitScore(score);
+        if (success) {
+            // Maybe reset game or show success toast?
+            // For now we assume user stays on screen or resets
+        }
+    };
 
     const shareScore = () => {
         const text = `I just survived the storm with a score of ${score} in Word Rain 🌧️\n\nCan you stay dry?`;
@@ -67,11 +76,16 @@ export default function GameOverlay() {
                         {/* Tertiary: Onchain */}
                         {isConnected && score > 0 && (
                             <button
-                                onClick={() => submitScore(score)}
-                                className="text-xs text-[#0052FF] hover:text-blue-400 font-mono underline underline-offset-4 mt-2"
+                                onClick={handleOnchainSubmit}
+                                disabled={isSubmitting}
+                                className={`w-full py-4 border ${isSubmitting ? "border-[#0052FF] bg-[#0052FF]/10 text-[#0052FF]" : "border-[#0052FF]/30 text-[#0052FF] hover:border-[#0052FF]"} font-mono text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-all`}
                             >
-                                Submit Logic Score (0.15 USDC)
+                                {isSubmitting ? "Processing..." : "Submit Score (0.15 USDC)"}
                             </button>
+                        )}
+
+                        {errorMsg && (
+                            <p className="text-[10px] text-red-500 font-mono mt-2">{errorMsg}</p>
                         )}
                     </div>
                 </div>

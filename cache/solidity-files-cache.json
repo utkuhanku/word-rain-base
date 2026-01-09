@@ -1,0 +1,42 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/Users/utkuhankocaturk/.gemini/antigravity/scratch/word-rain-base/contracts/ScoreRegistry.sol": {
+      "lastModificationDate": 1767954133347,
+      "contentHash": "20cbd88e1f98fcc4e44c2bef420c2eca",
+      "sourceName": "contracts/ScoreRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC20",
+        "ScoreRegistry"
+      ]
+    }
+  }
+}
