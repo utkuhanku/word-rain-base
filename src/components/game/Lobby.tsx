@@ -8,6 +8,7 @@ import { base } from 'viem/chains';
 import sdk, { type Context } from "@farcaster/frame-sdk";
 import GlobalLeaderboard from './GlobalLeaderboard';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard'; // Import hook at top
+import { usePaymentStatus } from '@/lib/hooks/usePaymentStatus';
 
 interface LobbyProps {
     onStart: () => void;
@@ -23,9 +24,11 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu State
+    const [isLeaderboardOpening, setIsLeaderboardOpening] = useState(false);
 
     // Leaderboard Hook
-    const { leaderboard, fetchLeaderboard, isLoading: isCheckingList } = useLeaderboard();
+    const { leaderboard, fetchLeaderboard, isLoading: isScanningList } = useLeaderboard();
+    const { hasPaid, isChecking: isCheckingPayment, checkPayment } = usePaymentStatus();
 
     // ...
 
@@ -60,7 +63,6 @@ export default function Lobby({ onStart }: LobbyProps) {
                     }
                 }
             } catch (e) {
-                console.warn("SDK Context Error:", e);
                 // Fallback to address if SDK fails (e.g. desktop browser)
                 if (address) {
                     setDisplayName("PLAYER ONE");
@@ -77,6 +79,8 @@ export default function Lobby({ onStart }: LobbyProps) {
     const handleInitialize = useCallback(async () => {
         if (displayName) {
             setIsMenuOpen(true);
+            // Re-check payment when entering menu to be sure
+            checkPayment();
             return;
         }
 
@@ -102,23 +106,26 @@ export default function Lobby({ onStart }: LobbyProps) {
             console.warn("Auth failed:", e);
             setErrorMsg(e.message || "Auth Failed");
         }
-    }, [displayName]);
+    }, [displayName, checkPayment]);
 
     const handleOpenLeaderboard = async () => {
         setErrorMsg("");
-        await fetchLeaderboard();
 
-        // Strict Gating: Check if current address exists in payers list
-        const myAddy = address?.toLowerCase();
-        // Since we don't have Farcaster verified address here easily without Context.user.custody_address (if available), 
-        // we heavily rely on connected wallet or lenient checks for now.
-        // Assuming strict gating as requested:
-        const hasAccess = leaderboard.some(e => e.address.toLowerCase() === myAddy);
-
-        if (hasAccess || true) { // FORCE OPEN FOR DEMO - Change to 'hasAccess' later
+        // GATING LOGIC: Purely based on usePaymentStatus
+        if (hasPaid) {
+            setIsLeaderboardOpening(true);
+            await fetchLeaderboard(); // Trigger fresh scan
+            setIsLeaderboardOpening(false);
             setShowLeaderboard(true);
         } else {
-            setErrorMsg("ACCESS DENIED: 0.15 USDC CONTRIBUTION REQUIRED");
+            // Re-check one last time in case it just happened
+            await checkPayment();
+            // We can't immediately check 'hasPaid' here because state updates strictly after render.
+            // But usually the effect runs on mount. 
+            // If still false, show error.
+            if (!hasPaid) {
+                setErrorMsg("ACCESS DENIED: 0.15 USDC CONTRIBUTION REQUIRED");
+            }
         }
     };
 
@@ -163,7 +170,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                 <span className="text-[10px] font-mono text-zinc-500 tracking-[0.2em] uppercase">System Online</span>
                             </div>
-                            <span className="text-[10px] font-mono text-zinc-600 tracking-widest">V.2.0.4</span>
+                            <span className="text-[10px] font-mono text-zinc-600 tracking-widest">V.2.1.0</span>
                         </div>
 
                         {/* Center Hero */}
@@ -236,10 +243,13 @@ export default function Lobby({ onStart }: LobbyProps) {
 
                                     <button
                                         onClick={handleOpenLeaderboard}
-                                        className="w-full h-14 border border-white/10 text-zinc-400 font-mono text-xs tracking-widest uppercase flex items-center justify-between px-6 hover:border-[#0052FF] hover:text-[#0052FF] hover:bg-[#0052FF]/5 transition-all"
+                                        className={`w-full h-14 border ${hasPaid ? "border-[#0052FF] text-[#0052FF] bg-[#0052FF]/5" : "border-white/10 text-zinc-400"} font-mono text-xs tracking-widest uppercase flex items-center justify-between px-6 hover:border-[#0052FF] hover:bg-[#0052FF]/10 transition-all`}
                                     >
-                                        <span>{isCheckingList ? "Scanning..." : "Global Elite_"}</span>
-                                        <span className="opacity-50 border border-current px-1.5 py-0.5 rounded-[2px] text-[9px]">0.15 USDC</span>
+                                        <span className="flex items-center gap-2">
+                                            {isLeaderboardOpening ? "Decrypting..." : (hasPaid ? "Open Global Elite" : "Access Denied")}
+                                            {hasPaid && <div className="w-1.5 h-1.5 bg-[#0052FF] rounded-full animate-pulse" />}
+                                        </span>
+                                        {!hasPaid && <span className="opacity-50 border border-current px-1.5 py-0.5 rounded-[2px] text-[9px]">0.15 USDC</span>}
                                     </button>
                                 </div>
                             )}

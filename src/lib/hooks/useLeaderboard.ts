@@ -1,5 +1,6 @@
+```typescript
 import { useState, useCallback } from 'react';
-import { usePublicClient, useAccount } from 'wagmi';
+import { usePublicClient } from 'wagmi';
 import { parseAbiItem } from 'viem';
 import { getName } from '@coinbase/onchainkit/identity';
 import { base } from 'viem/chains';
@@ -8,127 +9,125 @@ export interface LeaderboardEntry {
     address: string;
     name: string;
     score: number;
+    timestamp?: number; // Added for future sorting
 }
+
+const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const RECIPIENT = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
+const START_BLOCK = BigInt(21000000); 
+const SAFE_CHUNK = BigInt(10000); // 10k blocks per chunk
+const MIN_AMOUNT = BigInt(150000);
 
 export function useLeaderboard() {
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [scanProgress, setScanProgress] = useState<string>(""); // e.g. "90%"
     const publicClient = usePublicClient();
-    const { address: userAddress } = useAccount();
 
     const fetchLeaderboard = useCallback(async () => {
-        // Don't block UI with global scan. Start loading, but resolve fast for the user.
+        if (!publicClient) return;
+        
         setIsLoading(true);
+        setScanProgress("Initializing...");
 
         try {
-            // USDC on Base
-            const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-            const RECIPIENT = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
-
-            if (!publicClient) {
-                setIsLoading(false);
-                return;
-            }
-
             const currentBlock = await publicClient.getBlockNumber();
-            const foundEntries: LeaderboardEntry[] = [];
+            let pointer = currentBlock;
             const seen = new Set<string>();
 
-            // 1. INSTANT CHECK: Verify the Connected User SPECIFICALLY
-            if (userAddress) {
+            // Note: In a real "Score" implementation, we would query a specific Contract Event or 
+            // a Database. Since we are using "Payment as Registry", we scan Transfers.
+            
+            // Progressive Backward Scan
+            while (pointer > START_BLOCK) {
+                const from = pointer - SAFE_CHUNK > START_BLOCK ? pointer - SAFE_CHUNK : START_BLOCK;
+                const to = pointer;
+                
+                // Update progress for UI
+                const total = Number(currentBlock - START_BLOCK);
+                const done = Number(currentBlock - pointer);
+                const percent = Math.floor((done / total) * 100);
+                setScanProgress(`${ percent }% `);
+
                 try {
-                    // Check specifically for transfers FROM user TO game
-                    // This is much faster than scanning the whole chain
-                    const userLogs = await publicClient.getLogs({
+                    const logs = await publicClient.getLogs({
                         address: USDC_ADDRESS,
                         event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-                        args: {
-                            from: userAddress,
-                            to: RECIPIENT
-                        },
-                        fromBlock: BigInt(21000000), // Check all history for THIS user
-                        toBlock: 'latest'
+                        args: { to: RECIPIENT },
+                        fromBlock: from,
+                        toBlock: to
                     });
 
-                    // If user has paid sufficient amount
-                    const validPayment = userLogs.find(log => log.args.value && log.args.value >= BigInt(150000));
+                    const newEntries: LeaderboardEntry[] = [];
 
-                    if (validPayment && !seen.has(userAddress)) {
-                        seen.add(userAddress);
+                    for (const log of logs) {
+                        const val = log.args.value;
+                        const addr = log.args.from;
 
-                        // Try to resolve name
-                        let name = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
-                        try {
-                            const baseName = await getName({ address: userAddress, chain: base });
-                            if (baseName) name = baseName.toUpperCase();
-                        } catch (e) { }
+                        if (val && val >= MIN_AMOUNT && addr && !seen.has(addr)) {
+                            seen.add(addr);
+                            
+                            // Placeholder name
+                            let displayName = `${ addr.slice(0, 6) }...${ addr.slice(-4) } `;
 
-                        foundEntries.push({
-                            address: userAddress,
-                            name: name,
-                            score: 100 // Verified
+                            // Future: Check if this transaction has "Score Data" in calldata?
+                            // For now, static score 100.
+                            const entry: LeaderboardEntry = {
+                                address: addr,
+                                name: displayName,
+                                score: 100, 
+                                timestamp: Number(log.blockNumber) // Use block number as proxy for timestamp
+                            };
+                            newEntries.push(entry);
+
+                            // Resolve name in background
+                            getName({ address: addr as `0x${ string } `, chain: base }).then(baseName => {
+                                if (baseName) {
+                                    setLeaderboard(prev => prev.map(p => 
+                                        p.address === addr ? { ...p, name: baseName.toUpperCase() } : p
+                                    ));
+                                }
+                            }).catch(() => {});
+                        }
+                    }
+
+                    if (newEntries.length > 0) {
+                        setLeaderboard(prev => {
+                            // Reverse order of this chunk (since we scan backwards, this chunk is "newer" than the next)
+                            // But within the chunk, logs are usually Old -> New.
+                            // We want the LIST to be Score Desc, Time Desc.
+                            // Since scores are equal, sort by Time Desc (Newest First).
+                            // The backward scan gives us Newest Chunks first.
+                            // So we append NEW (Old) stuff to the end of the array.
+                            // The logs inside `newEntries` are Old->New. We should reverse them to be New->Old?
+                            // Let's just create a combined list and sort it properly every update.
+                            
+                            const combined = [...prev, ...newEntries];
+                            // Sort by Score Desc (all 100), then Timestamp/Block Desc (Newest on top)
+                            return combined.sort((a, b) => {
+                                if (b.score !== a.score) return b.score - a.score;
+                                return (b.timestamp || 0) - (a.timestamp || 0);
+                            });
                         });
                     }
-                } catch (e) {
-                    console.error("User Check Failed", e);
+
+                } catch (err) {
+                    console.warn(`Chunk failed ${ from } -${ to } `, err);
+                    // Continue to next chunk even if one fails
                 }
+                
+                pointer = from - BigInt(1);
+                await new Promise(r => setTimeout(r, 50)); // Tiny yield
             }
 
-            // Set initial state (User only) to unblock UI
-            setLeaderboard([...foundEntries]);
-            setIsLoading(false); // <--- KEY: UI Unblocks Here!
-
-            // 2. BACKGROUND: Scan recent history for others (Last 100k blocks only for speed)
-            // We don't await this before unblocking.
-            const RECENT_HISTORY = BigInt(100000);
-            const fromBlock = currentBlock - RECENT_HISTORY > BigInt(21000000) ? currentBlock - RECENT_HISTORY : BigInt(21000000);
-
-            publicClient.getLogs({
-                address: USDC_ADDRESS,
-                event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
-                args: { to: RECIPIENT },
-                fromBlock: fromBlock,
-                toBlock: 'latest'
-            }).then(logs => {
-                const newFound: LeaderboardEntry[] = [];
-                for (const log of logs) {
-                    const val = log.args.value;
-                    const addr = log.args.from;
-                    if (val && val >= BigInt(150000) && addr && !seen.has(addr)) {
-                        seen.add(addr);
-                        newFound.push({
-                            address: addr,
-                            name: `${addr.slice(0, 6)}...${addr.slice(-4)}`,
-                            score: 100
-                        });
-                    }
-                }
-
-                if (newFound.length > 0) {
-                    setLeaderboard(prev => {
-                        // Combine and Dedupe
-                        const existing = new Set(prev.map(p => p.address));
-                        const uniqueNew = newFound.filter(p => !existing.has(p.address));
-                        return [...prev, ...uniqueNew];
-                    });
-
-                    // Resolve names for new entries in background
-                    newFound.forEach(p => {
-                        getName({ address: p.address as `0x${string}`, chain: base })
-                            .then(n => {
-                                if (n) {
-                                    setLeaderboard(curr => curr.map(item => item.address === p.address ? { ...item, name: n.toUpperCase() } : item));
-                                }
-                            }).catch(() => { });
-                    });
-                }
-            }).catch(e => console.error("Global Scan Error", e));
-
         } catch (e) {
-            console.error("Fetch Error", e);
+            console.error("Global Leaderboard Error", e);
+        } finally {
             setIsLoading(false);
+            setScanProgress("Synced");
         }
-    }, [publicClient, userAddress]);
+    }, [publicClient]);
 
-    return { leaderboard, isLoading, fetchLeaderboard };
+    return { leaderboard, isLoading, scanProgress, fetchLeaderboard };
 }
+```
