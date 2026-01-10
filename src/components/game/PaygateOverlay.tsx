@@ -11,6 +11,7 @@ export default function PaygateOverlay() {
     const status = useGameStore((state) => state.status);
     const score = useGameStore((state) => state.score);
     const resetGame = useGameStore((state) => state.resetGame);
+    const setStatus = useGameStore((state) => state.setStatus);
     const { isConnected } = useAccount();
     const { connect, connectors } = useConnect();
 
@@ -123,12 +124,20 @@ export default function PaygateOverlay() {
                     </div>
 
                     <div className="grid gap-3">
-                        <button
-                            onClick={resetGame}
-                            className="w-full py-4 bg-white hover:bg-zinc-200 text-black font-bold tracking-tight text-sm uppercase transition-all"
-                        >
-                            Retry Run
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setStatus('idle')}
+                                className="flex-1 py-4 border border-zinc-800 hover:bg-zinc-900 text-zinc-500 font-mono text-xs uppercase tracking-widest transition-all"
+                            >
+                                Home
+                            </button>
+                            <button
+                                onClick={resetGame}
+                                className="flex-[2] py-4 bg-white hover:bg-zinc-200 text-black font-bold tracking-tight text-sm uppercase transition-all"
+                            >
+                                Retry Run
+                            </button>
+                        </div>
 
                         {isConnected ? (
                             <button
@@ -180,12 +189,20 @@ export default function PaygateOverlay() {
                         >
                             SHARE HYPE (Base App)
                         </button>
-                        <button
-                            onClick={resetGame}
-                            className="w-full py-3 text-zinc-500 hover:text-white text-xs font-mono uppercase tracking-widest"
-                        >
-                            Close & Retry
-                        </button>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setStatus('idle')}
+                                className="flex-1 py-4 border border-zinc-800 hover:bg-zinc-900 text-zinc-500 font-mono text-xs uppercase tracking-widest transition-all"
+                            >
+                                Home
+                            </button>
+                            <button
+                                onClick={resetGame}
+                                className="flex-1 py-4 bg-white hover:bg-zinc-200 text-black font-bold tracking-tight text-sm uppercase transition-all"
+                            >
+                                Retry
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
