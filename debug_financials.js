@@ -2,7 +2,7 @@ const { createPublicClient, http, parseAbiItem } = require('viem');
 const { base } = require('viem/chains');
 
 // Config
-const REGISTRY_ADDRESS = "0xB97f1EABb2A68ef8c885D363431C4bBD74Fda12a";
+const REGISTRY_ADDRESS = "0x9Dc0EC4618506538AF41fbBd2c1340cb25675108";
 const ADMIN_WALLET = "0x6edd22E9792132614dD487aC6434dec3709b79A8"; // The address user is using
 const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
