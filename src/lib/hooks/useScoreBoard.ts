@@ -4,7 +4,7 @@ import { parseAbi } from 'viem';
 import { ScoreRegistryABI } from '@/lib/abi/ScoreRegistryABI';
 
 // Config
-const REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_SCORE_REGISTRY_ADDRESS as `0x${string}` || "0xB97f1EABb2A68ef8c885D363431C4bBD74Fda12a";
+const REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_SCORE_REGISTRY_ADDRESS as `0x${string}` || "0x9Dc0EC4618506538AF41fbBd2c1340cb25675108";
 const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // Base USDC
 const FEE_AMOUNT = BigInt(150000); // 0.15 USDC
 
