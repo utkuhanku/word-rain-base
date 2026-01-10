@@ -46,26 +46,18 @@ export function useLeaderboard() {
 
                 // Fetch ENS/Basename if possible
                 let displayName: string | undefined = undefined;
-                try {
-                    if (player) {
+                if (player) {
+                    // 0. Hardcoded Fix for Owner (Immediate Relief)
+                    if (player.toLowerCase() === "0x6edd22E9792132614dD487aC6434dec3709b79A8".toLowerCase()) {
+                        displayName = "@utkus.base.eth"; // Or just @utkus
+                    } else {
                         // 1. Try Basename (OnchainKit)
                         const name = await getName({ address: player, chain: base });
                         if (name) {
                             displayName = name;
-                        } else {
-                            // 2. Fallback: Try Farcaster Username
-                            try {
-                                const fcRes = await fetch(`https://api.warpcast.com/v2/user-by-verification?address=${player}`);
-                                const fcData = await fcRes.json();
-                                if (fcData?.result?.user?.username) {
-                                    displayName = `@${fcData.result.user.username}`;
-                                }
-                            } catch (fcError) {
-                                // Ignore Farcaster fetch error
-                            }
                         }
                     }
-                } catch (e) { /* ignore name fetch error */ }
+                }
 
                 return {
                     address: player || "0x...",
