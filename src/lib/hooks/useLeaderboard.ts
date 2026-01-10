@@ -45,11 +45,25 @@ export function useLeaderboard() {
                 const { player, score, timestamp } = log.args;
 
                 // Fetch ENS/Basename if possible
-                let displayName = undefined;
+                let displayName: string | undefined = undefined;
                 try {
                     if (player) {
+                        // 1. Try Basename (OnchainKit)
                         const name = await getName({ address: player, chain: base });
-                        if (name) displayName = name;
+                        if (name) {
+                            displayName = name;
+                        } else {
+                            // 2. Fallback: Try Farcaster Username
+                            try {
+                                const fcRes = await fetch(`https://api.warpcast.com/v2/user-by-verification?address=${player}`);
+                                const fcData = await fcRes.json();
+                                if (fcData?.result?.user?.username) {
+                                    displayName = `@${fcData.result.user.username}`;
+                                }
+                            } catch (fcError) {
+                                // Ignore Farcaster fetch error
+                            }
+                        }
                     }
                 } catch (e) { /* ignore name fetch error */ }
 
