@@ -40,7 +40,7 @@ export function useScoreBoard() {
                     address: USDC_ADDRESS,
                     abi: parseAbi(['function approve(address, uint256) returns (bool)']),
                     functionName: 'approve',
-                    args: [REGISTRY_ADDRESS, FEE_AMOUNT * BigInt(100)], // Approve for 100 plays to reduce friction
+                    args: [REGISTRY_ADDRESS, FEE_AMOUNT], // Approve exact amount to safely pass wallet simulation
                     chain: walletClient.chain,
                     account
                 });
