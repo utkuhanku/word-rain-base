@@ -33,12 +33,31 @@ export function useLeaderboard() {
         console.log("[Leaderboard] Fetching Onchain Scores...");
 
         try {
-            const logs = await publicClient.getLogs({
-                address: REGISTRY_ADDRESS,
-                event: ScoreRegistryABI[0], // ScoreSubmitted
-                fromBlock: START_BLOCK,
-                toBlock: 'latest'
-            });
+            // Chunked Fetching to prevent RPC Timeouts
+            const currentBlock = await publicClient.getBlockNumber();
+            const CHUNK_SIZE = BigInt(10000); // 10k blocks per chunk
+            let allLogs = [];
+
+            for (let i = START_BLOCK; i <= currentBlock; i += CHUNK_SIZE) {
+                const toBlock = (i + CHUNK_SIZE - BigInt(1) < currentBlock) ? (i + CHUNK_SIZE - BigInt(1)) : currentBlock;
+                console.log(`[Leaderboard] Fetching chunk: ${i} to ${toBlock}`);
+
+                try {
+                    const chunkLogs = await publicClient.getLogs({
+                        address: REGISTRY_ADDRESS,
+                        event: ScoreRegistryABI[0], // ScoreSubmitted
+                        fromBlock: i,
+                        toBlock: toBlock
+                    });
+                    allLogs.push(...chunkLogs);
+                } catch (e) {
+                    console.warn(`[Leaderboard] Chunk failed (${i}-${toBlock}):`, e);
+                    // Continue to next chunk or handle retries? 
+                    // For now, continue to salvage partial data.
+                }
+            }
+
+            const logs = allLogs;
 
             // Parse and format entries
             const entries: LeaderboardEntry[] = await Promise.all(logs.map(async (log) => {
