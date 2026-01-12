@@ -11,6 +11,10 @@ import { useLeaderboard } from '@/lib/hooks/useLeaderboard'; // Import hook at t
 import { usePaymentStatus } from '@/lib/hooks/usePaymentStatus';
 import HelpModal from './HelpModal';
 
+interface LobbyProps {
+    onStart: () => void;
+}
+
 
 
 export default function Lobby({ onStart }: LobbyProps) {
