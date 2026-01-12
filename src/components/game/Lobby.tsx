@@ -274,19 +274,13 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         </span>
                                     </motion.button>
 
-                                    {/* Navigation Bar (Featured Checklist Requirement) */}
-                                    <div className="grid grid-cols-2 gap-3">
+                                    {/* Navigation Bar: Single Help Button */}
+                                    <div className="w-full">
                                         <button
                                             onClick={() => setShowHelp(true)}
-                                            className="h-10 border border-white/10 hover:bg-white/5 text-[10px] tracking-widest font-mono text-zinc-500 hover:text-white uppercase transition-colors flex items-center justify-center gap-2"
+                                            className="w-full h-10 border border-white/5 hover:bg-white/5 text-[10px] tracking-widest font-mono text-zinc-600 hover:text-white uppercase transition-colors flex items-center justify-center gap-2 group"
                                         >
-                                            <span>?</span> HELP
-                                        </button>
-                                        <button
-                                            onClick={handleOpenLeaderboard}
-                                            className="h-10 border border-white/10 hover:bg-white/5 text-[10px] tracking-widest font-mono text-zinc-500 hover:text-white uppercase transition-colors flex items-center justify-center gap-2"
-                                        >
-                                            <span>★</span> LEADERBOARD
+                                            <span className="opacity-30 group-hover:opacity-100 transition-opacity text-xs">?</span> HOW TO PLAY
                                         </button>
                                     </div>
                                 </div>
