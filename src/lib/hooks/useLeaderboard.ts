@@ -72,18 +72,21 @@ export function useLeaderboard() {
                     // 0. Hardcoded Fix for Owner (Immediate Relief)
                     if (player.toLowerCase() === "0x6edd22E9792132614dD487aC6434dec3709b79A8".toLowerCase()) {
                         displayName = "@utkus.base.eth";
+                        try {
+                            // Hardcoded owner name for avatar fetch
+                            avatarUrl = await getAvatar({ ensName: "utkus.base.eth", chain: base });
+                        } catch { }
                     } else {
                         // 1. Try Basename (OnchainKit)
                         const name = await getName({ address: player, chain: base });
                         if (name) {
                             displayName = name;
+                            // 2. Only fetch avatar if we have a name
+                            try {
+                                avatarUrl = await getAvatar({ ensName: name, chain: base });
+                            } catch { }
                         }
                     }
-
-                    // Always fetch avatar
-                    try {
-                        avatarUrl = await getAvatar({ address: player, chain: base });
-                    } catch { }
                 }
 
                 return {
