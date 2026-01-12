@@ -91,10 +91,7 @@ export function usePaymentStatus() {
             setFailureReason("Submit a score once to unlock.");
             return false;
 
-            console.log(`[ScoreCheck] No on-chain score submissions found.`);
-            setHasPaid(false);
-            setFailureReason("Submit a score once to unlock.");
-            return false;
+
 
         } catch (error: any) {
             console.error("[ScoreCheck] Error:", error);
