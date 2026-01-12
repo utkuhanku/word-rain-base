@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 import { usePublicClient } from 'wagmi';
 import { getName, getAvatar } from '@coinbase/onchainkit/identity';
+import { base } from 'viem/chains';
+import { ScoreRegistryABI } from '@/lib/abi/ScoreRegistryABI';
 
 type LeaderboardEntry = {
     address: string;
@@ -9,40 +11,6 @@ type LeaderboardEntry = {
     name: string;
     avatar?: string | null;
     txHash: string;
-};
-
-// ... inside map function ...
-
-// Fetch ENS/Basename & Avatar
-let displayName: string | undefined = undefined;
-let avatarUrl: string | null = null;
-
-if (player) {
-    // 0. Hardcoded Fix for Owner (Immediate Relief)
-    if (player.toLowerCase() === "0x6edd22E9792132614dD487aC6434dec3709b79A8".toLowerCase()) {
-        displayName = "@utkus.base.eth";
-        // Optional: Hardcode owner avatar if needed, otherwise let getAvatar try or stay null
-    } else {
-        // 1. Try Basename (OnchainKit)
-        const name = await getName({ address: player, chain: base });
-        if (name) {
-            displayName = name;
-        }
-    }
-
-    // Always try to fetch avatar
-    try {
-        avatarUrl = await getAvatar({ address: player, chain: base });
-    } catch (e) { /* ignore */ }
-}
-
-return {
-    address: player || "0x...",
-    score: Number(score || BigInt(0)),
-    timestamp: Number(timestamp || BigInt(0)),
-    txHash: log.transactionHash,
-    name: displayName || `${player?.slice(0, 6)}...${player?.slice(-4)}`,
-    avatar: avatarUrl
 };
 
 // TODO: User must set this env var after deployment
