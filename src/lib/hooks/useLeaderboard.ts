@@ -1,15 +1,48 @@
 import { useState, useCallback } from 'react';
 import { usePublicClient } from 'wagmi';
-import { getName } from '@coinbase/onchainkit/identity';
-import { base } from 'viem/chains';
-import { ScoreRegistryABI } from '@/lib/abi/ScoreRegistryABI';
+import { getName, getAvatar } from '@coinbase/onchainkit/identity';
 
 type LeaderboardEntry = {
     address: string;
     score: number;
     timestamp: number;
     name: string;
+    avatar?: string | null;
     txHash: string;
+};
+
+// ... inside map function ...
+
+// Fetch ENS/Basename & Avatar
+let displayName: string | undefined = undefined;
+let avatarUrl: string | null = null;
+
+if (player) {
+    // 0. Hardcoded Fix for Owner (Immediate Relief)
+    if (player.toLowerCase() === "0x6edd22E9792132614dD487aC6434dec3709b79A8".toLowerCase()) {
+        displayName = "@utkus.base.eth";
+        // Optional: Hardcode owner avatar if needed, otherwise let getAvatar try or stay null
+    } else {
+        // 1. Try Basename (OnchainKit)
+        const name = await getName({ address: player, chain: base });
+        if (name) {
+            displayName = name;
+        }
+    }
+
+    // Always try to fetch avatar
+    try {
+        avatarUrl = await getAvatar({ address: player, chain: base });
+    } catch (e) { /* ignore */ }
+}
+
+return {
+    address: player || "0x...",
+    score: Number(score || BigInt(0)),
+    timestamp: Number(timestamp || BigInt(0)),
+    txHash: log.transactionHash,
+    name: displayName || `${player?.slice(0, 6)}...${player?.slice(-4)}`,
+    avatar: avatarUrl
 };
 
 // TODO: User must set this env var after deployment
@@ -63,12 +96,14 @@ export function useLeaderboard() {
             const entries: LeaderboardEntry[] = await Promise.all(logs.map(async (log) => {
                 const { player, score, timestamp } = log.args;
 
-                // Fetch ENS/Basename if possible
+                // Fetch ENS/Basename & Avatar
                 let displayName: string | undefined = undefined;
+                let avatarUrl: string | null = null;
+
                 if (player) {
                     // 0. Hardcoded Fix for Owner (Immediate Relief)
                     if (player.toLowerCase() === "0x6edd22E9792132614dD487aC6434dec3709b79A8".toLowerCase()) {
-                        displayName = "@utkus.base.eth"; // Or just @utkus
+                        displayName = "@utkus.base.eth";
                     } else {
                         // 1. Try Basename (OnchainKit)
                         const name = await getName({ address: player, chain: base });
@@ -76,6 +111,11 @@ export function useLeaderboard() {
                             displayName = name;
                         }
                     }
+
+                    // Always fetch avatar
+                    try {
+                        avatarUrl = await getAvatar({ address: player, chain: base });
+                    } catch { }
                 }
 
                 return {
@@ -83,7 +123,8 @@ export function useLeaderboard() {
                     score: Number(score || BigInt(0)),
                     timestamp: Number(timestamp || BigInt(0)),
                     txHash: log.transactionHash,
-                    name: displayName || `${player?.slice(0, 6)}...${player?.slice(-4)}`
+                    name: displayName || `${player?.slice(0, 6)}...${player?.slice(-4)}`,
+                    avatar: avatarUrl
                 };
             }));
 

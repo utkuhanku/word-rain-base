@@ -9,9 +9,51 @@ import sdk, { type Context } from "@farcaster/frame-sdk";
 import GlobalLeaderboard from './GlobalLeaderboard';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard'; // Import hook at top
 import { usePaymentStatus } from '@/lib/hooks/usePaymentStatus';
+import HelpModal from './HelpModal';
 
-interface LobbyProps {
-    onStart: () => void;
+// ... (inside component) ...
+// This line is a comment in the original, the actual state is inside Lobby
+// const [showHelp, setShowHelp] = useState(false);
+
+// ... (rendering section, adding HelpModal) ...
+<AnimatePresence>
+    {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+</AnimatePresence>
+
+// ... (Bottom Controls section) ...
+{
+    !isMenuOpen ? (
+        <div className="space-y-3">
+            <motion.button
+                onClick={handleInitialize}
+                whileTap={{ scale: 0.98 }}
+                className="w-full h-14 bg-white text-black font-space font-bold text-lg tracking-widest uppercase relative overflow-hidden group hover:scale-[1.02] transition-transform"
+            >
+                <div className="absolute inset-0 bg-zinc-200 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                    [{!displayName && context?.client ? "Connect Farcaster" : (displayName ? "Initialize System" : "Connect Identity")}]
+                </span>
+            </motion.button>
+
+            {/* Secondary Nav for Featured Req (Bottom Nav) */}
+            <div className="grid grid-cols-2 gap-3">
+                <button
+                    onClick={() => setShowHelp(true)}
+                    className="h-10 border border-white/10 hover:bg-white/5 text-[10px] tracking-widest font-mono text-zinc-500 hover:text-white uppercase transition-colors"
+                >
+                    How to Play
+                </button>
+                <button
+                    onClick={handleOpenLeaderboard}
+                    className="h-10 border border-white/10 hover:bg-white/5 text-[10px] tracking-widest font-mono text-zinc-500 hover:text-white uppercase transition-colors"
+                >
+                    Leaderboard
+                </button>
+            </div>
+        </div>
+    ) : (
+
+        onStart: () => void;
 }
 
 export default function Lobby({ onStart }: LobbyProps) {
@@ -25,6 +67,7 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu State
     const [isLeaderboardOpening, setIsLeaderboardOpening] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
 
     // Leaderboard Hook
     const { leaderboard, fetchLeaderboard, isLoading: isScanningList } = useLeaderboard();
@@ -186,6 +229,9 @@ export default function Lobby({ onStart }: LobbyProps) {
                 {showLeaderboard && (
                     <GlobalLeaderboard onClose={() => setShowLeaderboard(false)} />
                 )}
+                {showHelp && (
+                    <HelpModal onClose={() => setShowHelp(false)} />
+                )}
             </AnimatePresence>
 
             <AnimatePresence mode="wait">
@@ -255,16 +301,34 @@ export default function Lobby({ onStart }: LobbyProps) {
                         {/* Bottom Controls */}
                         <div className="w-full flex flex-col gap-3 pb-8">
                             {!isMenuOpen ? (
-                                <motion.button
-                                    onClick={handleInitialize}
-                                    whileTap={{ scale: 0.98 }}
-                                    className="w-full h-14 bg-white text-black font-space font-bold text-lg tracking-widest uppercase relative overflow-hidden group hover:scale-[1.02] transition-transform"
-                                >
-                                    <div className="absolute inset-0 bg-zinc-200 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        [{!displayName && context?.client ? "Connect Farcaster" : (displayName ? "Initialize System" : "Connect Identity")}]
-                                    </span>
-                                </motion.button>
+                                <div className="space-y-3">
+                                    <motion.button
+                                        onClick={handleInitialize}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full h-14 bg-white text-black font-space font-bold text-lg tracking-widest uppercase relative overflow-hidden group hover:scale-[1.02] transition-transform"
+                                    >
+                                        <div className="absolute inset-0 bg-zinc-200 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                        <span className="relative z-10 flex items-center justify-center gap-2">
+                                            [{!displayName && context?.client ? "Connect Farcaster" : (displayName ? "Initialize System" : "Connect Identity")}]
+                                        </span>
+                                    </motion.button>
+
+                                    {/* Navigation Bar (Featured Checklist Requirement) */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button
+                                            onClick={() => setShowHelp(true)}
+                                            className="h-10 border border-white/10 hover:bg-white/5 text-[10px] tracking-widest font-mono text-zinc-500 hover:text-white uppercase transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <span>?</span> HELP
+                                        </button>
+                                        <button
+                                            onClick={handleOpenLeaderboard}
+                                            className="h-10 border border-white/10 hover:bg-white/5 text-[10px] tracking-widest font-mono text-zinc-500 hover:text-white uppercase transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <span>★</span> LEADERBOARD
+                                        </button>
+                                    </div>
+                                </div>
                             ) : (
                                 <div className="flex flex-col gap-3 w-full animate-in slide-in-from-bottom-5 fade-in duration-300">
                                     <button

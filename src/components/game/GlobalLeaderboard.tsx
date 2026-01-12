@@ -59,8 +59,20 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                             >
                                 <div className="flex items-center gap-4">
                                     <span className="text-xs font-mono text-zinc-600 group-hover:text-zinc-400 w-6">{(i + 1).toString().padStart(2, '0')}</span>
-                                    <div className="flex flex-col">
-                                        <span className="text-sm text-zinc-300 font-mono tracking-wide group-hover:text-white group-hover:translate-x-1 transition-all">{entry.name}</span>
+                                    <div className="flex items-center gap-3">
+                                        {/* Avatar */}
+                                        <div className="w-8 h-8 rounded-full bg-zinc-800 border border-white/10 overflow-hidden shrink-0">
+                                            {entry.avatar ? (
+                                                <img src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-[#0052FF]/20 to-zinc-900 flex items-center justify-center text-[10px] text-zinc-500 font-mono">
+                                                    {entry.name.slice(0, 2).toUpperCase()}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm text-zinc-300 font-mono tracking-wide group-hover:text-white group-hover:translate-x-1 transition-all">{entry.name}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <span className="font-mono text-sm text-[#0052FF] font-bold opacity-80 group-hover:opacity-100 shadow-[0_0_15px_rgba(0,82,255,0)] group-hover:shadow-[0_0_15px_rgba(0,82,255,0.4)] transition-all">

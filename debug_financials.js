@@ -8,16 +8,19 @@ const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 async function main() {
     console.log("--- FINANCIAL FORENSICS START ---");
+    // Robust RPC
+    const RPCS = ["https://base.llamarpc.com", "https://1rpc.io/base", "https://base.meowrpc.com"];
     const client = createPublicClient({
         chain: base,
-        transport: http()
+        transport: http(RPCS[0])
     });
 
     try {
         const currentBlock = await client.getBlockNumber();
         console.log("Current Block:", currentBlock.toString());
-        // Scan last 10k blocks (approx 5 hours) covers "today"
-        const fromBlock = currentBlock - 10000n;
+        // Targeted Scan for known transaction
+        const fromBlock = 40625100n;
+        const toBlock = 40625200n;
 
         // 1. Check ScoreRegistry Events
         console.log(`\n1. Scanning ScoreRegistry (${REGISTRY_ADDRESS}) for ${ADMIN_WALLET}...`);
