@@ -48,22 +48,48 @@ export function usePaymentStatus() {
             // Note: viem getLogs with indexed args array requires the 'args' object keys to match event ABI
             // ScoreSubmitted: [player, score, gameId, amount, timestamp] -> player is indexed
 
-            const logs = await publicClient.getLogs({
-                address: REGISTRY_ADDRESS,
-                event: ScoreRegistryABI[0], // ScoreSubmitted event
-                args: {
-                    player: uniqueAddresses as `0x${string}`[]
-                },
-                fromBlock: START_BLOCK,
-                toBlock: 'latest'
-            });
+            // Chunked Scanning (High Performance & Robustness)
+            const currentBlock = await publicClient.getBlockNumber();
+            const CHUNK_SIZE = BigInt(10000); // 10k blocks per chunk
 
-            if (logs.length > 0) {
-                console.log(`[ScoreCheck] Found ${logs.length} submissions.`);
-                setHasPaid(true); // 'hasPaid' here implies 'hasSubmittedScore' which grants access
-                setIsChecking(false);
-                return true;
+            // Scan backwards from Current to Start (Most recent scores first)
+            for (let i = currentBlock; i >= START_BLOCK; i -= CHUNK_SIZE) {
+                const searchTo = i;
+                const searchFrom = (i - CHUNK_SIZE > START_BLOCK) ? (i - CHUNK_SIZE) : START_BLOCK;
+
+                // Safety: if searchFrom > searchTo (scan complete or weird range), break
+                if (searchFrom >= searchTo) break;
+
+                console.log(`[ScoreCheck] Scanning chunk: ${searchFrom} - ${searchTo}`);
+
+                try {
+                    const logs = await publicClient.getLogs({
+                        address: REGISTRY_ADDRESS,
+                        event: ScoreRegistryABI[0], // ScoreSubmitted event
+                        args: {
+                            player: uniqueAddresses as `0x${string}`[]
+                        },
+                        fromBlock: searchFrom,
+                        toBlock: searchTo
+                    });
+
+                    if (logs.length > 0) {
+                        console.log(`[ScoreCheck] Found ${logs.length} submissions in chunk.`);
+                        setHasPaid(true);
+                        setIsChecking(false);
+                        return true;
+                    }
+                } catch (e) {
+                    console.warn(`[ScoreCheck] Chunk failed (${searchFrom}-${searchTo}):`, e);
+                    // Continue to next chunk (older blocks)
+                }
             }
+
+            // If loop finishes with no findings:
+            console.log(`[ScoreCheck] No on-chain score submissions found.`);
+            setHasPaid(false);
+            setFailureReason("Submit a score once to unlock.");
+            return false;
 
             console.log(`[ScoreCheck] No on-chain score submissions found.`);
             setHasPaid(false);
