@@ -49,7 +49,7 @@ export default function Lobby({ onStart }: LobbyProps) {
             try {
                 await sendGM();
                 // After success, open share
-                const text = encodeURIComponent(`GM! I just levelled up my onchain streak to ${streak + 1} on Word Rain 🟦 🌧️\n\nVerifiable. Permanent. Based.\n\npowered by @utkus.farcaster.eth`);
+                const text = encodeURIComponent(`GM! I just levelled up my onchain streak to ${streak + 1} on Word Rain 🟦 🌧️\n\nVerifiable. Permanent. Based.\n\npowered by @utkus`);
                 const embed = encodeURIComponent(window.location.origin);
                 window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
             } catch (e: any) {
@@ -59,7 +59,7 @@ export default function Lobby({ onStart }: LobbyProps) {
             }
         } else {
             // Already GM'd -> Just Share
-            const text = encodeURIComponent(`My Onchain GM Streak is ${streak} 🔥 on Word Rain 🟦 🌧️\n\nCan you beat it?\n\npowered by @utkus.farcaster.eth`);
+            const text = encodeURIComponent(`My Onchain GM Streak is ${streak} 🔥 on Word Rain 🟦 🌧️\n\nCan you beat it?\n\npowered by @utkus`);
             const embed = encodeURIComponent(window.location.origin);
             window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
         }
