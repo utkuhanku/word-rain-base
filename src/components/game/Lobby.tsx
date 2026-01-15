@@ -39,6 +39,8 @@ export default function Lobby({ onStart }: LobbyProps) {
     // GM Streak Hook (Onchain)
     const { streak, canGM, isSending, sendGM, fetchStreak } = useGMStreak(address);
 
+    const [showStreakSuccess, setShowStreakSuccess] = useState(false);
+
     const handleGMaction = async () => {
         if (!address) {
             setErrorMsg("CONNECT WALLET TO START STREAK");
@@ -48,10 +50,16 @@ export default function Lobby({ onStart }: LobbyProps) {
         if (canGM) {
             try {
                 await sendGM();
-                // After success, open share
-                const text = encodeURIComponent(`GM! I just levelled up my onchain streak to ${streak + 1} on Word Rain 🟦 🌧️\n\nVerifiable. Permanent. Based.\n\npowered by @utkus`);
-                const embed = encodeURIComponent(window.location.origin);
-                window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
+                // Success Animation
+                setShowStreakSuccess(true);
+                setTimeout(() => {
+                    setShowStreakSuccess(false);
+                    // Open share after animation
+                    const text = encodeURIComponent(`GM! I just levelled up my onchain streak to ${streak + 1} on Word Rain 🟦 🌧️\n\nVerifiable. Permanent. Based.\n\npowered by @utkus`);
+                    const embed = encodeURIComponent(window.location.origin);
+                    window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
+                }, 2500); // 2.5s display
+
             } catch (e: any) {
                 // If user rejected or error
                 if (e.message.includes("User rejected")) return;
@@ -381,6 +389,33 @@ export default function Lobby({ onStart }: LobbyProps) {
                         )}
                     </motion.div>
                 ) : null}
+
+                {/* GM Streak Success Overlay */}
+                <AnimatePresence>
+                    {showStreakSuccess && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
+                            transition={{ duration: 0.4 }}
+                            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#050505]/90 backdrop-blur-xl"
+                        >
+                            <motion.div
+                                initial={{ y: 20 }}
+                                animate={{ y: 0 }}
+                                className="flex flex-col items-center gap-4"
+                            >
+                                <div className="text-8xl font-black text-white italic tracking-tighter drop-shadow-[0_0_50px_rgba(0,82,255,0.8)]">
+                                    {streak}
+                                </div>
+                                <div className="text-3xl font-bold text-[#0052FF] font-space tracking-widest uppercase text-center flex flex-col gap-2">
+                                    <span>DAYS ON BASE</span>
+                                    <span className="text-6xl">🟦</span>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {(!isReady) && (
                     <motion.div
