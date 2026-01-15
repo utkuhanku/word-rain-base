@@ -87,19 +87,28 @@ export function useLeaderboard() {
                                     avatarUrl = await getAvatar({ ensName: name, chain: base });
                                 } catch { }
                             } else {
-                                // 3. Fallback: Searchcaster (Public API)
+                                // 3. Fallback: Web3.Bio (Aggregator for Farcaster/Lens/Etc)
                                 try {
-                                    const scRes = await fetch(`https://searchcaster.xyz/api/profiles?address=${player}`);
-                                    if (scRes.ok) {
-                                        const scData = await scRes.json();
-                                        if (scData && scData.length > 0) {
-                                            const user = scData[0].body;
-                                            displayName = `@${user.username}`;
-                                            avatarUrl = user.avatarUrl || null;
+                                    const bioRes = await fetch(`https://api.web3.bio/profile/${player}`);
+                                    if (bioRes.ok) {
+                                        const bioData = await bioRes.json();
+                                        // Prioritize Farcaster, then Lens, then others
+                                        const farcaster = bioData.find((p: any) => p.platform === 'farcaster');
+                                        const lens = bioData.find((p: any) => p.platform === 'lens');
+
+                                        const profile = farcaster || lens || bioData[0];
+
+                                        if (profile) {
+                                            displayName = profile.identity; // e.g., "vitalik.eth" or "vitalik.farcaster"
+                                            // Web3Bio returns 'identity' as the handle. For FC it might be 'username'.
+                                            if (profile.platform === 'farcaster') {
+                                                displayName = `@${profile.identity}`;
+                                            }
+                                            avatarUrl = profile.avatar || null;
                                         }
                                     }
                                 } catch (e) {
-                                    // Silent fail for Searchcaster
+                                    // Silent fail for Web3Bio
                                 }
                             }
                         } catch (e) {

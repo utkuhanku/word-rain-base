@@ -129,16 +129,17 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                let url = `https://basescan.org/address/${entry.address}`;
+                                                let url = `https://wallet.coinbase.com/profile/${entry.address}`;
                                                 if (entry.name.startsWith('@')) {
                                                     url = `https://warpcast.com/${entry.name.slice(1)}`;
                                                 } else if (entry.name.endsWith('.eth')) {
-                                                    url = `https://base.org/name/${entry.name}`;
+                                                    // Basenames/ENS also look great on Wallet profile, but base.org is specific
+                                                    url = `https://wallet.coinbase.com/profile/${entry.name}`;
                                                 }
                                                 window.open(url, '_blank');
                                             }}
                                             className="w-6 h-6 flex items-center justify-center bg-[#0052FF]/10 hover:bg-[#0052FF] text-[#0052FF] hover:text-white rounded transition-all text-[10px]"
-                                            title="View Profile"
+                                            title="View Base Profile"
                                         >
                                             🟦
                                         </button>
