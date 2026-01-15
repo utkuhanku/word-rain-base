@@ -244,8 +244,26 @@ export default function Lobby({ onStart }: LobbyProps) {
                         transition={{ duration: 0.8 }}
                         className="flex flex-col justify-between w-full h-full max-w-md mx-auto p-6 relative z-10"
                     >
+                        {/* Reward Banner */}
+                        <div className="w-full h-6 bg-[#0052FF] flex items-center overflow-hidden relative z-20 shrink-0 mb-2 rounded-sm">
+                            <motion.div
+                                className="flex whitespace-nowrap gap-8"
+                                animate={{ x: ["0%", "-50%"] }}
+                                transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+                            >
+                                {[...Array(4)].map((_, i) => (
+                                    <span key={i} className="text-white font-bold font-mono text-[9px] tracking-widest uppercase flex items-center gap-4">
+                                        <span>SEASON 1: $150 USDC REWARD POOL ACTIVE</span>
+                                        <span className="text-white/40">//</span>
+                                        <span>SECURE YOUR SPOT ON THE LEADERBOARD</span>
+                                        <span className="text-white/40">//</span>
+                                    </span>
+                                ))}
+                            </motion.div>
+                        </div>
+
                         {/* Header Status */}
-                        <div className="w-full flex justify-between items-center py-4 border-b border-white/5">
+                        <div className="w-full flex justify-between items-center py-2 border-b border-white/5">
                             <div className="flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                 <span className="text-[10px] font-mono text-zinc-500 tracking-[0.2em] uppercase">System Online</span>
