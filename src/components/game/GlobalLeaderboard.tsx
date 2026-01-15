@@ -74,60 +74,59 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                             <p className="text-xs font-mono text-zinc-500 uppercase">Registry Empty</p>
                         </div>
                     ) : (
-                    ): (
-                            leaderboard.map((entry, i) => {
+                        leaderboard.map((entry, i) => {
                             const isTop5 = i < 5;
-                    const isFirst = i === 0;
+                            const isFirst = i === 0;
 
-                    return (
-                    <div
-                        key={i}
-                        className={`group flex justify-between items-center p-4 rounded-lg border transition-all duration-300 ${isFirst
-                                ? "bg-[#0052FF]/20 border-[#0052FF]/50 shadow-[0_0_30px_rgba(0,82,255,0.2)]"
-                                : isTop5
-                                    ? "bg-white/[0.05] border-white/10"
-                                    : "bg-white/[0.02] hover:bg-white/[0.06] border-transparent hover:border-white/5"
-                            }`}
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className={`font-mono font-bold w-6 flex justify-center ${isFirst ? "text-[#0052FF] text-lg scale-110" : "text-zinc-600 group-hover:text-zinc-400 text-xs"}`}>
-                                {isFirst ? "👑" : (i + 1).toString().padStart(2, '0')}
-                            </div>
-                            <div className="flex items-center gap-3">
-                                {/* Avatar */}
-                                <div className={`w-8 h-8 rounded-full overflow-hidden shrink-0 ${isFirst ? "ring-2 ring-[#0052FF]" : "bg-zinc-800 border border-white/10"}`}>
-                                    {entry.avatar ? (
-                                        <img src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className={`w-full h-full flex items-center justify-center text-[10px] font-mono ${isFirst ? "bg-[#0052FF] text-white" : "bg-gradient-to-br from-[#0052FF]/20 to-zinc-900 text-zinc-500"}`}>
-                                            {entry.name.slice(0, 2).toUpperCase()}
+                            return (
+                                <div
+                                    key={i}
+                                    className={`group flex justify-between items-center p-4 rounded-lg border transition-all duration-300 ${isFirst
+                                        ? "bg-[#0052FF]/20 border-[#0052FF]/50 shadow-[0_0_30px_rgba(0,82,255,0.2)]"
+                                        : isTop5
+                                            ? "bg-white/[0.05] border-white/10"
+                                            : "bg-white/[0.02] hover:bg-white/[0.06] border-transparent hover:border-white/5"
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={`font-mono font-bold w-6 flex justify-center ${isFirst ? "text-[#0052FF] text-lg scale-110" : "text-zinc-600 group-hover:text-zinc-400 text-xs"}`}>
+                                            {isFirst ? "👑" : (i + 1).toString().padStart(2, '0')}
                                         </div>
-                                    )}
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-sm font-mono tracking-wide transition-all ${isFirst ? "text-white font-bold" : "text-zinc-300 group-hover:text-white"}`}>
-                                            {entry.name}
-                                        </span>
-                                        {isFirst && (
-                                            <span className="bg-[#0052FF] text-white text-[8px] font-bold px-1.5 py-0.5 rounded animate-pulse shadow-[0_0_10px_#0052FF]">
-                                                $100 PRIZE
-                                            </span>
-                                        )}
+                                        <div className="flex items-center gap-3">
+                                            {/* Avatar */}
+                                            <div className={`w-8 h-8 rounded-full overflow-hidden shrink-0 ${isFirst ? "ring-2 ring-[#0052FF]" : "bg-zinc-800 border border-white/10"}`}>
+                                                {entry.avatar ? (
+                                                    <img src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className={`w-full h-full flex items-center justify-center text-[10px] font-mono ${isFirst ? "bg-[#0052FF] text-white" : "bg-gradient-to-br from-[#0052FF]/20 to-zinc-900 text-zinc-500"}`}>
+                                                        {entry.name.slice(0, 2).toUpperCase()}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-sm font-mono tracking-wide transition-all ${isFirst ? "text-white font-bold" : "text-zinc-300 group-hover:text-white"}`}>
+                                                        {entry.name}
+                                                    </span>
+                                                    {isFirst && (
+                                                        <span className="bg-[#0052FF] text-white text-[8px] font-bold px-1.5 py-0.5 rounded animate-pulse shadow-[0_0_10px_#0052FF]">
+                                                            $100 PRIZE
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {isTop5 && !isFirst && (
+                                                    <span className="text-[9px] text-[#0052FF] font-mono tracking-widest opacity-80">
+                                                        Top 5 Candidate
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                    {isTop5 && !isFirst && (
-                                        <span className="text-[9px] text-[#0052FF] font-mono tracking-widest opacity-80">
-                                            Top 5 Candidate
-                                        </span>
-                                    )}
+                                    <span className={`font-mono text-sm font-bold opacity-80 group-hover:opacity-100 transition-all ${isFirst ? "text-[#0052FF]" : "text-[#0052FF]"}`}>
+                                        {entry.score}
+                                    </span>
                                 </div>
-                            </div>
-                        </div>
-                        <span className={`font-mono text-sm font-bold opacity-80 group-hover:opacity-100 transition-all ${isFirst ? "text-[#0052FF]" : "text-[#0052FF]"}`}>
-                            {entry.score}
-                        </span>
-                    </div>
-                    );
+                            );
                         })
                     )}
                 </div>
