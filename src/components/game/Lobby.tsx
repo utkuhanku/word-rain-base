@@ -294,6 +294,19 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         <span>→</span>
                                     </button>
 
+                                    {/* GM Streak Button */}
+                                    <button
+                                        onClick={() => {
+                                            const text = encodeURIComponent("Baseposted with Word Rain 🟦 🌧️ - Stay Based 🟦\npowered by @utkus.farcaster.eth");
+                                            const embed = encodeURIComponent(window.location.origin);
+                                            window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
+                                        }}
+                                        className="w-full h-14 bg-[#0052FF] text-white font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 hover:bg-[#0040DD] transition-colors shadow-[0_0_20px_rgba(0,82,255,0.3)]"
+                                    >
+                                        <span>GM Streak ⚡</span>
+                                        <span className="text-[10px] font-mono opacity-80 bg-white/20 px-2 py-0.5 rounded">SHARE</span>
+                                    </button>
+
                                     <button
                                         onClick={handleOpenLeaderboard}
                                         className={`w-full h-14 border ${hasPaid ? "border-[#0052FF] text-[#0052FF] bg-[#0052FF]/5" : "border-white/10 text-zinc-400"} font-mono text-xs tracking-widest uppercase flex items-center justify-between px-6 hover:border-[#0052FF] hover:bg-[#0052FF]/10 transition-all`}
