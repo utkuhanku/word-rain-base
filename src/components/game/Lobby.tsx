@@ -253,9 +253,13 @@ export default function Lobby({ onStart }: LobbyProps) {
                             >
                                 {[...Array(4)].map((_, i) => (
                                     <span key={i} className="text-white font-bold font-mono text-[9px] tracking-widest uppercase flex items-center gap-4">
-                                        <span>SEASON 1: $150 USDC REWARD POOL ACTIVE</span>
+                                        <span>STAY BASED & PLAY WORD RAIN</span>
                                         <span className="text-white/40">//</span>
-                                        <span>SECURE YOUR SPOT ON THE LEADERBOARD</span>
+                                        <span>TOP 5 PLAYERS REWARDED</span>
+                                        <span className="text-white/40">//</span>
+                                        <span>1ST PLACE: $100</span>
+                                        <span className="text-white/40">//</span>
+                                        <span>TOTAL POOL: $200</span>
                                         <span className="text-white/40">//</span>
                                     </span>
                                 ))}

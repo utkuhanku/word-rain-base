@@ -37,6 +37,42 @@
         "IERC20",
         "ScoreRegistry"
       ]
+    },
+    "/Users/utkuhankocaturk/.gemini/antigravity/scratch/word-rain-base/contracts/GMRegistry.sol": {
+      "lastModificationDate": 1768455355449,
+      "contentHash": "004d8983a103dfe61d478df82c3d2ec1",
+      "sourceName": "contracts/GMRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "GMRegistry"
+      ]
     }
   }
 }

@@ -1,18 +1,27 @@
-async function main() {
-    const addr = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
-    console.log(`Checking Searchcaster for ${addr}...`);
+const fetch = require('node-fetch');
+
+async function searchCasts(username) {
+    // Exact text matching logic
+    const query = "Baseposted with Word Rain";
+    const url = `https://searchcaster.xyz/api/search?text=${encodeURIComponent(query)}&username=${username}`;
+    console.log("Querying:", url);
 
     try {
-        const res = await fetch(`https://searchcaster.xyz/api/profiles?address=${addr}`);
+        const res = await fetch(url);
         const data = await res.json();
+        console.log("Full Response:", JSON.stringify(data, null, 2));
 
-        console.log("Status:", res.status);
-        console.log("Found:", data.length);
-        if (data.length > 0) {
-            console.log("User:", data[0].username, data[0].displayName);
+        if (data.casts) {
+            console.log(`Found ${data.casts.length} casts.`);
+            data.casts.forEach(cast => {
+                console.log(`- [${new Date(cast.body.publishedAt).toISOString()}] ${cast.body.data.text.substring(0, 50)}...`);
+            });
+        } else {
+            console.log("No 'casts' field in response.");
         }
     } catch (e) {
-        console.error("Error:", e.message);
+        console.error("Error:", e);
     }
 }
-main();
+
+searchCasts("utkus"); // Test with owner username
