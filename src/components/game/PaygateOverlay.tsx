@@ -112,7 +112,7 @@ export default function PaygateOverlay() {
 
     const generateHype = () => {
         const phrase = HYPE_PHRASES[Math.floor(Math.random() * HYPE_PHRASES.length)];
-        const text = `${phrase} Score: ${score} in Word Rain 🌧️\n\nPlay now:\n@utkus.base.eth`;
+        const text = `${phrase} Score: ${score} in Word Rain 🌧️\n\nPlay now:\n@utkus`;
         // Use proper intent for Base App / Warpcast
         const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=https://word-rain-base.vercel.app`;
         window.open(url, '_blank');
