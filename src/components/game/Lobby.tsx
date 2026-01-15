@@ -8,7 +8,64 @@ import { base } from 'viem/chains';
 import sdk, { type Context } from "@farcaster/frame-sdk";
 import GlobalLeaderboard from './GlobalLeaderboard';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard'; // Import hook at top
-import { usePaymentStatus } from '@/lib/hooks/usePaymentStatus';
+// ... imports
+import { useGMStreak } from '@/lib/hooks/useGMStreak';
+
+// ... inside Lobby component ...
+// GM Streak Hook (Onchain)
+const { streak, canGM, isSending, sendGM, fetchStreak } = useGMStreak(address);
+
+const handleGMaction = async () => {
+    if (!address) {
+        setErrorMsg("CONNECT WALLET TO START STREAK");
+        return;
+    }
+
+    if (canGM) {
+        try {
+            await sendGM();
+            // After success, open share
+            const text = encodeURIComponent(`GM! I just levelled up my onchain streak to ${streak + 1} on Word Rain 🟦 🌧️\n\nVerifiable. Permanent. Based.\n\npowered by @utkus.farcaster.eth`);
+            const embed = encodeURIComponent(window.location.origin);
+            window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
+        } catch (e: any) {
+            // If user rejected or error
+            if (e.message.includes("User rejected")) return;
+            setErrorMsg("GM Failed. Try again.");
+        }
+    } else {
+        // Already GM'd -> Just Share
+        const text = encodeURIComponent(`My Onchain GM Streak is ${streak} 🔥 on Word Rain 🟦 🌧️\n\nCan you beat it?\n\npowered by @utkus.farcaster.eth`);
+        const embed = encodeURIComponent(window.location.origin);
+        window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
+    }
+};
+
+// ... inside return JSX ...
+{/* GM Streak Button (Onchain) */ }
+<button
+    onClick={handleGMaction}
+    disabled={isSending}
+    className={`w-full h-14 ${canGM ? "bg-[#0052FF] hover:bg-[#0040DD] text-white shadow-[0_0_20px_rgba(0,82,255,0.3)]" : "bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/20"} font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 transition-all`}
+>
+    <div className="flex flex-col items-start gap-0.5">
+        <span className="text-[10px] opacity-70 font-mono leading-none">
+            {canGM ? "READY TO LEVEL UP" : "DAILY STREAK ACTIVE"}
+        </span>
+        <span>
+            {isSending ? "MINTING..." : (canGM ? "GM STREAK ⚡" : `STREAK: ${streak} 🔥`)}
+        </span>
+    </div>
+    {canGM ? (
+        <span className="text-[10px] font-mono opacity-80 bg-white/20 px-2 py-0.5 rounded">
+            +1
+        </span>
+    ) : (
+        <span className="text-[10px] font-mono opacity-80 border border-current px-2 py-0.5 rounded">
+            SHARE
+        </span>
+    )}
+</button>
 import HelpModal from './HelpModal';
 
 interface LobbyProps {
@@ -294,17 +351,29 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         <span>→</span>
                                     </button>
 
-                                    {/* GM Streak Button */}
+                                    {/* GM Streak Button (Onchain) */}
                                     <button
-                                        onClick={() => {
-                                            const text = encodeURIComponent("Baseposted with Word Rain 🟦 🌧️ - Stay Based 🟦\npowered by @utkus.farcaster.eth");
-                                            const embed = encodeURIComponent(window.location.origin);
-                                            window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
-                                        }}
-                                        className="w-full h-14 bg-[#0052FF] text-white font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 hover:bg-[#0040DD] transition-colors shadow-[0_0_20px_rgba(0,82,255,0.3)]"
+                                        onClick={handleGMaction}
+                                        disabled={isSending}
+                                        className={`w-full h-14 ${canGM ? "bg-[#0052FF] hover:bg-[#0040DD] text-white shadow-[0_0_20px_rgba(0,82,255,0.3)]" : "bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/20"} font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 transition-all`}
                                     >
-                                        <span>GM Streak ⚡</span>
-                                        <span className="text-[10px] font-mono opacity-80 bg-white/20 px-2 py-0.5 rounded">SHARE</span>
+                                        <div className="flex flex-col items-start gap-0.5">
+                                            <span className="text-[10px] opacity-70 font-mono leading-none">
+                                                {canGM ? "READY TO LEVEL UP" : "DAILY STREAK ACTIVE"}
+                                            </span>
+                                            <span>
+                                                {isSending ? "MINTING..." : (canGM ? "GM STREAK ⚡" : `STREAK: ${streak} 🔥`)}
+                                            </span>
+                                        </div>
+                                        {canGM ? (
+                                            <span className="text-[10px] font-mono opacity-80 bg-white/20 px-2 py-0.5 rounded">
+                                                +1
+                                            </span>
+                                        ) : (
+                                            <span className="text-[10px] font-mono opacity-80 border border-current px-2 py-0.5 rounded">
+                                                SHARE
+                                            </span>
+                                        )}
                                     </button>
 
                                     <button
