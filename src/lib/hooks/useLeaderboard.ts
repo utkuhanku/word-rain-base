@@ -87,19 +87,20 @@ export function useLeaderboard() {
                                     avatarUrl = await getAvatar({ ensName: name, chain: base });
                                 } catch { }
                             } else {
-                                // 3. Fallback: Farcaster Profile (Warpcast API)
+                            } else {
+                                // 3. Fallback: Searchcaster (Public API)
                                 try {
-                                    const fcRes = await fetch(`https://client.warpcast.com/v2/user-by-verification?address=${player}`);
-                                    if (fcRes.ok) {
-                                        const fcData = await fcRes.json();
-                                        const user = fcData.result?.user;
-                                        if (user) {
+                                    const scRes = await fetch(`https://searchcaster.xyz/api/profiles?address=${player}`);
+                                    if (scRes.ok) {
+                                        const scData = await scRes.json();
+                                        if (scData && scData.length > 0) {
+                                            const user = scData[0].body;
                                             displayName = `@${user.username}`;
-                                            avatarUrl = user.pfp?.url || null;
+                                            avatarUrl = user.avatarUrl || null;
                                         }
                                     }
                                 } catch (e) {
-                                    // Silent fail for FC
+                                    // Silent fail for Searchcaster
                                 }
                             }
                         } catch (e) {

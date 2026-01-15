@@ -122,9 +122,27 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                                             </div>
                                         </div>
                                     </div>
-                                    <span className={`font-mono text-sm font-bold opacity-80 group-hover:opacity-100 transition-all ${isFirst ? "text-[#0052FF]" : "text-[#0052FF]"}`}>
-                                        {entry.score}
-                                    </span>
+                                    <div className="flex items-center gap-3">
+                                        <span className={`font-mono text-sm font-bold opacity-80 group-hover:opacity-100 transition-all ${isFirst ? "text-[#0052FF]" : "text-[#0052FF]"}`}>
+                                            {entry.score}
+                                        </span>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                let url = `https://basescan.org/address/${entry.address}`;
+                                                if (entry.name.startsWith('@')) {
+                                                    url = `https://warpcast.com/${entry.name.slice(1)}`;
+                                                } else if (entry.name.endsWith('.eth')) {
+                                                    url = `https://base.org/name/${entry.name}`;
+                                                }
+                                                window.open(url, '_blank');
+                                            }}
+                                            className="w-6 h-6 flex items-center justify-center bg-[#0052FF]/10 hover:bg-[#0052FF] text-[#0052FF] hover:text-white rounded transition-all text-[10px]"
+                                            title="View Profile"
+                                        >
+                                            🟦
+                                        </button>
+                                    </div>
                                 </div>
                             );
                         })
