@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useGameStore } from '@/lib/store/gameStore';
-import { useAccount, usePublicClient } from 'wagmi';
+import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
 import { useConnect } from 'wagmi';
 import { parseAbiItem } from 'viem';
 import { useScoreBoard } from '@/lib/hooks/useScoreBoard';
@@ -12,13 +12,40 @@ export default function PaygateOverlay() {
     const score = useGameStore((state) => state.score);
     const resetGame = useGameStore((state) => state.resetGame);
     const setStatus = useGameStore((state) => state.setStatus);
+    const reviveGame = useGameStore((state) => state.reviveGame); // New Action
     const { isConnected } = useAccount();
     const { connect, connectors } = useConnect();
+    const { writeContractAsync } = useWriteContract(); // For Revive Payment
 
+    // ... imports
     // NEW HOOK: Centralized Score Submission
     const { submitScore, isSubmitting } = useScoreBoard();
 
     const [isPaid, setIsPaid] = useState(false);
+    const [isReviving, setIsReviving] = useState(false);
+
+    // ...
+
+    const handleRevive = async () => {
+        setIsReviving(true);
+        try {
+            const hash = await writeContractAsync({
+                address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC Base
+                abi: [parseAbiItem('function transfer(address to, uint256 value)')],
+                functionName: 'transfer',
+                args: ["0x6edd22E9792132614dD487aC6434dec3709b79A8", BigInt(500000)] // 0.50 USDC
+            });
+
+            if (publicClient) {
+                await publicClient.waitForTransactionReceipt({ hash });
+                reviveGame(); // Resume Game with 1 Life
+            }
+        } catch (e) {
+            console.error("Revive Payment Failed", e);
+        } finally {
+            setIsReviving(false);
+        }
+    };
     // Legacy Payment State (isPaying) replaced by isSubmitting from hook if needed, 
     // but we can use isSubmitting directly in UI.
 
@@ -138,6 +165,24 @@ export default function PaygateOverlay() {
                                 Retry Run
                             </button>
                         </div>
+
+                        {/* Revive Option */}
+                        {isConnected && (
+                            <button
+                                onClick={handleRevive}
+                                disabled={isReviving}
+                                className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-white font-bold tracking-tight text-sm uppercase transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2"
+                            >
+                                {isReviving ? (
+                                    <span className="animate-pulse">Resurrecting...</span>
+                                ) : (
+                                    <>
+                                        <span>❤️ Continue (1 Life)</span>
+                                        <span className="bg-black/20 px-1.5 py-0.5 rounded text-[10px] font-mono">$0.50</span>
+                                    </>
+                                )}
+                            </button>
+                        )}
 
                         {isConnected ? (
                             <button

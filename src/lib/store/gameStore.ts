@@ -16,6 +16,7 @@ interface GameState {
     setLives: (lives: number) => void;
     loseLife: () => void;
     resetGame: () => void;
+    reviveGame: () => void;
     setBestScore: (score: number) => void;
 }
 
@@ -31,5 +32,6 @@ export const useGameStore = create<GameState>((set) => ({
     setLives: (lives) => set({ lives }),
     loseLife: () => set((state) => ({ lives: Math.max(0, state.lives - 1) })),
     resetGame: () => set({ status: 'playing', score: 0, lives: 3 }),
+    reviveGame: () => set({ status: 'playing', lives: 1 }),
     setBestScore: (score) => set({ bestScore: score }),
 }));
