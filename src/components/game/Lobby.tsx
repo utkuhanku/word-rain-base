@@ -11,31 +11,7 @@ import { useLeaderboard } from '@/lib/hooks/useLeaderboard'; // Import hook at t
 import { usePaymentStatus } from '@/lib/hooks/usePaymentStatus';
 import { useGMStreak } from '@/lib/hooks/useGMStreak';
 
-// ... inside return JSX ...
-{/* GM Streak Button (Onchain) */ }
-<button
-    onClick={handleGMaction}
-    disabled={isSending}
-    className={`w-full h-14 ${canGM ? "bg-[#0052FF] hover:bg-[#0040DD] text-white shadow-[0_0_20px_rgba(0,82,255,0.3)]" : "bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/20"} font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 transition-all`}
->
-    <div className="flex flex-col items-start gap-0.5">
-        <span className="text-[10px] opacity-70 font-mono leading-none">
-            {canGM ? "READY TO LEVEL UP" : "DAILY STREAK ACTIVE"}
-        </span>
-        <span>
-            {isSending ? "MINTING..." : (canGM ? "GM STREAK ⚡" : `STREAK: ${streak} 🔥`)}
-        </span>
-    </div>
-    {canGM ? (
-        <span className="text-[10px] font-mono opacity-80 bg-white/20 px-2 py-0.5 rounded">
-            +1
-        </span>
-    ) : (
-        <span className="text-[10px] font-mono opacity-80 border border-current px-2 py-0.5 rounded">
-            SHARE
-        </span>
-    )}
-</button>
+
 import HelpModal from './HelpModal';
 
 interface LobbyProps {
