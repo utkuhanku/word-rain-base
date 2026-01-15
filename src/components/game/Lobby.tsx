@@ -8,38 +8,8 @@ import { base } from 'viem/chains';
 import sdk, { type Context } from "@farcaster/frame-sdk";
 import GlobalLeaderboard from './GlobalLeaderboard';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard'; // Import hook at top
-// ... imports
+import { usePaymentStatus } from '@/lib/hooks/usePaymentStatus';
 import { useGMStreak } from '@/lib/hooks/useGMStreak';
-
-// ... inside Lobby component ...
-// GM Streak Hook (Onchain)
-const { streak, canGM, isSending, sendGM, fetchStreak } = useGMStreak(address);
-
-const handleGMaction = async () => {
-    if (!address) {
-        setErrorMsg("CONNECT WALLET TO START STREAK");
-        return;
-    }
-
-    if (canGM) {
-        try {
-            await sendGM();
-            // After success, open share
-            const text = encodeURIComponent(`GM! I just levelled up my onchain streak to ${streak + 1} on Word Rain 🟦 🌧️\n\nVerifiable. Permanent. Based.\n\npowered by @utkus.farcaster.eth`);
-            const embed = encodeURIComponent(window.location.origin);
-            window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
-        } catch (e: any) {
-            // If user rejected or error
-            if (e.message.includes("User rejected")) return;
-            setErrorMsg("GM Failed. Try again.");
-        }
-    } else {
-        // Already GM'd -> Just Share
-        const text = encodeURIComponent(`My Onchain GM Streak is ${streak} 🔥 on Word Rain 🟦 🌧️\n\nCan you beat it?\n\npowered by @utkus.farcaster.eth`);
-        const embed = encodeURIComponent(window.location.origin);
-        window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
-    }
-};
 
 // ... inside return JSX ...
 {/* GM Streak Button (Onchain) */ }
@@ -90,6 +60,34 @@ export default function Lobby({ onStart }: LobbyProps) {
     // Leaderboard Hook
     const { leaderboard, fetchLeaderboard, isLoading: isScanningList } = useLeaderboard();
     const { hasPaid, isChecking: isCheckingPayment, checkAddresses } = usePaymentStatus();
+    // GM Streak Hook (Onchain)
+    const { streak, canGM, isSending, sendGM, fetchStreak } = useGMStreak(address);
+
+    const handleGMaction = async () => {
+        if (!address) {
+            setErrorMsg("CONNECT WALLET TO START STREAK");
+            return;
+        }
+
+        if (canGM) {
+            try {
+                await sendGM();
+                // After success, open share
+                const text = encodeURIComponent(`GM! I just levelled up my onchain streak to ${streak + 1} on Word Rain 🟦 🌧️\n\nVerifiable. Permanent. Based.\n\npowered by @utkus.farcaster.eth`);
+                const embed = encodeURIComponent(window.location.origin);
+                window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
+            } catch (e: any) {
+                // If user rejected or error
+                if (e.message.includes("User rejected")) return;
+                setErrorMsg("GM Failed. Try again.");
+            }
+        } else {
+            // Already GM'd -> Just Share
+            const text = encodeURIComponent(`My Onchain GM Streak is ${streak} 🔥 on Word Rain 🟦 🌧️\n\nCan you beat it?\n\npowered by @utkus.farcaster.eth`);
+            const embed = encodeURIComponent(window.location.origin);
+            window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
+        }
+    };
 
     // ...
 
