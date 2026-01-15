@@ -47,12 +47,13 @@ export function useGMStreak(address?: string) {
                 abi: GMRegistryABI,
                 functionName: 'gm',
                 account: address as `0x${string}`,
+                // @ts-ignore
                 capabilities: {
                     paymasterService: {
-                        url: "https://api.developer.coinbase.com/rpc/v1/base/fd060805-4f46-444f-8360-1e563032d847" // Public/Demo or standard Base Paymaster
+                        url: "https://api.developer.coinbase.com/rpc/v1/base/fd060805-4f46-444f-8360-1e563032d847"
                     }
                 }
-            });
+            } as any);
 
             // Wait for confirmation
             if (publicClient) {
