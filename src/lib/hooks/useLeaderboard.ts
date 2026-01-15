@@ -78,13 +78,32 @@ export function useLeaderboard() {
                         } catch { }
                     } else {
                         // 1. Try Basename (OnchainKit)
-                        const name = await getName({ address: player, chain: base });
-                        if (name) {
-                            displayName = name;
-                            // 2. Only fetch avatar if we have a name
-                            try {
-                                avatarUrl = await getAvatar({ ensName: name, chain: base });
-                            } catch { }
+                        try {
+                            const name = await getName({ address: player, chain: base });
+                            if (name) {
+                                displayName = name;
+                                // 2. Only fetch avatar if we have a name
+                                try {
+                                    avatarUrl = await getAvatar({ ensName: name, chain: base });
+                                } catch { }
+                            } else {
+                                // 3. Fallback: Farcaster Profile (Warpcast API)
+                                try {
+                                    const fcRes = await fetch(`https://client.warpcast.com/v2/user-by-verification?address=${player}`);
+                                    if (fcRes.ok) {
+                                        const fcData = await fcRes.json();
+                                        const user = fcData.result?.user;
+                                        if (user) {
+                                            displayName = `@${user.username}`;
+                                            avatarUrl = user.pfp?.url || null;
+                                        }
+                                    }
+                                } catch (e) {
+                                    // Silent fail for FC
+                                }
+                            }
+                        } catch (e) {
+                            console.warn("Identity Resolution Failed:", e);
                         }
                     }
                 }
