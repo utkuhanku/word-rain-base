@@ -23,6 +23,24 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
             {/* Card */}
             <div className="w-full max-w-md h-[80vh] flex flex-col bg-[#0A0A0A] border border-white/10 shadow-2xl relative z-10 rounded-xl overflow-hidden">
 
+                {/* Reward Banner */}
+                <div className="relative overflow-hidden h-8 bg-[#0052FF] flex items-center">
+                    <motion.div
+                        className="flex whitespace-nowrap gap-8"
+                        animate={{ x: ["0%", "-50%"] }}
+                        transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+                    >
+                        {[...Array(4)].map((_, i) => (
+                            <span key={i} className="text-white font-bold font-mono text-xs tracking-widest uppercase flex items-center gap-4">
+                                <span>CLIMB THE LEADERBOARD TO NOT MISS THE FIRST REWARD PROGRAM</span>
+                                <span className="text-white/40">//</span>
+                                <span>TOTAL PRIZE POOL: $150!</span>
+                                <span className="text-white/40">//</span>
+                            </span>
+                        ))}
+                    </motion.div>
+                </div>
+
                 {/* Header */}
                 <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                     <div>
