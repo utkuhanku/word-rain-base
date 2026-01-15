@@ -87,7 +87,6 @@ export function useLeaderboard() {
                                     avatarUrl = await getAvatar({ ensName: name, chain: base });
                                 } catch { }
                             } else {
-                            } else {
                                 // 3. Fallback: Searchcaster (Public API)
                                 try {
                                     const scRes = await fetch(`https://searchcaster.xyz/api/profiles?address=${player}`);
