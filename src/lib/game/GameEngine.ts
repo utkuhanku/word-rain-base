@@ -62,11 +62,26 @@ export class GameEngine {
         this.entities = [];
         this.spawnTimer = 0;
         this.difficultyTimer = 0;
-        this.spawnInterval = 2000;
-        this.baseSpeed = 1.0;
         this.activeTypedChain = "";
 
-        useGameStore.getState().resetGame();
+        // Check if this is a Revive (Score > 0) or Fresh Start
+        const currentScore = useGameStore.getState().score;
+
+        if (currentScore > 0) {
+            // REVIVE: Restore difficulty roughly based on score
+            // Speed starts at 1.0, increases 0.2 every 10s (approx every 3-4 words early on, but let's approximate)
+            // Let's assume 1 score ~= 1 word. 
+            // A roughly reasonable difficulty curve restoration:
+            const difficultyFactor = Math.min(currentScore / 10, 10); // Cap at some point
+            this.baseSpeed = 1.0 + (difficultyFactor * 0.2);
+            this.spawnInterval = Math.max(500, 2000 - (difficultyFactor * 100));
+        } else {
+            // FRESH START
+            this.spawnInterval = 2000;
+            this.baseSpeed = 1.0;
+            // Ensure store is reset if not already (safeguard, though UI handles it)
+            // We DON'T call resetGame() here to avoid loop/override issues if UI set it up.
+        }
 
         this.loop(performance.now());
     }
