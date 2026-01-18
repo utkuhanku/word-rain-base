@@ -6,6 +6,8 @@
     "iconUrl": "https://word-rain-base.vercel.app/icon.png",
     "homeUrl": "https://word-rain-base.vercel.app",
     "imageUrl": "https://word-rain-base.vercel.app/splash.png",
-    "buttonTitle": "Play"
+    "buttonTitle": "Play",
+    "splashImageUrl": "https://word-rain-base.vercel.app/splash.png",
+    "splashBackgroundColor": "#050505"
   }
 }
