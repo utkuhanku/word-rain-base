@@ -48,6 +48,14 @@ export default function Home() {
     };
   }, []);
 
+  // Sync Game Status with App State to handle "Home" navigation
+  const status = useGameStore((state) => state.status);
+  useEffect(() => {
+    if (status === 'idle' && appState === 'game') {
+      setAppState('lobby');
+    }
+  }, [status, appState]);
+
   const containerStyle = viewportHeight ? { height: `${viewportHeight}px` } : { height: '100dvh' };
 
   return (

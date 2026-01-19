@@ -7,10 +7,14 @@ interface GameState {
     score: number;
     lives: number;
     bestScore: number;
+    pvpGameId: string | null;
+    hasUsedRetry: boolean;
 
     // Actions
     setStatus: (status: GameStatus) => void;
     setScore: (score: number) => void;
+    setPvPGameId: (id: string | null) => void;
+    setHasUsedRetry: (used: boolean) => void;
     // Increment score by delta
     addScore: (delta: number) => void;
     setLives: (lives: number) => void;
@@ -34,4 +38,8 @@ export const useGameStore = create<GameState>((set) => ({
     resetGame: () => set({ status: 'playing', score: 0, lives: 3 }),
     reviveGame: () => set({ status: 'playing', lives: 1 }),
     setBestScore: (score) => set({ bestScore: score }),
+    pvpGameId: null,
+    setPvPGameId: (id) => set({ pvpGameId: id, hasUsedRetry: false }),
+    hasUsedRetry: false,
+    setHasUsedRetry: (used) => set({ hasUsedRetry: used }),
 }));

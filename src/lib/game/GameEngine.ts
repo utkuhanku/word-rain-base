@@ -59,10 +59,7 @@ export class GameEngine {
         if (this.isRunning) return;
         this.isRunning = true;
         this.lastTime = performance.now();
-        this.entities = [];
-        this.spawnTimer = 0;
-        this.difficultyTimer = 0;
-        this.activeTypedChain = "";
+        // Timers/State moved to Fresh Start block to support Revive
 
         // Check if this is a Revive (Score > 0) or Fresh Start
         const currentScore = useGameStore.getState().score;
@@ -75,8 +72,19 @@ export class GameEngine {
             const difficultyFactor = Math.min(currentScore / 10, 10); // Cap at some point
             this.baseSpeed = 1.0 + (difficultyFactor * 0.2);
             this.spawnInterval = Math.max(500, 2000 - (difficultyFactor * 100));
+
+            // IMPORTANT: We DO NOT clear entities here.
+            // The user wants to continue exactly where they left off.
+            // The entity that caused death was already removed in update(), so this is safe.
         } else {
             // FRESH START
+            this.entities = [];
+            this.activeTypedChain = "";
+            this.activeWrongChar = null;
+            this.spawnTimer = 0;
+            this.lastSpawnTime = 0;
+            this.difficultyTimer = 0;
+
             this.spawnInterval = 2000;
             this.baseSpeed = 1.0;
             // Ensure store is reset if not already (safeguard, though UI handles it)

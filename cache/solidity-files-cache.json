@@ -73,6 +73,116 @@
       "artifacts": [
         "GMRegistry"
       ]
+    },
+    "/Users/utkuhankocaturk/Desktop/word-rain-base/contracts/GMRegistry.sol": {
+      "lastModificationDate": 1768812132989,
+      "contentHash": "004d8983a103dfe61d478df82c3d2ec1",
+      "sourceName": "contracts/GMRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "GMRegistry"
+      ]
+    },
+    "/Users/utkuhankocaturk/Desktop/word-rain-base/contracts/PvPRegistry.sol": {
+      "lastModificationDate": 1768842672910,
+      "contentHash": "3e21e42e0dc22e5191a6baa6d3c9e497",
+      "sourceName": "contracts/PvPRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC20",
+        "PvPRegistry"
+      ]
+    },
+    "/Users/utkuhankocaturk/Desktop/word-rain-base/contracts/ScoreRegistry.sol": {
+      "lastModificationDate": 1768812132989,
+      "contentHash": "20cbd88e1f98fcc4e44c2bef420c2eca",
+      "sourceName": "contracts/ScoreRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "IERC20",
+        "ScoreRegistry"
+      ]
     }
   }
 }

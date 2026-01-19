@@ -10,11 +10,9 @@ import GlobalLeaderboard from './GlobalLeaderboard';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard'; // Import hook at top
 import { usePaymentStatus } from '@/lib/hooks/usePaymentStatus';
 import { useGMStreak } from '@/lib/hooks/useGMStreak';
-import { useGameStore } from '@/lib/store/gameStore';
 
 
 import CompetitionLobby from './CompetitionLobby';
-import HelpModal from './HelpModal';
 
 interface LobbyProps {
     onStart: () => void;
@@ -34,139 +32,13 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [isLeaderboardOpening, setIsLeaderboardOpening] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
 
-    // Leaderboard Hook
-    const { leaderboard, fetchLeaderboard, isLoading: isScanningList } = useLeaderboard();
-    const { hasPaid, isChecking: isCheckingPayment, checkAddresses } = usePaymentStatus();
-    // GM Streak Hook (Onchain)
-    const { streak, canGM, isSending, sendGM, fetchStreak } = useGMStreak(address);
-    const setPvPGameId = useGameStore(state => state.setPvPGameId);
+    // ... (rest of hooks)
 
-    const [showStreakSuccess, setShowStreakSuccess] = useState(false);
-
-    const handleGMaction = async () => {
-        if (!address) {
-            setErrorMsg("CONNECT WALLET TO START STREAK");
-            return;
-        }
-
-        if (canGM) {
-            try {
-                await sendGM();
-                // Success Animation
-                setShowStreakSuccess(true);
-                setTimeout(() => {
-                    setShowStreakSuccess(false);
-                    // Open share after animation
-                    const text = encodeURIComponent(`GM! I just levelled up my onchain streak to ${streak + 1} on Word Rain 🟦 🌧️\n\nVerifiable. Permanent. Based.\n\npowered by @utkus`);
-                    const embed = encodeURIComponent(window.location.origin);
-                    window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
-                }, 2500); // 2.5s display
-
-            } catch (e: any) {
-                // If user rejected or error
-                if (e.message.includes("User rejected")) return;
-                setErrorMsg("GM Failed. Try again.");
-            }
-        } else {
-            // Already GM'd -> Just Share
-            const text = encodeURIComponent(`My Onchain GM Streak is ${streak} 🔥 on Word Rain 🟦 🌧️\n\nCan you beat it?\n\npowered by @utkus`);
-            const embed = encodeURIComponent(window.location.origin);
-            window.open(`https://warpcast.com/~/compose?text=${text}&embeds[]=${embed}`, '_blank');
-        }
-    };
-
-    useEffect(() => {
-        const signalReady = async () => {
-            // Give the app a moment to hydrate
-            setTimeout(() => sdk.actions.ready(), 200);
-        };
-        signalReady();
-    }, []);
-
-    // 1. Initial Identity Check (Passive)
-    useEffect(() => {
-        const init = async () => {
-            setIsChecking(true);
-            try {
-                const ctx = await sdk.context;
-                setContext(ctx);
-
-                // Auto-detect from context
-                if (ctx?.user?.username) {
-                    setDisplayName(ctx.user.username.toUpperCase());
-                    setTimeout(() => setIsMenuOpen(true), 500);
-                } else if (address) {
-                    // Fallback to Wallet if already connected
-                    try {
-                        const name = await getName({ address, chain: base });
-                        setDisplayName((name ?? "PLAYER ONE").toUpperCase());
-                        setTimeout(() => setIsMenuOpen(true), 500);
-                    } catch {
-                        setDisplayName("PLAYER ONE");
-                        setTimeout(() => setIsMenuOpen(true), 500);
-                    }
-                }
-            } catch (e) {
-                // Fallback to address if SDK fails (e.g. desktop browser)
-                if (address) {
-                    setDisplayName("PLAYER ONE");
-                }
-            } finally {
-                setIsChecking(false);
-                setTimeout(() => sdk.actions.ready(), 500); // Signal readiness
-            }
-        };
-        init();
-    }, [address]);
-
-    // 2. Handle Entry (Active Quick Auth)
-    const handleInitialize = useCallback(async () => {
-        if (displayName) {
-            setIsMenuOpen(true);
-            // Re-check payment when entering menu to be sure
-            if (address) checkAddresses([address]);
-            return;
-        }
-
-        try {
-            if (sdk.quickAuth) {
-                const { token } = await sdk.quickAuth.getToken();
-                const res = await fetch('/api/auth/verify', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-
-                if (data.fid) {
-                    setDisplayName(`FID #${data.fid}`);
-                    setTimeout(() => setIsMenuOpen(true), 800);
-                    return;
-                }
-            } else {
-                const result = await sdk.actions.signIn({ nonce: "wordrain" });
-                setDisplayName("VERIFIED");
-                setTimeout(() => setIsMenuOpen(true), 500);
-            }
-        } catch (e: any) {
-            console.warn("Auth failed:", e);
-            setErrorMsg(e.message || "Auth Failed");
-        }
-    }, [displayName, checkAddresses]);
-
-    const handleOpenLeaderboard = () => {
-        setErrorMsg("");
-        setShowLeaderboard(true);
-    };
-
-    // Ready State Animation
-    useEffect(() => {
-        if (!isChecking) {
-            const timer = setTimeout(() => setIsReady(true), 300);
-            return () => clearTimeout(timer);
-        }
-    }, [isChecking]);
+    // ... (existing functions)
 
     const handleStartPvP = (gameId: string) => {
-        setPvPGameId(gameId);
+        // TODO: Pass PvP context to Game
+        console.log("Starting PvP Game:", gameId);
         onStart();
     };
 
@@ -228,8 +100,8 @@ export default function Lobby({ onStart }: LobbyProps) {
                         key="main-interface"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                        transition={{ duration: 0.5 }}
+                        exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+                        transition={{ duration: 0.8 }}
                         className="flex flex-col justify-between w-full h-full max-w-md mx-auto p-6 relative z-10"
                     >
                         {/* Reward Banner */}
@@ -241,13 +113,13 @@ export default function Lobby({ onStart }: LobbyProps) {
                             >
                                 {[...Array(4)].map((_, i) => (
                                     <span key={i} className="text-white font-bold font-mono text-[9px] tracking-widest uppercase flex items-center gap-4">
-                                        <span className="text-[#0052FF]">FEBRUARY SPRINT</span>
+                                        <span>STAY BASED & PLAY WORD RAIN</span>
                                         <span className="text-white/40">//</span>
-                                        <span>$250 PRIZE POOL</span>
+                                        <span>TOP 5 PLAYERS REWARDED</span>
                                         <span className="text-white/40">//</span>
-                                        <span className="text-emerald-400">TOP 3 WINS</span>
+                                        <span>1ST PLACE: $100</span>
                                         <span className="text-white/40">//</span>
-                                        <span>ENDS FEB 28</span>
+                                        <span>TOTAL POOL: $200</span>
                                         <span className="text-white/40">//</span>
                                     </span>
                                 ))}
@@ -265,21 +137,6 @@ export default function Lobby({ onStart }: LobbyProps) {
 
                         {/* Center Hero */}
                         <div className="flex-grow flex flex-col items-center justify-center gap-6 -mt-12">
-
-                            {/* Prize Pool Badge */}
-                            <motion.div
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 }}
-                                className="px-5 py-2 rounded-full border border-[#0052FF]/30 bg-[#0052FF]/5 backdrop-blur flex items-center gap-3 shadow-[0_0_30px_rgba(0,82,255,0.15)] mb-2"
-                            >
-                                <span className="text-xl drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">🏆</span>
-                                <div className="flex flex-col items-start leading-none gap-1">
-                                    <span className="text-xs text-white font-bold font-mono uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,82,255,0.8)]">$250 PRIZE POOL</span>
-                                    <span className="text-[9px] text-zinc-400 font-mono tracking-wider">TOP 3 RANKED AGENTS</span>
-                                </div>
-                            </motion.div>
-
                             {/* Main Title - Responsive Sizing */}
                             <div className="relative text-center">
                                 <motion.h1
@@ -400,8 +257,8 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         className={`w-full h-14 border ${hasPaid ? "border-[#0052FF] text-[#0052FF] bg-[#0052FF]/5" : "border-white/10 text-zinc-400"} font-mono text-xs tracking-widest uppercase flex items-center justify-between px-6 hover:border-[#0052FF] hover:bg-[#0052FF]/10 transition-all`}
                                     >
                                         <span className="flex items-center gap-2">
-                                            {isCheckingPayment || isLeaderboardOpening ? "Verifying..." : "Global Leaderboard"}
-                                            {hasPaid && !isCheckingPayment && <div className="w-1.5 h-1.5 bg-[#0052FF] rounded-full animate-pulse shadow-[0_0_5px_#0052FF]" />}
+                                            {isCheckingPayment || isLeaderboardOpening ? "Verifying..." : (hasPaid ? "Agents Leaderboard 🔒" : "Access Denied 🔒")}
+                                            {hasPaid && !isCheckingPayment && <div className="w-1.5 h-1.5 bg-[#0052FF] rounded-full animate-pulse" />}
                                         </span>
                                         {!hasPaid && !isCheckingPayment && <span className="opacity-50 border border-current px-1.5 py-0.5 rounded-[2px] text-[9px]">0.15 USDC</span>}
                                     </button>

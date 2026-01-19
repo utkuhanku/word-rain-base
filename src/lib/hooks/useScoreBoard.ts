@@ -13,18 +13,21 @@ export function useScoreBoard() {
     const { data: walletClient } = useWalletClient();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+    const [step, setStep] = useState(""); // Granular Status
 
     const submitScore = useCallback(async (score: number) => {
         if (!walletClient || !publicClient) {
             setErrorMsg("Wallet not connected");
-            return;
+            return false;
         }
 
         setIsSubmitting(true);
         setErrorMsg("");
+        setStep("Initializing...");
 
         try {
             const [account] = await walletClient.getAddresses();
+            setStep("Check Allowance...");
 
             // 1. Check Allowance
             const allowance = await publicClient.readContract({
@@ -36,20 +39,25 @@ export function useScoreBoard() {
 
             if (allowance < FEE_AMOUNT) {
                 console.log("[ScoreBoard] Requesting Approval...");
+                setStep("Approve USDC...");
                 const hash = await walletClient.writeContract({
                     address: USDC_ADDRESS,
                     abi: parseAbi(['function approve(address, uint256) returns (bool)']),
                     functionName: 'approve',
-                    args: [REGISTRY_ADDRESS, FEE_AMOUNT], // Approve exact amount to safely pass wallet simulation
+                    args: [REGISTRY_ADDRESS, FEE_AMOUNT], // Approve exact amount
                     chain: walletClient.chain,
                     account
                 });
+
+                setStep("Verifying Approval...");
                 await publicClient.waitForTransactionReceipt({ hash });
                 console.log("[ScoreBoard] Approved.");
             }
 
             // 2. Submit Score
             console.log("[ScoreBoard] Submitting Score...");
+            setStep("Sign & Submit...");
+
             const gameId = "0x" + Math.random().toString(16).slice(2).padEnd(64, '0'); // Random Game ID
 
             const hash = await walletClient.writeContract({
@@ -62,19 +70,36 @@ export function useScoreBoard() {
             });
 
             console.log(`[ScoreBoard] TX Sent: ${hash}`);
-            await publicClient.waitForTransactionReceipt({ hash });
+            setStep("Finalizing...");
 
-            console.log("[ScoreBoard] Score Submitted Successfully!");
+            // OPTIMISTIC UPDATE: Don't wait for block confirmation (can take 2-15s)
+            // We assume success once valid hash is generated.
+            // In a real app, we'd add a "pending" toast here.
+
+            // Fire-and-forget confirmation for debugging purposes
+            publicClient.waitForTransactionReceipt({ hash }).then(() => {
+                console.log("[ScoreBoard] Transaction Confirmed On-Chain");
+            }).catch(err => {
+                console.error("[ScoreBoard] Transaction likely failed or replaced", err);
+            });
+
+            console.log("[ScoreBoard] Optimistic Success");
             setIsSubmitting(false);
+            setStep("");
             return true;
 
         } catch (e: any) {
             console.error("[ScoreBoard] Error:", e);
-            setErrorMsg(e.message || "Failed to submit score");
+            if (e.message && e.message.includes("User rejected")) {
+                setErrorMsg("TRANSACTION CANCELLED");
+            } else {
+                setErrorMsg(e.message || "Failed to submit score");
+            }
             setIsSubmitting(false);
+            setStep("");
             return false;
         }
     }, [publicClient, walletClient]);
 
-    return { submitScore, isSubmitting, errorMsg };
+    return { submitScore, isSubmitting, errorMsg, step };
 }
