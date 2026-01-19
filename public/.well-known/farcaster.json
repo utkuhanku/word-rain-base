@@ -8,7 +8,7 @@
     "version": "1",
     "name": "Word Rain",
     "iconUrl": "https://word-rain-base.vercel.app/icon.png",
-    "homeUrl": "https://word-rain-base.vercel.app",
+    "homeUrl": "https://word-rain-base.vercel.app/",
     "splashImageUrl": "https://word-rain-base.vercel.app/splash.png",
     "splashBackgroundColor": "#050505"
   }
