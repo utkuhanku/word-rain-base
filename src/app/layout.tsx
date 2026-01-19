@@ -57,6 +57,7 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${mono.variable} antialiased bg-[#050505] text-white`}
       >
         <Providers>
+          {/* Farcaster Context Provider */}
           <FarcasterProvider>
             {children}
           </FarcasterProvider>
