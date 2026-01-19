@@ -8,6 +8,6 @@
     "buttonTitle": "Play",
     "splashImageUrl": "https://word-rain-base.vercel.app/splash.png",
     "splashBackgroundColor": "#050505",
-    "webhookUrl": "https://word-rain-base.vercel.app/api/webhook"
+    "primaryCategory": "social"
   }
 }
