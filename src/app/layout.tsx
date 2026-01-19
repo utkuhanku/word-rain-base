@@ -42,7 +42,7 @@ export const metadata: Metadata = {
         },
       },
     }),
-    "base:app_id": "6937f18147151e33ea6287ea", // Base App Verification
+    "base:app_id": "6958cb544d3a403912ed8b3a", // Base App Verification
   },
 };
 
