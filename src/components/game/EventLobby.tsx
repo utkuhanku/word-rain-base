@@ -53,7 +53,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 if (!res.ok) return;
                 const data = await res.json();
 
-                let parsed = [];
+                let parsed: { address: string; score: number }[] = [];
                 if (Array.isArray(data)) {
                     // Handle Vercel KV response formats
                     if (data.length > 0 && typeof data[1] === 'number') {
