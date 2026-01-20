@@ -14,7 +14,7 @@ import { useGameStore } from '@/lib/store/gameStore';
 
 
 import CompetitionLobby from './CompetitionLobby';
-import HelpModal from './HelpModal';
+import EventLobby from './EventLobby';
 
 interface LobbyProps {
     onStart: () => void;
@@ -30,6 +30,7 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [showCompetition, setShowCompetition] = useState(false);
+    const [showEvent, setShowEvent] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu State
     const [isLeaderboardOpening, setIsLeaderboardOpening] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
@@ -190,6 +191,11 @@ export default function Lobby({ onStart }: LobbyProps) {
                         onClose={() => setShowCompetition(false)}
                         onStartGame={handleStartPvP}
                     />
+                )}
+                {showEvent && (
+                    <div className="fixed inset-0 z-50 bg-black">
+                        <EventLobby onBack={() => setShowEvent(false)} onStart={onStart} />
+                    </div>
                 )}
                 {showHelp && (
                     <HelpModal onClose={() => setShowHelp(false)} />
@@ -358,16 +364,19 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         <span>→</span>
                                     </button>
 
-                                    {/* Competition Mode */}
+                                    {/* SPECIAL EVENT (Replaces Competition) */}
                                     <button
-                                        onClick={() => setShowCompetition(true)}
-                                        className="w-full h-14 bg-transparent border border-[#0052FF] text-[#0052FF] bg-[#0052FF]/10 font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 hover:bg-[#0052FF] hover:text-white transition-all shadow-[0_0_15px_rgba(0,82,255,0.2)] group"
+                                        onClick={() => setShowEvent(true)}
+                                        className="w-full h-14 bg-black border border-[#D900FF] bg-[#D900FF]/10 text-[#D900FF] font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 hover:bg-[#D900FF] hover:text-black transition-all shadow-[0_0_15px_rgba(217,0,255,0.2)] group"
                                     >
-                                        <span className="flex items-center gap-2">
-                                            <span className="w-2 h-2 bg-[#0052FF] group-hover:bg-white rounded-full animate-pulse" />
-                                            COMPETITION!
-                                        </span>
-                                        <span className="text-xs group-hover:translate-x-1 transition-transform">PvP</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xl">⚡️</span>
+                                            <div className="flex flex-col items-start leading-none">
+                                                <span>SPECIAL EVENT</span>
+                                                <span className="text-[9px] font-mono opacity-80 mt-0.5 text-white/70 group-hover:text-black/70">LIVE • $100 POOL</span>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs group-hover:translate-x-1 transition-transform bg-[#D900FF] text-black px-1.5 py-0.5 rounded font-bold">ENTER</span>
                                     </button>
 
                                     {/* GM Streak Button (Onchain) */}

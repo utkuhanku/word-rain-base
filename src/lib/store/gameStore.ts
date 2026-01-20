@@ -7,10 +7,12 @@ interface GameState {
     score: number;
     lives: number;
     bestScore: number;
+    mode: 'CLASSIC' | 'PVP' | 'EVENT';
     pvpGameId: string | null;
     hasUsedRetry: boolean;
 
     // Actions
+    setMode: (mode: 'CLASSIC' | 'PVP' | 'EVENT') => void;
     setStatus: (status: GameStatus) => void;
     setScore: (score: number) => void;
     setPvPGameId: (id: string | null) => void;
@@ -26,10 +28,12 @@ interface GameState {
 
 export const useGameStore = create<GameState>((set) => ({
     status: 'idle',
+    mode: 'CLASSIC',
     score: 0,
     lives: 3,
     bestScore: 0,
 
+    setMode: (mode) => set({ mode }),
     setStatus: (status) => set({ status }),
     setScore: (score) => set({ score }),
     addScore: (delta) => set((state) => ({ score: state.score + delta })),

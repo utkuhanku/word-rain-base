@@ -15,7 +15,7 @@ export function useScoreBoard() {
     const [errorMsg, setErrorMsg] = useState("");
     const [step, setStep] = useState(""); // Granular Status
 
-    const submitScore = useCallback(async (score: number) => {
+    const submitScore = useCallback(async (score: number, mode: 'CLASSIC' | 'PVP' | 'EVENT' = 'CLASSIC') => {
         if (!walletClient || !publicClient) {
             setErrorMsg("Wallet not connected");
             return false;
@@ -27,6 +27,46 @@ export function useScoreBoard() {
 
         try {
             const [account] = await walletClient.getAddresses();
+
+            // --- EVENT MODE LOGIC ---
+            if (mode === 'EVENT') {
+                // SCORE SAVING IS FREE IN EVENT MODE
+                setStep("Auto-Saving Event Score...");
+
+                // SAVE SCORE LOCALLY (ISOLATED STORAGE)
+                const newEntry = {
+                    address: account,
+                    score: score,
+                    timestamp: Date.now()
+                };
+
+                // Get existing or init
+                const currentBoard = JSON.parse(localStorage.getItem('event_leaderboard_live_v1') || '[]');
+
+                // Stores only MAX score per user
+                const existingIndex = currentBoard.findIndex((e: any) => e.address === account);
+
+                if (existingIndex !== -1) {
+                    // Update only if higher
+                    if (score > currentBoard[existingIndex].score) {
+                        currentBoard[existingIndex].score = score;
+                        currentBoard[existingIndex].timestamp = Date.now();
+                    }
+                } else {
+                    currentBoard.push(newEntry);
+                }
+
+                // Sort descending
+                currentBoard.sort((a: any, b: any) => b.score - a.score);
+                localStorage.setItem('event_leaderboard_live_v1', JSON.stringify(currentBoard));
+
+                console.log("[Event] Score Auto-Saved locally");
+                setIsSubmitting(false);
+                setStep("");
+                return true;
+            }
+
+            // --- CLASSIC LOGIC ---
             setStep("Check Allowance...");
 
             // 1. Check Allowance
@@ -72,11 +112,7 @@ export function useScoreBoard() {
             console.log(`[ScoreBoard] TX Sent: ${hash}`);
             setStep("Finalizing...");
 
-            // OPTIMISTIC UPDATE: Don't wait for block confirmation (can take 2-15s)
-            // We assume success once valid hash is generated.
-            // In a real app, we'd add a "pending" toast here.
-
-            // Fire-and-forget confirmation for debugging purposes
+            // OPTIMISTIC UPDATE
             publicClient.waitForTransactionReceipt({ hash }).then(() => {
                 console.log("[ScoreBoard] Transaction Confirmed On-Chain");
             }).catch(err => {

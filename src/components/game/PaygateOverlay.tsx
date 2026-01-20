@@ -10,6 +10,7 @@ import GlobalLeaderboard from './GlobalLeaderboard';
 
 export default function PaygateOverlay() {
     const status = useGameStore((state) => state.status);
+    const mode = useGameStore((state) => state.mode);
     const score = useGameStore((state) => state.score);
     const resetGame = useGameStore((state) => state.resetGame);
     const setStatus = useGameStore((state) => state.setStatus);
@@ -34,6 +35,15 @@ export default function PaygateOverlay() {
     const hasUsedRetry = useGameStore((state) => state.hasUsedRetry);
     const setHasUsedRetry = useGameStore((state) => state.setHasUsedRetry);
 
+    // Auto-Save for Event Mode
+    useEffect(() => {
+        if (status === 'game_over' && mode === 'EVENT' && !isPaid && !isSubmitting) {
+            submitScore(score, 'EVENT').then((success) => {
+                if (success) setIsPaid(true);
+            });
+        }
+    }, [status, mode, isPaid, score, submitScore, isSubmitting]);
+
     // Countdown Logic
     useEffect(() => {
         if (reviveCountdown === null) return;
@@ -51,11 +61,14 @@ export default function PaygateOverlay() {
     const handleRevive = async () => {
         setIsReviving(true);
         try {
+            // Use same Treasury for consistency if in Event Mode, or default
+            const TARGET = "0x9Dc0EC4618506538AF41fbBd2c1340cb25675108";
+
             const hash = await writeContractAsync({
                 address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC Base
                 abi: [parseAbiItem('function transfer(address to, uint256 value)')],
                 functionName: 'transfer',
-                args: ["0x6edd22E9792132614dD487aC6434dec3709b79A8", BigInt(1000000)] // 1.00 USDC
+                args: [TARGET, BigInt(1000000)] // 1.00 USDC
             });
 
             if (publicClient) {
@@ -163,8 +176,8 @@ export default function PaygateOverlay() {
     return (
         <div className="absolute inset-0 z-50 bg-[#050505] flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
 
-            {!isPaid ? (
-                // STATE 1: UNPAID (Game Over)
+            {!isPaid && mode !== 'EVENT' ? (
+                // STATE 1: UNPAID (Game Over) - CLASSIC/PVP
                 <div className="text-center space-y-8 max-w-sm w-full">
                     <div className="space-y-2">
                         <h2 className="text-4xl font-black italic tracking-tighter text-white">GAME OVER</h2>
@@ -250,8 +263,47 @@ export default function PaygateOverlay() {
                         </div>
                     </div>
                 </div>
+            ) : mode === 'EVENT' ? (
+                // STATE: EVENT MODE GAME OVER
+                <div className="text-center space-y-8 max-w-sm w-full">
+                    <div className="space-y-2">
+                        <h2 className="text-4xl font-black italic tracking-tighter text-[#D900FF] drop-shadow-[0_0_10px_rgba(217,0,255,0.5)]">EVENT OVER</h2>
+                        <div className="text-6xl font-mono font-bold text-white text-glow">{score}</div>
+                        <div className="flex items-center justify-center gap-2">
+                            <span className="w-2 h-2 bg-[#00FF9D] rounded-full animate-pulse"></span>
+                            <p className="text-[#00FF9D] font-mono text-xs tracking-widest uppercase">Score Auto-Saved</p>
+                        </div>
+                    </div>
+
+                    <div className="grid gap-3">
+                        {/* Revive is TOP PRIORITY in Event */}
+                        {isConnected && (
+                            <button
+                                onClick={handleRevive}
+                                disabled={isReviving}
+                                className="w-full py-6 bg-[#D900FF] hover:bg-[#b300dB] text-black font-black tracking-tight text-xl uppercase transition-all shadow-[0_0_30px_rgba(217,0,255,0.4)] flex items-center justify-center gap-3 rounded-xl scale-100 hover:scale-[1.02]"
+                            >
+                                {isReviving ? (
+                                    <span className="animate-pulse">Resurrecting...</span>
+                                ) : (
+                                    <>
+                                        <span>RESURRECT</span>
+                                        <span className="bg-black/20 px-2 py-0.5 rounded text-sm font-mono tracking-wide">1 USDC</span>
+                                    </>
+                                )}
+                            </button>
+                        )}
+
+                        <button
+                            onClick={() => { setStatus('idle'); setIsPaid(false); }}
+                            className="w-full py-4 border border-zinc-800 bg-black hover:bg-zinc-900 text-zinc-500 font-mono text-xs uppercase tracking-widest transition-all rounded-xl"
+                        >
+                            Return to Event Lobby
+                        </button>
+                    </div>
+                </div>
             ) : (
-                // STATE 2: PAID (Success)
+                // STATE 2: PAID (Success) - CLASSIC/PVP
                 pvpGameId ? (
                     <div className="w-full max-w-sm bg-black/90 border border-white/10 rounded-xl p-8 text-center space-y-6">
                         <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(16,185,129,0.2)]">
