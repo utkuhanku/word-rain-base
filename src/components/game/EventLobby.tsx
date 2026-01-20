@@ -86,7 +86,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         try {
             // 1 USDC Entry Fee
             const ENTRY_FEE = BigInt(1000000);
-            const TREASURY = "0x9Dc0EC4618506538AF41fbBd2c1340cb25675108";
+            const TREASURY = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
 
             const hash = await writeContractAsync({
                 address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base USDC

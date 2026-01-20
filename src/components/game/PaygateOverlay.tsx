@@ -62,7 +62,8 @@ export default function PaygateOverlay() {
         setIsReviving(true);
         try {
             // Use same Treasury for consistency if in Event Mode, or default
-            const TARGET = "0x9Dc0EC4618506538AF41fbBd2c1340cb25675108";
+            // Use same Treasury for consistency if in Event Mode, or default
+            const TARGET = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
 
             const hash = await writeContractAsync({
                 address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC Base
