@@ -63,43 +63,83 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
-    // Load GLOBAL Leaderboard
+    // Load Leaderboard (Hybrid: Local + Global)
     useEffect(() => {
         const loadLeaderboard = async () => {
+            let combined: any[] = [];
+
+            // 1. Get Local Data (Instant Restore)
+            try {
+                const stored = localStorage.getItem('event_leaderboard_live_v1');
+                if (stored) {
+                    combined = JSON.parse(stored);
+                }
+            } catch (e) { }
+
+            // 2. Fetch Global Data (Background)
             try {
                 const res = await fetch('/api/event/leaderboard');
-                if (!res.ok) return;
-                const data = await res.json();
+                if (res.ok) {
+                    const data = await res.json();
+                    let globalParsed: { address: string; score: number }[] = [];
 
-                let parsed: { address: string; score: number }[] = [];
-                if (Array.isArray(data)) {
-                    // Handle Vercel KV response formats
-                    if (data.length > 0 && typeof data[1] === 'number') {
-                        // Flat array: [member, score, member, score...]
-                        for (let i = 0; i < data.length; i += 2) {
-                            parsed.push({ address: data[i], score: data[i + 1] });
+                    if (Array.isArray(data)) {
+                        if (data.length > 0 && typeof data[1] === 'number') {
+                            for (let i = 0; i < data.length; i += 2) {
+                                globalParsed.push({ address: data[i], score: data[i + 1] });
+                            }
+                        } else {
+                            globalParsed = data.map((item: any) => ({
+                                address: typeof item === 'string' ? item : item.member,
+                                score: item.score
+                            }));
                         }
-                    } else {
-                        // Object array: [{ member: '...', score: ... }]
-                        parsed = data.map((item: any) => ({
-                            address: typeof item === 'string' ? item : item.member, // Fallback if member is string directly in list (rare)
-                            score: item.score
-                        }));
                     }
-                }
 
-                // Assign ranks & prizes
-                const ranked = parsed.map((item: any, index: number) => ({
-                    ...item,
-                    rank: index + 1,
-                    prize: index === 0 ? "$50" : index === 1 ? "$30" : index === 2 ? "$20" : "-"
-                }));
-                setLeaderboard(ranked);
-            } catch (e) { console.error("Global Board Load Failed", e) }
+                    // 3. Merge Strategies
+                    // Create a map of best scores
+                    const scoreMap = new Map();
+
+                    // Add Global First
+                    globalParsed.forEach(p => scoreMap.set(p.address.toLowerCase(), p.score));
+
+                    // Merge Local (If we have a local score higher than global (or new), use it)
+                    // This creates the "Optimistic" effect for the current user
+                    combined.forEach(localItem => {
+                        const addr = localItem.address.toLowerCase();
+                        const currentGlobal = scoreMap.get(addr) || 0;
+                        if (localItem.score > currentGlobal) {
+                            scoreMap.set(addr, localItem.score);
+                        }
+                    });
+
+                    // Reconstruct Array
+                    combined = Array.from(scoreMap.entries()).map(([addr, score]) => ({
+                        address: addr,
+                        score: score
+                    }));
+                }
+            } catch (e) {
+                console.error("Global fetch failed, falling back to local", e);
+                // On error, we just keep 'combined' as local data.
+            }
+
+            // 4. Sort and Rank
+            combined.sort((a, b) => b.score - a.score);
+            const ranked = combined.map((item, index) => ({
+                ...item,
+                rank: index + 1,
+                prize: index === 0 ? "$50" : index === 1 ? "$30" : index === 2 ? "$20" : "-"
+            }));
+
+            setLeaderboard(ranked);
         };
 
+        // Initial Load
         loadLeaderboard();
-        const interval = setInterval(loadLeaderboard, 5000); // 5s polling
+
+        // Poll
+        const interval = setInterval(loadLeaderboard, 5000);
         return () => clearInterval(interval);
     }, []);
 
