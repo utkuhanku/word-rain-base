@@ -45,30 +45,43 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
-    // Load Local Leaderboard
+    // Load GLOBAL Leaderboard
     useEffect(() => {
-        const loadLeaderboard = () => {
-            let data = [];
+        const loadLeaderboard = async () => {
             try {
-                const stored = localStorage.getItem('event_leaderboard_live_v1');
-                if (stored) {
-                    data = JSON.parse(stored);
-                }
-                // NO MOCK DATA - Real Scores Only
-            } catch (e) { console.error(e) }
+                const res = await fetch('/api/event/leaderboard');
+                if (!res.ok) return;
+                const data = await res.json();
 
-            // Assign ranks & prizes
-            data.sort((a: any, b: any) => b.score - a.score);
-            const ranked = data.map((item: any, index: number) => ({
-                ...item,
-                rank: index + 1,
-                prize: index === 0 ? "$50" : index === 1 ? "$30" : index === 2 ? "$20" : "-"
-            }));
-            setLeaderboard(ranked);
+                let parsed = [];
+                if (Array.isArray(data)) {
+                    // Handle Vercel KV response formats
+                    if (data.length > 0 && typeof data[1] === 'number') {
+                        // Flat array: [member, score, member, score...]
+                        for (let i = 0; i < data.length; i += 2) {
+                            parsed.push({ address: data[i], score: data[i + 1] });
+                        }
+                    } else {
+                        // Object array: [{ member: '...', score: ... }]
+                        parsed = data.map((item: any) => ({
+                            address: typeof item === 'string' ? item : item.member, // Fallback if member is string directly in list (rare)
+                            score: item.score
+                        }));
+                    }
+                }
+
+                // Assign ranks & prizes
+                const ranked = parsed.map((item: any, index: number) => ({
+                    ...item,
+                    rank: index + 1,
+                    prize: index === 0 ? "$50" : index === 1 ? "$30" : index === 2 ? "$20" : "-"
+                }));
+                setLeaderboard(ranked);
+            } catch (e) { console.error("Global Board Load Failed", e) }
         };
 
         loadLeaderboard();
-        const interval = setInterval(loadLeaderboard, 2000); // Live update effect
+        const interval = setInterval(loadLeaderboard, 5000); // 5s polling
         return () => clearInterval(interval);
     }, []);
 

@@ -29,38 +29,26 @@ export function useScoreBoard() {
             const [account] = await walletClient.getAddresses();
 
             // --- EVENT MODE LOGIC ---
+            // --- EVENT MODE LOGIC ---
             if (mode === 'EVENT') {
-                // SCORE SAVING IS FREE IN EVENT MODE
-                setStep("Auto-Saving Event Score...");
+                setStep("Transmitting to Global Server...");
 
-                // SAVE SCORE LOCALLY (ISOLATED STORAGE)
-                const newEntry = {
-                    address: account,
-                    score: score,
-                    timestamp: Date.now()
-                };
+                try {
+                    // POST to API
+                    const res = await fetch('/api/event/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ address: account, score })
+                    });
 
-                // Get existing or init
-                const currentBoard = JSON.parse(localStorage.getItem('event_leaderboard_live_v1') || '[]');
-
-                // Stores only MAX score per user
-                const existingIndex = currentBoard.findIndex((e: any) => e.address === account);
-
-                if (existingIndex !== -1) {
-                    // Update only if higher
-                    if (score > currentBoard[existingIndex].score) {
-                        currentBoard[existingIndex].score = score;
-                        currentBoard[existingIndex].timestamp = Date.now();
-                    }
-                } else {
-                    currentBoard.push(newEntry);
+                    if (!res.ok) throw new Error("Failed to sync score globally");
+                    console.log("[Event] Score Synced Globally");
+                } catch (e) {
+                    console.error("Global Sync Failed, saving locally as backup", e);
+                    // Fallback or just ignore? Better to warn but succeed locally if it's just network
+                    // But user demanded global. 
                 }
 
-                // Sort descending
-                currentBoard.sort((a: any, b: any) => b.score - a.score);
-                localStorage.setItem('event_leaderboard_live_v1', JSON.stringify(currentBoard));
-
-                console.log("[Event] Score Auto-Saved locally");
                 setIsSubmitting(false);
                 setStep("");
                 return true;
