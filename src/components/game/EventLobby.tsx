@@ -16,14 +16,13 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     const [isProcessing, setIsProcessing] = useState(false);
     const [hasPaidEntry, setHasPaidEntry] = useState(false);
 
-    // Check local payment status (and recover from Leaderboard if needed)
+    // Check local payment status & Migrate Local Scores
     useEffect(() => {
         if (address) {
             // 1. Direct Flag Check
             const isPaid = localStorage.getItem(`event_entry_paid_${address}`);
             if (isPaid === 'true') {
                 setHasPaidEntry(true);
-                return;
             }
 
             // 2. Fallback: If user has a score in leaderboard, they MUST have paid.
@@ -31,12 +30,26 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 const storedBoard = localStorage.getItem('event_leaderboard_live_v1');
                 if (storedBoard) {
                     const data = JSON.parse(storedBoard);
+
                     // Check loosely (lowercase) to be safe
-                    const hasScore = data.some((entry: any) => entry.address.toLowerCase() === address.toLowerCase());
-                    if (hasScore) {
+                    const myEntry = data.find((entry: any) => entry.address.toLowerCase() === address.toLowerCase());
+
+                    if (myEntry) {
                         setHasPaidEntry(true);
-                        // Heal variable
                         localStorage.setItem(`event_entry_paid_${address}`, 'true');
+
+                        // 3. AUTO-MIGRATE TO GLOBAL (One Time)
+                        const hasSynced = localStorage.getItem(`event_legacy_synced_${address}`);
+                        if (!hasSynced && myEntry.score > 0) {
+                            console.log("Migrating local score to global...", myEntry.score);
+                            fetch('/api/event/submit', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ address: address, score: myEntry.score })
+                            }).then(() => {
+                                localStorage.setItem(`event_legacy_synced_${address}`, 'true');
+                            }).catch(e => console.error("Migration req failed", e));
+                        }
                     }
                 }
             } catch (e) { console.error(e); }
