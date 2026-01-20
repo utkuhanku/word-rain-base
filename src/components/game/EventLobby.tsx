@@ -39,16 +39,21 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         localStorage.setItem(`event_entry_paid_${address}`, 'true');
 
                         // 3. AUTO-MIGRATE TO GLOBAL (One Time)
-                        const hasSynced = localStorage.getItem(`event_legacy_synced_${address}`);
+                        const hasSynced = localStorage.getItem(`event_legacy_synced_v2_${address}`);
                         if (!hasSynced && myEntry.score > 0) {
                             console.log("Migrating local score to global...", myEntry.score);
                             fetch('/api/event/submit', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ address: address, score: myEntry.score })
-                            }).then(() => {
-                                localStorage.setItem(`event_legacy_synced_${address}`, 'true');
-                            }).catch(e => console.error("Migration req failed", e));
+                            }).then((res) => {
+                                if (res.ok) {
+                                    localStorage.setItem(`event_legacy_synced_v2_${address}`, 'true');
+                                    console.log("Migration Success");
+                                } else {
+                                    console.error("Migration Server Error");
+                                }
+                            }).catch(e => console.error("Migration Network Error", e));
                         }
                     }
                 }
