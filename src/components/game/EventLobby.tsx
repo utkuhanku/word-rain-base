@@ -14,6 +14,17 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
     const [timeLeft, setTimeLeft] = useState<{ type: 'START' | 'END', hours: number, minutes: number, seconds: number } | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [hasPaidEntry, setHasPaidEntry] = useState(false);
+
+    // Check local payment status
+    useEffect(() => {
+        if (address) {
+            const isPaid = localStorage.getItem(`event_entry_paid_${address}`);
+            if (isPaid === 'true') {
+                setHasPaidEntry(true);
+            }
+        }
+    }, [address]);
 
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
@@ -82,6 +93,14 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
     const handleEntryPayment = async () => {
         if (!address) return;
+
+        // SKIP PAYMENT IF ALREADY PAID
+        if (hasPaidEntry) {
+            setMode('EVENT');
+            onStart();
+            return;
+        }
+
         setIsProcessing(true);
         try {
             // 1 USDC Entry Fee
@@ -98,6 +117,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             if (publicClient) {
                 await publicClient.waitForTransactionReceipt({ hash });
                 console.log("Entry Paid");
+
+                // SAVE LOCAL STATE
+                localStorage.setItem(`event_entry_paid_${address}`, 'true');
+                setHasPaidEntry(true);
+
                 setMode('EVENT'); // Active Event Mode
                 onStart(); // Start Game
             }
@@ -233,8 +257,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         className="w-full py-5 bg-gradient-to-r from-[#D900FF] to-[#b300dB] text-black font-black text-xl uppercase tracking-widest rounded-xl relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(217,0,255,0.3)]"
                     >
                         <span className="relative z-10 flex items-center justify-center gap-3">
-                            {isProcessing ? "INITIALIZING..." : "ENTER EVENT"}
-                            <span className="bg-black/20 px-2.5 py-1 rounded text-sm font-mono tracking-wider text-white/90">1 USDC</span>
+                            {isProcessing ? "INITIALIZING..." : (hasPaidEntry ? "START MISSION" : "ENTER EVENT")}
+                            {!hasPaidEntry && <span className="bg-black/20 px-2.5 py-1 rounded text-sm font-mono tracking-wider text-white/90">1 USDC</span>}
                         </span>
                         <div className="absolute inset-0 bg-white/30 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                     </motion.button>
