@@ -74,6 +74,17 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 if (stored) {
                     combined = JSON.parse(stored);
                 }
+
+                // CRITICAL FIX: Render Local Data IMMEDIATELY
+                // This ensures the user sees their own score instantly while global data loads
+                if (combined.length > 0) {
+                    const localRanked = [...combined].sort((a: any, b: any) => b.score - a.score).map((item, index) => ({
+                        ...item,
+                        rank: index + 1,
+                        prize: index === 0 ? "$50" : index === 1 ? "$30" : index === 2 ? "$20" : "-"
+                    }));
+                    setLeaderboard((prev) => prev.length === 0 ? localRanked : prev);
+                }
             } catch (e) { }
 
             // 2. Fetch Global Data (Background)

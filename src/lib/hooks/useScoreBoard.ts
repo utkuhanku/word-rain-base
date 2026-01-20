@@ -45,8 +45,6 @@ export function useScoreBoard() {
                     console.log("[Event] Score Synced Globally");
                 } catch (e) {
                     console.error("Global Sync Failed, saving locally as backup", e);
-                    // Fallback or just ignore? Better to warn but succeed locally if it's just network
-                    // But user demanded global. 
                 }
 
                 setIsSubmitting(false);
