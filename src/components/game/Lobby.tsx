@@ -15,6 +15,7 @@ import { useGameStore } from '@/lib/store/gameStore';
 
 import CompetitionLobby from './CompetitionLobby';
 import EventLobby from './EventLobby';
+import HelpModal from './HelpModal';
 
 interface LobbyProps {
     onStart: () => void;
