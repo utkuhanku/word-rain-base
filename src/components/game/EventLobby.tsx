@@ -424,7 +424,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end">
-                                        <span className="font-black text-xl text-white tabular-nums tracking-tight">{entry.score}</span>
+                                        {entry.isPending ? (
+                                            <span className="text-[10px] text-zinc-600 font-mono tracking-wider animate-pulse">REGISTERED</span>
+                                        ) : (
+                                            <span className="font-black text-xl text-white tabular-nums tracking-tight">{entry.score}</span>
+                                        )}
                                         {entry.prize !== '-' && (
                                             <span className="text-[10px] text-[#00FF9D] font-mono font-bold bg-[#00FF9D]/10 px-1.5 rounded">{entry.prize} POOL</span>
                                         )}
