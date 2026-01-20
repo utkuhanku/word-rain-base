@@ -373,16 +373,22 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 {/* Event Leaderboard */}
                 <div className="pt-4">
                     <div className="flex items-center justify-between mb-4 px-1">
-                        <h2 className="text-sm font-bold text-white tracking-wider flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-pulse"></span>
-                            LIVE STANDINGS
-                            {leaderboard.length === 0 && (
-                                <span className="text-[10px] text-zinc-500 font-normal animate-pulse ml-2">
-                                    (Connecting to Global Database...)
-                                </span>
-                            )}
-                        </h2>
-                        <span className="text-[10px] text-zinc-500 font-mono">UPDATES LIVE</span>
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-sm font-bold text-white tracking-wider flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-pulse"></span>
+                                LIVE STANDINGS
+                            </h2>
+                            <button
+                                onClick={() => setRefreshTrigger(p => p + 1)}
+                                disabled={isRefreshing}
+                                className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
+                            >
+                                <svg className={`w-3 h-3 text-zinc-400 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+                        </div>
+                        <span className="text-[10px] text-zinc-500 font-mono">{leaderboard.length} PLAYERS</span>
                     </div>
 
                     <div className="space-y-2.5">
