@@ -62,10 +62,13 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     }, [address]);
 
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Load Leaderboard (Hybrid: Local + Global)
     useEffect(() => {
         const loadLeaderboard = async () => {
+            setIsRefreshing(true);
             let combined: any[] = [];
 
             // 1. Get Local Data (Instant Restore)
@@ -144,6 +147,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             }));
 
             setLeaderboard(ranked);
+            setIsRefreshing(false);
         };
 
         // Initial Load
