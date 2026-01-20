@@ -325,6 +325,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         <h2 className="text-sm font-bold text-white tracking-wider flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-pulse"></span>
                             LIVE STANDINGS
+                            {leaderboard.length === 0 && (
+                                <span className="text-[10px] text-zinc-500 font-normal animate-pulse ml-2">
+                                    (Connecting to Global Database...)
+                                </span>
+                            )}
                         </h2>
                         <span className="text-[10px] text-zinc-500 font-mono">UPDATES LIVE</span>
                     </div>
