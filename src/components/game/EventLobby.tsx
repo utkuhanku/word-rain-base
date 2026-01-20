@@ -156,7 +156,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         // Poll
         const interval = setInterval(loadLeaderboard, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [refreshTrigger]);
 
     useEffect(() => {
         const calculateTime = () => {
