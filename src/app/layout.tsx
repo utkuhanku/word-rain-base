@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     //     action: {
     //       type: "launch_frame",
     //       name: "Word Rain",
-    //       url: "https://word-rain-base.vercel.app/",
+    //       url: "https://word-rain-base.vercel.app",
     //       splashImageUrl: "https://word-rain-base.vercel.app/splash.png",
     //       splashBackgroundColor: "#050505",
     //     },

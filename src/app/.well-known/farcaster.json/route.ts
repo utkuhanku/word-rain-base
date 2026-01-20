@@ -12,7 +12,7 @@ export async function GET() {
             name: "Word Rain",
             description: "Reflex typing game for the Base ecosystem.",
             iconUrl: "https://word-rain-base.vercel.app/icon.png",
-            homeUrl: "https://word-rain-base.vercel.app/",
+            homeUrl: "https://word-rain-base.vercel.app",
             splashImageUrl: "https://word-rain-base.vercel.app/splash.png",
             splashBackgroundColor: "#050505",
             primaryCategory: "social"
