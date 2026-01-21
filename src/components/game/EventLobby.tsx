@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccount, useWriteContract, usePublicClient } from "wagmi";
+import { useAccount, useWriteContract, usePublicClient, useSignMessage } from "wagmi";
 import { useState, useEffect, useRef } from "react";
 import { useGameStore } from "@/lib/store/gameStore";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     const { address } = useAccount();
     const { setMode } = useGameStore();
     const { writeContractAsync } = useWriteContract();
+    const { signMessageAsync } = useSignMessage(); // Signature Hook
     const publicClient = usePublicClient();
 
     const [timeLeft, setTimeLeft] = useState<{ type: 'START' | 'END', hours: number, minutes: number, seconds: number } | null>(null);
@@ -18,6 +19,49 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     const [participants, setParticipants] = useState<string[]>([]);
 
     const [isSyncing, setIsSyncing] = useState(false);
+
+    // MANUAL SYNC (The "Payment-Free TX" Strategy)
+    const handleManualSync = async () => {
+        if (!address) return;
+        setIsSyncing(true);
+        try {
+            // 1. Get Best Local Score
+            const storedBoard = localStorage.getItem('event_leaderboard_live_v1');
+            let bestLocal = 0;
+            if (storedBoard) {
+                const data = JSON.parse(storedBoard);
+                const myEntries = data.filter((e: any) => e.address.toLowerCase() === address.toLowerCase());
+                if (myEntries.length > 0) {
+                    bestLocal = Math.max(...myEntries.map((e: any) => e.score));
+                }
+            }
+
+            if (bestLocal === 0) {
+                // Try to fallback to persisted paid flag check
+                console.warn("No local score found in leaderboard array");
+            }
+
+            // 2. Sign Message (Free Interaction - Proof of Intent)
+            const message = `Sync Word Rain Score: ${bestLocal}`;
+            const signature = await signMessageAsync({ message });
+
+            // 3. Post to Server (With Signature)
+            const res = await fetch('/api/event/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address, score: bestLocal, signature })
+            });
+
+            if (res.ok) {
+                console.log("Manual Sync Success");
+                setRefreshTrigger(prev => prev + 1); // Refresh UI
+            }
+        } catch (e) {
+            console.error("Manual Sync Failed", e);
+        } finally {
+            setIsSyncing(false);
+        }
+    };
 
     // 0. Fetch On-Chain Participants (The Truth: USDC Logs)
     useEffect(() => {
@@ -417,6 +461,15 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                 <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-pulse"></span>
                                 LIVE STANDINGS
                             </h2>
+                            {address && (
+                                <button
+                                    onClick={handleManualSync}
+                                    disabled={isSyncing}
+                                    className="ml-2 px-3 py-1 bg-[#D900FF]/20 hover:bg-[#D900FF]/40 border border-[#D900FF]/50 rounded text-[9px] text-[#D900FF] font-bold tracking-widest uppercase transition-all flex items-center gap-1 active:scale-95"
+                                >
+                                    {isSyncing ? "SIGNING..." : "⚡ FORCE SYNC"}
+                                </button>
+                            )}
                             <button
                                 onClick={() => setRefreshTrigger(p => p + 1)}
                                 disabled={isRefreshing}
