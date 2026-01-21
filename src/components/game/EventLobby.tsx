@@ -632,11 +632,19 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             }`}>
                                             {entry.rank}
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-xs font-mono text-zinc-300 tracking-wide">
-                                                {entry.address.length > 15 ? `${entry.address.slice(0, 6)}...${entry.address.slice(-4)}` : entry.address}
-                                            </span>
-                                            {entry.rank <= 3 && <span className="text-[9px] text-[#D900FF] font-black tracking-widest">LEADER</span>}
+                                        <div className="flex flex-col justify-center">
+                                            <Identity
+                                                address={entry.address as `0x${string}`}
+                                                className="flex items-center gap-2"
+                                            >
+                                                <Avatar
+                                                    className="h-5 w-5 rounded-full ring-1 ring-white/10 shadow-sm"
+                                                />
+                                                <Name
+                                                    className="text-xs font-mono text-zinc-200 tracking-wide hover:text-[#D900FF] transition-colors"
+                                                />
+                                            </Identity>
+                                            {entry.rank <= 3 && <span className="text-[9px] text-[#D900FF] font-black tracking-widest pl-7 leading-none mt-0.5">LEADER</span>}
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end">
