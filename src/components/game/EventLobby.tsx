@@ -29,7 +29,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
                     event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
                     args: { to: "0x6edd22E9792132614dD487aC6434dec3709b79A8" }, // Treasury
-                    fromBlock: 5000000n // Deep Scan (Aggressive History Search)
+                    fromBlock: BigInt(5000000) // Deep Scan (Aggressive History Search)
                 });
                 const unique = Array.from(new Set(logs.map(l => l.args.from as string)));
                 console.log("On-Chain Participants Found:", unique.length);
