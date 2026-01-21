@@ -73,7 +73,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
                     event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
                     args: { to: "0x6edd22E9792132614dD487aC6434dec3709b79A8" }, // Treasury
-                    fromBlock: BigInt(5000000) // Deep Scan (Aggressive History Search)
+                    fromBlock: BigInt(40000000) // Optimized: Start from ~40M (Jan 2026 approx)
                 });
                 const unique = Array.from(new Set(logs.map(l => l.args.from as string)));
                 console.log("On-Chain Participants Found:", unique.length);
@@ -318,6 +318,23 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         }
     };
 
+    // Check Sync Status
+    const myLocalScore = (() => {
+        if (!address) return 0;
+        try {
+            const stored = localStorage.getItem('event_leaderboard_live_v1');
+            if (stored) {
+                const data = JSON.parse(stored);
+                const me = data.filter((d: any) => d.address.toLowerCase() === address.toLowerCase());
+                return me.length ? Math.max(...me.map((d: any) => d.score)) : 0;
+            }
+        } catch (e) { return 0; }
+        return 0;
+    })();
+
+    const myEntry = leaderboard.find(e => e.address.toLowerCase() === address?.toLowerCase());
+    const isUnsynced = myLocalScore > 0 && (!myEntry || myEntry.score < myLocalScore || myEntry.isPending);
+
     return (
         <div className="w-full max-w-md mx-auto h-[100dvh] bg-black text-white font-mono flex flex-col relative overflow-hidden">
             {/* Background Effects specifically for Event (Purple/Pink Glitch Theme) */}
@@ -457,15 +474,34 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 )}
 
 
+                {/* UNSYNCED WARNING BANNER */}
+                {isUnsynced && !isSyncing && (
+                    <div className="p-3 rounded-xl border border-yellow-500/30 bg-yellow-500/10 flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xl">⚠️</span>
+                            <div>
+                                <p className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest leading-none mb-1">Score Not Synced</p>
+                                <p className="text-[9px] text-zinc-400 font-mono">Local Best: <span className="text-white">{myLocalScore}</span> (Hidden Globally)</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleManualSync}
+                            className="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-400 text-black font-black text-[10px] uppercase tracking-widest rounded shadow-[0_0_10px_rgba(234,179,8,0.2)] active:scale-95 transition-all"
+                        >
+                            SYNC NOW
+                        </button>
+                    </div>
+                )}
+
                 {/* Event Leaderboard */}
-                <div className="pt-4">
+                <div>
                     <div className="flex items-center justify-between mb-4 px-1">
                         <div className="flex items-center gap-3">
                             <h2 className="text-sm font-bold text-white tracking-wider flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-pulse"></span>
                                 LIVE STANDINGS
                             </h2>
-                            {address && (
+                            {address && !isUnsynced && (
                                 <button
                                     onClick={handleManualSync}
                                     disabled={isSyncing}
