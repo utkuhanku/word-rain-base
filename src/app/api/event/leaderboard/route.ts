@@ -1,20 +1,19 @@
-import { kv } from '@vercel/kv';
+import { kv, hasKvRequestConfig } from '@/lib/database';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'edge'; // OPTIMIZATION: Use Edge Runtime for faster KV access
+export const runtime = 'edge';
 export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
     try {
         // DIAGNOSTIC CHECK
-        const hasUrl = !!process.env.KV_REST_API_URL;
-        const hasToken = !!process.env.KV_REST_API_TOKEN;
+        const config = hasKvRequestConfig();
 
-        if (!hasUrl || !hasToken) {
+        if (!config.hasUrl || !config.hasToken) {
             console.error("KV ERROR: Missing Env Vars");
             return NextResponse.json({
                 error: 'MISSING_ENV',
-                details: { hasUrl, hasToken }
+                details: config
             }, { status: 503 }); // Service Unavailable
         }
 
