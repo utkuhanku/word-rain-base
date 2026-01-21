@@ -70,19 +70,19 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     useEffect(() => {
         const loadLeaderboard = async () => {
             setIsRefreshing(true);
-            let combined: any[] = [];
+            let localData: any[] = [];
 
             // 1. Get Local Data (Instant Restore)
             try {
                 const stored = localStorage.getItem('event_leaderboard_live_v1');
                 if (stored) {
-                    combined = JSON.parse(stored);
+                    localData = JSON.parse(stored);
                 }
 
-                // CRITICAL FIX: Render Local Data IMMEDIATELY
-                // This ensures the user sees their own score instantly while global data loads
-                if (combined.length > 0) {
-                    const localRanked = [...combined].sort((a: any, b: any) => b.score - a.score).map((item, index) => ({
+                // Render Local Data IMMEDIATELY
+                if (localData.length > 0) {
+                    // Temporary render while fetching global
+                    const localRanked = [...localData].sort((a: any, b: any) => b.score - a.score).map((item, index) => ({
                         ...item,
                         rank: index + 1,
                         prize: index === 0 ? "$50" : index === 1 ? "$30" : index === 2 ? "$20" : "-"
@@ -93,34 +93,40 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
             // 2. Fetch Global Data (Background)
             try {
-                const res = await fetch('/api/event/leaderboard');
+                const res = await fetch('/api/event/leaderboard', { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
+                    console.log("[LEADERBOARD RAW]", data);
+
                     let globalParsed: { address: string; score: number }[] = [];
 
                     if (Array.isArray(data)) {
                         if (data.length > 0 && typeof data[1] === 'number') {
+                            // Format: [user, score, user, score]
                             for (let i = 0; i < data.length; i += 2) {
                                 globalParsed.push({ address: data[i], score: data[i + 1] });
                             }
                         } else {
+                            // Format: [{ member: '...', score: ... }, ...]
                             globalParsed = data.map((item: any) => ({
-                                address: typeof item === 'string' ? item : item.member,
+                                address: typeof item === 'string' ? item : (item.member || item.value),
                                 score: item.score
                             }));
                         }
                     }
 
                     // 3. Merge Strategies
-                    // Create a map of best scores
                     const scoreMap = new Map();
 
-                    // Add Global First
-                    globalParsed.forEach(p => scoreMap.set(p.address.toLowerCase(), p.score));
+                    // Add Global First (Base Truth)
+                    globalParsed.forEach(p => {
+                        if (p.address && typeof p.score === 'number') {
+                            scoreMap.set(p.address.toLowerCase(), p.score);
+                        }
+                    });
 
                     // Merge Local (If we have a local score higher than global (or new), use it)
-                    // This creates the "Optimistic" effect for the current user
-                    combined.forEach(localItem => {
+                    localData.forEach(localItem => {
                         const addr = localItem.address.toLowerCase();
                         const currentGlobal = scoreMap.get(addr) || 0;
                         if (localItem.score > currentGlobal) {
@@ -129,27 +135,27 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     });
 
                     // Reconstruct Array
-                    combined = Array.from(scoreMap.entries()).map(([addr, score]) => ({
+                    const merged = Array.from(scoreMap.entries()).map(([addr, score]) => ({
                         address: addr,
                         score: score
                     }));
+
+                    // Final Sort
+                    merged.sort((a, b) => b.score - a.score);
+
+                    const ranked = merged.map((item, index) => ({
+                        ...item,
+                        rank: index + 1,
+                        prize: index === 0 ? "$50" : index === 1 ? "$30" : index === 2 ? "$20" : "-"
+                    }));
+
+                    setLeaderboard(ranked);
                 }
             } catch (e) {
                 console.error("Global fetch failed", e);
-                // On error, we just keep 'combined' as local data.
             } finally {
                 setIsRefreshing(false);
             }
-
-            // 4. Sort and Rank
-            combined.sort((a, b) => b.score - a.score);
-            const ranked = combined.map((item, index) => ({
-                ...item,
-                rank: index + 1,
-                prize: index === 0 ? "$50" : index === 1 ? "$30" : index === 2 ? "$20" : "-"
-            }));
-
-            setLeaderboard(ranked);
         };
 
         // Initial Load
@@ -162,26 +168,26 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
     useEffect(() => {
         const calculateTime = () => {
-            const now = new Date().getTime();
+            const now = new Date();
 
-            // MANUAL OVERRIDE: Event is LIVE NOW.
-            // Starts: 24 hours ago
-            const targetStart = now - (24 * 60 * 60 * 1000);
+            // EXACT EVENT TIME: 20 Jan 23:00 TSI to 22 Jan 23:00 TSI
+            // TSI = UTC+3
+            // 20 Jan 23:00 TSI = 20 Jan 20:00 UTC
+            const targetStart = new Date("2026-01-20T23:00:00+03:00");
+            const targetEnd = new Date("2026-01-22T23:00:00+03:00"); // 48h Duration
 
-            // Ends: 24 hours from now (Total 48h active window relative to 'now')
-            // This ensures it is ALWAYS active when this code runs
-            const targetEnd = now + (24 * 60 * 60 * 1000);
+            const nowMs = now.getTime();
 
-            if (now < targetStart) {
-                // Should not happen with this logic
-                const diff = targetStart - now;
+            if (nowMs < targetStart.getTime()) {
+                // Counting down to start
+                const diff = targetStart.getTime() - nowMs;
                 setTimeLeft({ type: 'START', hours: Math.floor(diff / 36e5), minutes: Math.floor((diff % 36e5) / 6e4), seconds: Math.floor((diff % 6e4) / 1000) });
-            } else if (now < targetEnd) {
-                // Active
-                const diff = targetEnd - now;
+            } else if (nowMs < targetEnd.getTime()) {
+                // Event is active, counting down to end
+                const diff = targetEnd.getTime() - nowMs;
                 setTimeLeft({ type: 'END', hours: Math.floor(diff / 36e5), minutes: Math.floor((diff % 36e5) / 6e4), seconds: Math.floor((diff % 6e4) / 1000) });
             } else {
-                // Ended
+                // Event ended
                 setTimeLeft(null);
             }
         };
