@@ -1,23 +1,30 @@
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const revalidate = 0; // DISABLE CACHE
+export const runtime = 'edge'; // OPTIMIZATION: Use Edge Runtime for faster KV access
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
     try {
-        // 1. Env Var Check (Prevent Crash)
-        if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
-            console.error("MISSING KV ENV VARS");
-            // Fail Gracefully: Return empty array so client stays "ONLINE"
-            // The client-side fail-safe will then inject the local user.
-            return NextResponse.json([]);
+        // DIAGNOSTIC CHECK
+        const hasUrl = !!process.env.KV_REST_API_URL;
+        const hasToken = !!process.env.KV_REST_API_TOKEN;
+
+        if (!hasUrl || !hasToken) {
+            console.error("KV ERROR: Missing Env Vars");
+            return NextResponse.json({
+                error: 'MISSING_ENV',
+                details: { hasUrl, hasToken }
+            }, { status: 503 }); // Service Unavailable
         }
 
         const rawData = await kv.zrange('event_leaderboard_final', 0, 49, { rev: true, withScores: true });
         return NextResponse.json(rawData);
-
-    } catch (error) {
-        console.error("Leaderboard Fetch Error:", error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    } catch (error: any) {
+        console.error("KV Read Error:", error);
+        return NextResponse.json({
+            error: 'KV_CONNECTION_FAILED',
+            message: error.message
+        }, { status: 500 });
     }
 }

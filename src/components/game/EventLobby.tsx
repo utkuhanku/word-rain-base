@@ -169,6 +169,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 });
                 if (res.ok) {
                     setServerStatus('ONLINE'); // STATUS OK
+                    setDebugInfo(null); // Clear errors
                     const data = await res.json();
                     console.log("[LEADERBOARD RAW]", data);
 
@@ -235,11 +236,21 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     setLeaderboard(ranked);
                 } else {
                     setServerStatus('ERROR'); // STATUS ERROR
-                    console.error("Server responded with error", res.status);
+                    try {
+                        const errData = await res.json();
+                        if (errData.error === 'MISSING_ENV') {
+                            setDebugInfo(`MISSING ENV: URL=${errData.details?.hasUrl}, TOKEN=${errData.details?.hasToken}`);
+                        } else {
+                            setDebugInfo(errData.message || `HTTP ${res.status}`);
+                        }
+                    } catch (e) {
+                        setDebugInfo(`HTTP ${res.status}`);
+                    }
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.error("Global fetch failed", e);
                 setServerStatus('ERROR'); // STATUS ERROR
+                setDebugInfo(e.message || "Fetch Failed");
             } finally {
                 setIsRefreshing(false);
             }
@@ -579,6 +590,22 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     {serverStatus === 'ONLINE' ? 'NET OK' : 'NET ERR'}
                                 </span>
                             </div>
+                        </div>
+                        {/* SERVER STATUS FOOTER */}
+                        <div className="mt-8 flex flex-col items-center justify-center gap-2 opacity-60">
+                            <div className={`w-fit px-2 py-0.5 rounded flex items-center gap-1.5 ${serverStatus === 'ONLINE' ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
+                                <div className={`w-1.5 h-1.5 rounded-full ${serverStatus === 'ONLINE' ? 'bg-green-500 shadow-[0_0_5px_lime]' : serverStatus === 'ERROR' ? 'bg-red-600 shadow-[0_0_5px_red]' : 'bg-yellow-500 animate-bounce'}`}></div>
+                                <span className="text-[9px] font-mono text-zinc-500 tracking-widest uppercase">
+                                    {serverStatus === 'ONLINE' ? 'NETWORK OPERATIONAL' : serverStatus === 'ERROR' ? 'DATA FEED DISCONNECTED' : 'ESTABLISHING UPLINK...'}
+                                </span>
+                            </div>
+
+                            {/* DIAGNOSTIC OUTPUT */}
+                            {serverStatus === 'ERROR' && debugInfo && (
+                                <div className="text-[9px] text-red-400 font-mono text-center max-w-[250px] leading-tight">
+                                    ERROR: {debugInfo}
+                                </div>
+                            )}
                         </div>
                         <span className="text-[10px] text-zinc-500 font-mono">{displayLeaderboard.length} PLAYERS</span>
                     </div>
