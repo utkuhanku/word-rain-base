@@ -31,7 +31,33 @@ export function useScoreBoard() {
             // --- EVENT MODE LOGIC ---
             // --- EVENT MODE LOGIC ---
             if (mode === 'EVENT') {
-                setStep("Transmitting to Global Server...");
+                setStep("Saving Data...");
+
+                // 1. ALWAYS Save Locally First (Optimistic & Fail-safe)
+                try {
+                    const KEY = 'event_leaderboard_live_v1';
+                    const stored = localStorage.getItem(KEY);
+                    let data = stored ? JSON.parse(stored) : [];
+                    if (!Array.isArray(data)) data = [];
+
+                    const normalizedAccount = account.toLowerCase();
+                    const existingIndex = data.findIndex((e: any) => e.address.toLowerCase() === normalizedAccount);
+
+                    if (existingIndex > -1) {
+                        if (score > data[existingIndex].score) {
+                            data[existingIndex].score = score;
+                            console.log("[Event] Updated Local Best", score);
+                        }
+                    } else {
+                        data.push({ address: account, score });
+                        console.log("[Event] New Local Entry", score);
+                    }
+                    localStorage.setItem(KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.error("Local Save Failed", e);
+                }
+
+                setStep("Transmitting...");
 
                 try {
                     // POST to API
@@ -44,7 +70,7 @@ export function useScoreBoard() {
                     if (!res.ok) throw new Error("Failed to sync score globally");
                     console.log("[Event] Score Synced Globally");
                 } catch (e) {
-                    console.error("Global Sync Failed, saving locally as backup", e);
+                    console.error("Global Sync Failed, but local saved.", e);
                 }
 
                 setIsSubmitting(false);

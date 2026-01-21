@@ -15,8 +15,31 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     const [timeLeft, setTimeLeft] = useState<{ type: 'START' | 'END', hours: number, minutes: number, seconds: number } | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [hasPaidEntry, setHasPaidEntry] = useState(false);
+    const [participants, setParticipants] = useState<string[]>([]);
 
     const [isSyncing, setIsSyncing] = useState(false);
+
+    // 0. Fetch On-Chain Participants (The Truth: USDC Logs)
+    useEffect(() => {
+        if (!publicClient) return;
+        const fetchOnChain = async () => {
+            try {
+                // Base USDC Contract
+                const logs = await publicClient.getLogs({
+                    address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                    event: parseAbiItem('event Transfer(address indexed from, address indexed to, uint256 value)'),
+                    args: { to: "0x6edd22E9792132614dD487aC6434dec3709b79A8" }, // Treasury
+                    fromBlock: 5000000n // Deep Scan (Aggressive History Search)
+                });
+                const unique = Array.from(new Set(logs.map(l => l.args.from as string)));
+                console.log("On-Chain Participants Found:", unique.length);
+                setParticipants(unique);
+            } catch (e) { console.error("Chain log failed", e); }
+        };
+        fetchOnChain();
+        const interval = setInterval(fetchOnChain, 30000); // Poll every 30s
+        return () => clearInterval(interval);
+    }, [publicClient]);
 
     // NUCLEAR SYNC: Force push local scores to global every time component mounts or address changes
     useEffect(() => {
@@ -134,11 +157,20 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         }
                     });
 
+                    // Add On-Chain Participants (Pending)
+                    participants.forEach(pAddr => {
+                        const addr = pAddr.toLowerCase();
+                        // Only add if NOT already in map (meaning they have no score yet)
+                        if (!scoreMap.has(addr)) {
+                            scoreMap.set(addr, { score: 0, isPending: true });
+                        }
+                    });
+
                     // Reconstruct Array
-                    const merged = Array.from(scoreMap.entries()).map(([addr, score]) => ({
-                        address: addr,
-                        score: score
-                    }));
+                    const merged = Array.from(scoreMap.entries()).map(([addr, val]: [string, any]) => {
+                        if (typeof val === 'number') return { address: addr, score: val };
+                        return { address: addr, score: val.score, isPending: val.isPending };
+                    });
 
                     // Final Sort
                     merged.sort((a, b) => b.score - a.score);
@@ -164,7 +196,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         // Poll
         const interval = setInterval(loadLeaderboard, 10000); // 10s polling
         return () => clearInterval(interval);
-    }, [refreshTrigger]);
+    }, [refreshTrigger, participants]);
 
     useEffect(() => {
         const calculateTime = () => {
