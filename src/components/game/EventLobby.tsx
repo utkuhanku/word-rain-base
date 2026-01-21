@@ -270,11 +270,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         const calculateTime = () => {
             const now = new Date();
 
-            // EXACT EVENT TIME: 20 Jan 23:00 TSI to 22 Jan 23:00 TSI
+            // EXACT EVENT TIME: 20 Jan 23:00 TSI to 24 Jan 23:00 TSI (+48h EXTENSION)
             // TSI = UTC+3
-            // 20 Jan 23:00 TSI = 20 Jan 20:00 UTC
             const targetStart = new Date("2026-01-20T23:00:00+03:00");
-            const targetEnd = new Date("2026-01-22T23:00:00+03:00"); // 48h Duration
+            const targetEnd = new Date("2026-01-24T23:00:00+03:00"); // EXTENDED: +2 Days Bonus
 
             const nowMs = now.getTime();
 
@@ -430,7 +429,25 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             <div className="flex-1 overflow-y-auto p-6 relative z-10 scrollbar-hide space-y-8">
 
                 {/* Timer Section */}
-                <div className="flex flex-col items-center justify-center p-6 border border-zinc-800 bg-zinc-900/30 rounded-2xl backdrop-blur-sm shadow-xl">
+                <div className="flex flex-col items-center justify-center p-6 border border-zinc-800 bg-zinc-900/30 rounded-2xl backdrop-blur-sm shadow-xl relative overflow-hidden">
+
+                    {/* EXTENSION RIBBON */}
+                    <div className="absolute top-3 right-3">
+                        <span className="flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-pink-500"></span>
+                        </span>
+                    </div>
+
+                    <div className="mb-4 bg-[#D900FF]/10 border border-[#D900FF]/20 rounded-lg p-2 max-w-[280px] text-center">
+                        <p className="text-[10px] text-[#D900FF] font-bold tracking-wide">
+                            🎁 BONUS TIME ACTIVATED
+                        </p>
+                        <p className="text-[9px] text-zinc-400 leading-tight mt-1">
+                            We smashed some bugs, so here is an extra <span className="text-white">+48 Hours</span> to dominate.
+                        </p>
+                    </div>
+
                     {timeLeft ? (
                         <>
                             <span className="text-[10px] text-zinc-400 uppercase tracking-widest mb-2">
