@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
         // BUT @vercel/kv sdk returns objects if defined? No, usually array of string/number.
         // Let's verify SDK behavior or use zrange with options.
 
-        const rawData = await kv.zrange('event_leaderboard_v1', 0, 49, { rev: true, withScores: true });
+        const rawData = await kv.zrange('event_leaderboard_final', 0, 49, { rev: true, withScores: true });
 
         // Parse result into structured array
         // SDK returns: [{ member: '0x...', score: 100 }, ...]

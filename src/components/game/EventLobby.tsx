@@ -85,6 +85,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         return () => clearInterval(interval);
     }, [publicClient]);
 
+    const [serverStatus, setServerStatus] = useState<'CONNECTING' | 'ONLINE' | 'ERROR'>('CONNECTING');
+
     // NUCLEAR SYNC: Force push local scores to global every time component mounts or address changes
     useEffect(() => {
         if (!address) return;
@@ -97,7 +99,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 if (isPaid === 'true') setHasPaidEntry(true);
 
                 // 2. FORCE SYNC LOCAL SCORES
-                const storedBoard = localStorage.getItem('event_leaderboard_live_v1');
+                const storedBoard = localStorage.getItem('event_leaderboard_final');
                 if (storedBoard) {
                     const data = JSON.parse(storedBoard);
                     const myEntries = data.filter((entry: any) => entry.address.toLowerCase() === address.toLowerCase());
@@ -141,7 +143,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
             // 1. Get Local Data (Instant Restore)
             try {
-                const stored = localStorage.getItem('event_leaderboard_live_v1');
+                const stored = localStorage.getItem('event_leaderboard_final');
                 if (stored) {
                     localData = JSON.parse(stored);
                 }
@@ -166,6 +168,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     headers: { 'Pragma': 'no-cache' }
                 });
                 if (res.ok) {
+                    setServerStatus('ONLINE'); // STATUS OK
                     const data = await res.json();
                     console.log("[LEADERBOARD RAW]", data);
 
@@ -230,9 +233,13 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     }));
 
                     setLeaderboard(ranked);
+                } else {
+                    setServerStatus('ERROR'); // STATUS ERROR
+                    console.error("Server responded with error", res.status);
                 }
             } catch (e) {
                 console.error("Global fetch failed", e);
+                setServerStatus('ERROR'); // STATUS ERROR
             } finally {
                 setIsRefreshing(false);
             }

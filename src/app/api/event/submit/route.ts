@@ -20,10 +20,10 @@ export async function POST(request: NextRequest) {
         // We only want to update if new score is higher.
 
         // 1. Get current score
-        const currentScore = await kv.zscore('event_leaderboard_v1', address);
+        const currentScore = await kv.zscore('event_leaderboard_final', address);
 
         if (currentScore === null || score > currentScore) {
-            await kv.zadd('event_leaderboard_v1', { score: score, member: address });
+            await kv.zadd('event_leaderboard_final', { score: score, member: address });
             return NextResponse.json({ success: true, updated: true });
         }
 

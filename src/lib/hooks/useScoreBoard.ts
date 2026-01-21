@@ -35,7 +35,7 @@ export function useScoreBoard() {
 
                 // 1. ALWAYS Save Locally First (Optimistic & Fail-safe)
                 try {
-                    const KEY = 'event_leaderboard_live_v1';
+                    const KEY = 'event_leaderboard_final';
                     const stored = localStorage.getItem(KEY);
                     let data = stored ? JSON.parse(stored) : [];
                     if (!Array.isArray(data)) data = [];
