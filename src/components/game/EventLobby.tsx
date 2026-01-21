@@ -16,49 +16,50 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     const [isProcessing, setIsProcessing] = useState(false);
     const [hasPaidEntry, setHasPaidEntry] = useState(false);
 
-    // Check local payment status & Migrate Local Scores
-    useEffect(() => {
-        if (address) {
-            // 1. Direct Flag Check
-            const isPaid = localStorage.getItem(`event_entry_paid_${address}`);
-            if (isPaid === 'true') {
-                setHasPaidEntry(true);
-            }
+    const [isSyncing, setIsSyncing] = useState(false);
 
-            // 2. Fallback: If user has a score in leaderboard, they MUST have paid.
+    // NUCLEAR SYNC: Force push local scores to global every time component mounts or address changes
+    useEffect(() => {
+        if (!address) return;
+
+        const runAggressiveSync = async () => {
+            setIsSyncing(true);
             try {
+                // 1. Check Local Payment Flag
+                const isPaid = localStorage.getItem(`event_entry_paid_${address}`);
+                if (isPaid === 'true') setHasPaidEntry(true);
+
+                // 2. FORCE SYNC LOCAL SCORES
                 const storedBoard = localStorage.getItem('event_leaderboard_live_v1');
                 if (storedBoard) {
                     const data = JSON.parse(storedBoard);
+                    const myEntries = data.filter((entry: any) => entry.address.toLowerCase() === address.toLowerCase());
 
-                    // Check loosely (lowercase) to be safe
-                    const myEntry = data.find((entry: any) => entry.address.toLowerCase() === address.toLowerCase());
-
-                    if (myEntry) {
-                        setHasPaidEntry(true);
+                    if (myEntries.length > 0) {
+                        setHasPaidEntry(true); // If they have scores, they paid.
                         localStorage.setItem(`event_entry_paid_${address}`, 'true');
 
-                        // 3. AUTO-MIGRATE TO GLOBAL (One Time)
-                        const hasSynced = localStorage.getItem(`event_legacy_synced_v2_${address}`);
-                        if (!hasSynced && myEntry.score > 0) {
-                            console.log("Migrating local score to global...", myEntry.score);
-                            fetch('/api/event/submit', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ address: address, score: myEntry.score })
-                            }).then((res) => {
-                                if (res.ok) {
-                                    localStorage.setItem(`event_legacy_synced_v2_${address}`, 'true');
-                                    console.log("Migration Success");
-                                } else {
-                                    console.error("Migration Server Error");
-                                }
-                            }).catch(e => console.error("Migration Network Error", e));
-                        }
+                        // Find absolute best local score
+                        const bestLocal = Math.max(...myEntries.map((e: any) => e.score));
+
+                        // FORCE POST TO SERVER
+                        await fetch('/api/event/submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ address: address, score: bestLocal })
+                        });
+                        console.log("NUCLEAR SYNC: Pushed score", bestLocal);
                     }
                 }
-            } catch (e) { console.error(e); }
-        }
+            } catch (e) {
+                console.error("Sync Failed", e);
+            } finally {
+                setIsSyncing(false);
+                setRefreshTrigger(p => p + 1); // Refresh leaderboard after sync
+            }
+        };
+
+        runAggressiveSync();
     }, [address]);
 
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
@@ -134,8 +135,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     }));
                 }
             } catch (e) {
-                console.error("Global fetch failed, falling back to local", e);
+                console.error("Global fetch failed", e);
                 // On error, we just keep 'combined' as local data.
+            } finally {
+                setIsRefreshing(false);
             }
 
             // 4. Sort and Rank
@@ -147,44 +150,38 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             }));
 
             setLeaderboard(ranked);
-            setIsRefreshing(false);
         };
 
         // Initial Load
         loadLeaderboard();
 
         // Poll
-        const interval = setInterval(loadLeaderboard, 5000);
+        const interval = setInterval(loadLeaderboard, 10000); // 10s polling
         return () => clearInterval(interval);
     }, [refreshTrigger]);
 
     useEffect(() => {
         const calculateTime = () => {
-            const now = new Date();
-            // TSI is UTC+3. 
-            // We need to target 20:00 UTC+3.
-            // 20:00 UTC+3 is 17:00 UTC.
+            const now = new Date().getTime();
 
-            const targetStart = new Date();
-            // Target: 23:00 TSI (11 PM) = 20:00 UTC
-            targetStart.setUTCHours(20, 0, 0, 0);
+            // MANUAL OVERRIDE: Event is LIVE NOW.
+            // Starts: 24 hours ago
+            const targetStart = now - (24 * 60 * 60 * 1000);
 
-            // If now is past start time, check if event is active (within 48h)
-            const eventDurationMs = 48 * 60 * 60 * 1000;
-            const targetEnd = new Date(targetStart.getTime() + eventDurationMs);
+            // Ends: 24 hours from now (Total 48h active window relative to 'now')
+            // This ensures it is ALWAYS active when this code runs
+            const targetEnd = now + (24 * 60 * 60 * 1000);
 
-            const nowMs = now.getTime();
-
-            if (nowMs < targetStart.getTime()) {
-                // Counting down to start
-                const diff = targetStart.getTime() - nowMs;
+            if (now < targetStart) {
+                // Should not happen with this logic
+                const diff = targetStart - now;
                 setTimeLeft({ type: 'START', hours: Math.floor(diff / 36e5), minutes: Math.floor((diff % 36e5) / 6e4), seconds: Math.floor((diff % 6e4) / 1000) });
-            } else if (nowMs < targetEnd.getTime()) {
-                // Event is active, counting down to end
-                const diff = targetEnd.getTime() - nowMs;
+            } else if (now < targetEnd) {
+                // Active
+                const diff = targetEnd - now;
                 setTimeLeft({ type: 'END', hours: Math.floor(diff / 36e5), minutes: Math.floor((diff % 36e5) / 6e4), seconds: Math.floor((diff % 6e4) / 1000) });
             } else {
-                // Event ended
+                // Ended
                 setTimeLeft(null);
             }
         };
