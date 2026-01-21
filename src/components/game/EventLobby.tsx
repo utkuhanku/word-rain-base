@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useWriteContract, usePublicClient } from "wagmi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useGameStore } from "@/lib/store/gameStore";
 import { motion } from "framer-motion";
 import { parseAbiItem } from "viem";
