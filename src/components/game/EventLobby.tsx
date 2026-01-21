@@ -86,6 +86,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     }, [publicClient]);
 
     const [serverStatus, setServerStatus] = useState<'CONNECTING' | 'ONLINE' | 'ERROR'>('CONNECTING');
+    const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
     // NUCLEAR SYNC: Force push local scores to global every time component mounts or address changes
     useEffect(() => {
