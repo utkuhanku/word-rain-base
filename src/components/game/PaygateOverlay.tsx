@@ -55,6 +55,7 @@ export default function PaygateOverlay() {
             // Countdown finished
             reviveGame();
             setReviveCountdown(null);
+            setIsPaid(false); // Allow saving the new (higher) score on next death
         }
     }, [reviveCountdown, reviveGame]);
 
