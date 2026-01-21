@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { useGameStore } from "@/lib/store/gameStore";
 import { motion } from "framer-motion";
 import { parseAbiItem } from "viem";
+import { Identity, Avatar, Name } from '@coinbase/onchainkit/identity';
 
 export default function EventLobby({ onBack, onStart }: { onBack: () => void, onStart: () => void }) {
     const { address } = useAccount();
