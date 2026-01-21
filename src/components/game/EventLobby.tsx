@@ -325,22 +325,67 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         }
     };
 
-    // Check Sync Status
+    // Check Sync Status (Robust: Checks Final & Legacy)
     const myLocalScore = (() => {
         if (!address) return 0;
         try {
-            const stored = localStorage.getItem('event_leaderboard_live_v1');
-            if (stored) {
-                const data = JSON.parse(stored);
+            // Check Final Key
+            const storedFinal = localStorage.getItem('event_leaderboard_final');
+            let maxFinal = 0;
+            if (storedFinal) {
+                const data = JSON.parse(storedFinal);
                 const me = data.filter((d: any) => d.address.toLowerCase() === address.toLowerCase());
-                return me.length ? Math.max(...me.map((d: any) => d.score)) : 0;
+                if (me.length) maxFinal = Math.max(...me.map((d: any) => d.score));
             }
+
+            // Check Legacy Key (Backup for old scores)
+            const storedLegacy = localStorage.getItem('event_leaderboard_live_v1');
+            let maxLegacy = 0;
+            if (storedLegacy) {
+                const data = JSON.parse(storedLegacy);
+                const me = data.filter((d: any) => d.address.toLowerCase() === address.toLowerCase());
+                if (me.length) maxLegacy = Math.max(...me.map((d: any) => d.score));
+            }
+
+            return Math.max(maxFinal, maxLegacy);
         } catch (e) { return 0; }
         return 0;
     })();
 
-    const myEntry = leaderboard.find(e => e.address.toLowerCase() === address?.toLowerCase());
-    const isUnsynced = myLocalScore > 0 && (!myEntry || myEntry.score < myLocalScore || myEntry.isPending);
+    // FAIL-SAFE DISPLAY MERGE: Guarantees user sees themselves
+    const displayLeaderboard = (() => {
+        let list = [...leaderboard];
+
+        // 1. Force Updates for Self
+        if (address && myLocalScore > 0) {
+            const myIndex = list.findIndex(x => x.address.toLowerCase() === address.toLowerCase());
+
+            if (myIndex > -1) {
+                // Update existing if local is higher
+                if (list[myIndex].score < myLocalScore) {
+                    list[myIndex] = { ...list[myIndex], score: myLocalScore, isPending: false };
+                }
+            } else {
+                // Insert Self if missing
+                list.push({ address: address, score: myLocalScore, isPending: false });
+            }
+        }
+
+        // 2. Re-Sort
+        list.sort((a, b) => b.score - a.score);
+
+        // 3. Re-Rank
+        return list.map((item, index) => ({
+            ...item,
+            rank: index + 1,
+            prize: index === 0 ? "$50" : index === 1 ? "$30" : index === 2 ? "$20" : "-"
+        }));
+    })();
+
+    // Check if what we are displaying effectively matches local
+    // Since we force display above, isUnsynced mainly tracks if the *Server* version (in leaderboard state) is outdated
+    const serverEntry = leaderboard.find(e => e.address.toLowerCase() === address?.toLowerCase());
+    const isUnsynced = myLocalScore > 0 && (!serverEntry || serverEntry.score < myLocalScore);
 
     return (
         <div className="w-full max-w-md mx-auto h-[100dvh] bg-black text-white font-mono flex flex-col relative overflow-hidden">
@@ -487,8 +532,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         <div className="flex items-center gap-2">
                             <span className="text-xl">⚠️</span>
                             <div>
-                                <p className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest leading-none mb-1">Score Not Synced</p>
-                                <p className="text-[9px] text-zinc-400 font-mono">Local Best: <span className="text-white">{myLocalScore}</span> (Hidden Globally)</p>
+                                <p className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest leading-none mb-1">Upload Required</p>
+                                <p className="text-[9px] text-zinc-400 font-mono">Local: <span className="text-white">{myLocalScore}</span> | Cloud: {serverEntry?.score || 0}</p>
                             </div>
                         </div>
                         <button
@@ -514,7 +559,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     disabled={isSyncing}
                                     className="ml-2 px-3 py-1 bg-[#D900FF]/20 hover:bg-[#D900FF]/40 border border-[#D900FF]/50 rounded text-[9px] text-[#D900FF] font-bold tracking-widest uppercase transition-all flex items-center gap-1 active:scale-95"
                                 >
-                                    {isSyncing ? "SIGNING..." : "⚡ FORCE SYNC"}
+                                    {isSyncing ? "..." : "⚡ FORCE SYNC"}
                                 </button>
                             )}
                             <button
@@ -526,12 +571,20 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
                             </button>
+
+                            {/* STATUS INDICATOR (Highly Visible) */}
+                            <div className={`px-2 py-0.5 rounded flex items-center gap-1.5 ${serverStatus === 'ONLINE' ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'}`}>
+                                <div className={`w-1.5 h-1.5 rounded-full ${serverStatus === 'ONLINE' ? 'bg-green-500 shadow-[0_0_5px_lime]' : 'bg-red-500 animate-pulse shadow-[0_0_5px_red]'}`}></div>
+                                <span className={`text-[9px] font-bold tracking-widest ${serverStatus === 'ONLINE' ? 'text-green-500' : 'text-red-500'}`}>
+                                    {serverStatus === 'ONLINE' ? 'NET OK' : 'NET ERR'}
+                                </span>
+                            </div>
                         </div>
-                        <span className="text-[10px] text-zinc-500 font-mono">{leaderboard.length} PLAYERS</span>
+                        <span className="text-[10px] text-zinc-500 font-mono">{displayLeaderboard.length} PLAYERS</span>
                     </div>
 
                     <div className="space-y-2.5">
-                        {leaderboard.length === 0 ? (
+                        {displayLeaderboard.length === 0 ? (
                             <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl bg-black/20 flex flex-col items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center text-xl grayscale opacity-50">🏆</div>
                                 <div>
@@ -540,7 +593,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                 </div>
                             </div>
                         ) : (
-                            leaderboard.map((entry) => (
+                            displayLeaderboard.map((entry) => (
                                 <div key={entry.rank} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${entry.rank <= 3 ? 'border-[#D900FF]/30 bg-gradient-to-r from-[#D900FF]/10 to-transparent' : 'border-zinc-800 bg-black/40'
                                     }`}>
                                     <div className="flex items-center gap-4">
