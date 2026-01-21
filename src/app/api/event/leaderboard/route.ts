@@ -1,7 +1,8 @@
 import { kv } from '@vercel/kv';
 import { NextRequest, NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic'; // No caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0; // DISABLE CACHE
 
 export async function GET(request: NextRequest) {
     try {

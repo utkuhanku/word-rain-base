@@ -160,7 +160,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
             // 2. Fetch Global Data (Background)
             try {
-                const res = await fetch('/api/event/leaderboard', { cache: 'no-store' });
+                // CACHE BUSTING: Add timestamp to force fresh fetch
+                const res = await fetch(`/api/event/leaderboard?_t=${Date.now()}`, {
+                    cache: 'no-store',
+                    headers: { 'Pragma': 'no-cache' }
+                });
                 if (res.ok) {
                     const data = await res.json();
                     console.log("[LEADERBOARD RAW]", data);
