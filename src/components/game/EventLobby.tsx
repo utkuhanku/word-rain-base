@@ -444,7 +444,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                             🎁 BONUS TIME ACTIVATED
                         </p>
                         <p className="text-[9px] text-zinc-400 leading-tight mt-1">
-                            We smashed some bugs, so here is an extra <span className="text-white">+48 Hours</span> to dominate.
+                            Technical window extended. Event ends <strong>Jan 24, 20:00 UTC</strong>.
                         </p>
                     </div>
 
@@ -486,23 +486,19 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     <ul className="text-[10px] text-zinc-300 space-y-3 font-mono leading-relaxed relative z-10">
                         <li className="flex items-start gap-2">
                             <span className="text-[#00FF9D] mt-0.5">▸</span>
-                            <span><strong>STATUS:</strong> Protocol activates at <strong className="text-white">23:00 (11 PM)</strong>.</span>
+                            <span><strong>STATUS:</strong> Protocol active until <strong className="text-white">Jan 24, 20:00 UTC</strong>.</span>
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-[#00FF9D] mt-0.5">▸</span>
-                            <span><strong className="text-white">1 USDC</strong> initializes the connection. One-time fee.</span>
+                            <span><strong>ENTRY:</strong> <strong className="text-white">1 USDC</strong> one-time fee.</span>
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-[#00FF9D] mt-0.5">▸</span>
-                            <span><strong>MISSION:</strong> <strong className="text-white">48 Hours</strong> to dominate the leaderboard.</span>
+                            <span><strong>MISSION:</strong> Achieve the highest logic score. <strong className="text-[#D900FF]">$100 USDC Pool</strong> split by Top 3.</span>
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-[#00FF9D] mt-0.5">▸</span>
-                            <span><strong>BOUNTY:</strong> Top 3 Agents split the <strong className="text-[#D900FF]">$100 USDC Pool</strong>.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-[#00FF9D] mt-0.5">▸</span>
-                            <span><strong>INTEL:</strong> Your highest score is <strong className="text-white">Auto-Saved</strong> (Free). Unlimited Revives available.</span>
+                            <span><strong>SPECIAL:</strong> Revive cost reduced to <strong className="text-white">0.50 USDC</strong>. Unlimited attempts.</span>
                         </li>
                     </ul>
                 </div>

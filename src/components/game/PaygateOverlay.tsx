@@ -62,15 +62,17 @@ export default function PaygateOverlay() {
     const handleRevive = async () => {
         setIsReviving(true);
         try {
-            // Use same Treasury for consistency if in Event Mode, or default
-            // Use same Treasury for consistency if in Event Mode, or default
+            // Use same Treasury for consistency
             const TARGET = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
+
+            // PRICE LOGIC: 0.50 USDC for Event, 1.00 USDC for Classic
+            const REVIVE_PRICE = mode === 'EVENT' ? BigInt(500000) : BigInt(1000000);
 
             const hash = await writeContractAsync({
                 address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC Base
                 abi: [parseAbiItem('function transfer(address to, uint256 value)')],
                 functionName: 'transfer',
-                args: [TARGET, BigInt(1000000)] // 1.00 USDC
+                args: [TARGET, REVIVE_PRICE]
             });
 
             if (publicClient) {
@@ -290,7 +292,7 @@ export default function PaygateOverlay() {
                                 ) : (
                                     <>
                                         <span>RESURRECT</span>
-                                        <span className="bg-black/20 px-2 py-0.5 rounded text-sm font-mono tracking-wide">1 USDC</span>
+                                        <span className="bg-black/20 px-2 py-0.5 rounded text-sm font-mono tracking-wide">0.50 USDC</span>
                                     </>
                                 )}
                             </button>
