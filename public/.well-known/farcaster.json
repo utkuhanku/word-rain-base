@@ -9,7 +9,7 @@
         "name": "Word Rain",
         "description": "Reflex typing game for the Base ecosystem.",
         "homeUrl": "https://word-rain-base.vercel.app",
-        "iconUrl": "https://word-rain-base.vercel.app/icon.png",
+        "iconUrl": "https://word-rain-base.vercel.app/icon-v2.png",
         "splashImageUrl": "https://word-rain-base.vercel.app/splash.png",
         "splashBackgroundColor": "#050505",
         "webhookUrl": "https://word-rain-base.vercel.app/api/webhook"
