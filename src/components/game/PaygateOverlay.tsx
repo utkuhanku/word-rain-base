@@ -59,6 +59,8 @@ export default function PaygateOverlay() {
         }
     }, [reviveCountdown, reviveGame]);
 
+    const [isConfirmingTx, setIsConfirmingTx] = useState(false);
+
     const handleRevive = async () => {
         setIsReviving(true);
         try {
@@ -75,13 +77,21 @@ export default function PaygateOverlay() {
                 args: [TARGET, REVIVE_PRICE]
             });
 
-            if (publicClient) {
-                await publicClient.waitForTransactionReceipt({ hash });
-                // Start Countdown
-                setReviveCountdown(3);
+            if (hash) {
+                setIsConfirmingTx(true);
+                // Wait for receipt
+                if (publicClient) {
+                    await publicClient.waitForTransactionReceipt({ hash });
+                    console.log("Revive TX Confirmed:", hash);
+
+                    // Success! Start countdown
+                    setIsConfirmingTx(false);
+                    setReviveCountdown(3);
+                }
             }
         } catch (e) {
             console.error("Revive Payment Failed", e);
+            setIsConfirmingTx(false); // Reset on error
         } finally {
             setIsReviving(false);
         }
@@ -288,7 +298,7 @@ export default function PaygateOverlay() {
                                 className="w-full py-6 bg-[#D900FF] hover:bg-[#b300dB] text-black font-black tracking-tight text-xl uppercase transition-all shadow-[0_0_30px_rgba(217,0,255,0.4)] flex items-center justify-center gap-3 rounded-xl scale-100 hover:scale-[1.02]"
                             >
                                 {isReviving ? (
-                                    <span className="animate-pulse">Resurrecting...</span>
+                                    <span className="animate-pulse">{isConfirmingTx ? "CONFIRMING TX..." : "PROCESSING..."}</span>
                                 ) : (
                                     <>
                                         <span>RESURRECT</span>

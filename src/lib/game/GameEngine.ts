@@ -66,16 +66,18 @@ export class GameEngine {
 
         if (currentScore > 0) {
             // REVIVE: Restore difficulty roughly based on score
-            // Speed starts at 1.0, increases 0.2 every 10s (approx every 3-4 words early on, but let's approximate)
-            // Let's assume 1 score ~= 1 word. 
-            // A roughly reasonable difficulty curve restoration:
+            // Speed starts at 1.0, increases 0.2 every 10s
             const difficultyFactor = Math.min(currentScore / 10, 10); // Cap at some point
             this.baseSpeed = 1.0 + (difficultyFactor * 0.2);
             this.spawnInterval = Math.max(500, 2000 - (difficultyFactor * 100));
 
-            // IMPORTANT: We DO NOT clear entities here.
-            // The user wants to continue exactly where they left off.
-            // The entity that caused death was already removed in update(), so this is safe.
+            // CRITICAL FIX: CLEAR ENTITIES
+            // Previously we kept them, which caused immediate death loops if a word was too low.
+            // Giving the player a clean screen is fair for a paid revive.
+            this.entities = [];
+            this.activeTypedChain = "";
+            this.activeWrongChar = null;
+            this.spawnTimer = 0; // Will spawn new word immediately after interval
         } else {
             // FRESH START
             this.entities = [];
