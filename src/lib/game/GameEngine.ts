@@ -74,13 +74,13 @@ export class GameEngine {
             // SMART REVIVE: Only clear words that are in the "Danger Zone"
             // Keep words that are high up to maintain flow, but remove immediate threats.
             const height = this.canvas.height / (window.devicePixelRatio || 1);
-            const DANGER_THRESHOLD = height * 0.5; // Clear anything below 50% of screen
+            const DANGER_THRESHOLD = height * 0.3; // Stricter: Clear anything below 30% of screen to be safe
 
             this.entities = this.entities.filter(entity => entity.y < DANGER_THRESHOLD);
 
             this.activeTypedChain = "";
             this.activeWrongChar = null;
-            this.spawnTimer = 0; // Will spawn new word immediately after interval
+            this.spawnTimer = -500; // Delay first spawn slightly (0.5s grace period)
         } else {
             // FRESH START
             this.entities = [];
@@ -110,7 +110,10 @@ export class GameEngine {
     loop(time: number) {
         if (!this.isRunning) return;
 
-        const dt = time - this.lastTime;
+        let dt = time - this.lastTime;
+        // Clamp DT to prevent "spiral of death" on resume/lag spikes
+        if (dt > 100) dt = 100;
+
         this.lastTime = time;
 
         this.update(dt);
