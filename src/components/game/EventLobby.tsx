@@ -270,10 +270,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         const calculateTime = () => {
             const now = new Date();
 
-            // EXACT EVENT TIME: 20 Jan 23:00 TSI to 24 Jan 23:00 TSI (+48h EXTENSION)
+            // EXACT EVENT TIME: 20 Jan 23:00 TSI to 25 Jan 23:00 TSI (+24h EXTENSION)
             // TSI = UTC+3
             const targetStart = new Date("2026-01-20T23:00:00+03:00");
-            const targetEnd = new Date("2026-01-24T23:00:00+03:00"); // EXTENDED: +2 Days Bonus
+            const targetEnd = new Date("2026-01-25T23:00:00+03:00"); // EXTENDED: Ends Sunday Evening
 
             const nowMs = now.getTime();
 
@@ -441,10 +441,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                     <div className="mb-4 bg-[#D900FF]/10 border border-[#D900FF]/20 rounded-lg p-2 max-w-[280px] text-center">
                         <p className="text-[10px] text-[#D900FF] font-bold tracking-wide">
-                            🎁 BONUS TIME ACTIVATED
+                            🎁 WEEKLY EVENT: MON-SUN
                         </p>
                         <p className="text-[9px] text-zinc-400 leading-tight mt-1">
-                            Technical window extended. Event ends <strong>Jan 24, 20:00 UTC</strong>.
+                            Current Round Ends: <strong>Jan 25, 20:00 UTC</strong>.<br />
+                            <span className="text-zinc-500">Events recur weekly with $100 Pool.</span>
                         </p>
                     </div>
 
@@ -486,19 +487,19 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     <ul className="text-[10px] text-zinc-300 space-y-3 font-mono leading-relaxed relative z-10">
                         <li className="flex items-start gap-2">
                             <span className="text-[#00FF9D] mt-0.5">▸</span>
-                            <span><strong>STATUS:</strong> Protocol active until <strong className="text-white">Jan 24, 20:00 UTC</strong>.</span>
+                            <span><strong>SCHEDULE:</strong> Event repeats <strong>WEEKLY (Mon-Sun)</strong>.</span>
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-[#00FF9D] mt-0.5">▸</span>
-                            <span><strong>ENTRY:</strong> <strong className="text-white">1 USDC</strong> one-time fee.</span>
+                            <span><strong>CURRENT END:</strong> <strong className="text-white">Jan 25, 20:00 UTC</strong> (Tomorrow).</span>
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-[#00FF9D] mt-0.5">▸</span>
-                            <span><strong>MISSION:</strong> Achieve the highest logic score. <strong className="text-[#D900FF]">$100 USDC Pool</strong> split by Top 3.</span>
+                            <span><strong>MISSION:</strong> Highest logic score wins. <strong className="text-[#D900FF]">$100 USDC Pool</strong>.</span>
                         </li>
                         <li className="flex items-start gap-2">
                             <span className="text-[#00FF9D] mt-0.5">▸</span>
-                            <span><strong>SPECIAL:</strong> Revive cost reduced to <strong className="text-white">0.50 USDC</strong>. Unlimited attempts.</span>
+                            <span><strong>SPECIAL:</strong> Revive cost reduced to <strong className="text-white">0.50 USDC</strong>.</span>
                         </li>
                     </ul>
                 </div>
