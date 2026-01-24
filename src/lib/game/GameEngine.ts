@@ -71,10 +71,13 @@ export class GameEngine {
             this.baseSpeed = 1.0 + (difficultyFactor * 0.2);
             this.spawnInterval = Math.max(500, 2000 - (difficultyFactor * 100));
 
-            // CRITICAL FIX: CLEAR ENTITIES
-            // Previously we kept them, which caused immediate death loops if a word was too low.
-            // Giving the player a clean screen is fair for a paid revive.
-            this.entities = [];
+            // SMART REVIVE: Only clear words that are in the "Danger Zone"
+            // Keep words that are high up to maintain flow, but remove immediate threats.
+            const height = this.canvas.height / (window.devicePixelRatio || 1);
+            const DANGER_THRESHOLD = height * 0.5; // Clear anything below 50% of screen
+
+            this.entities = this.entities.filter(entity => entity.y < DANGER_THRESHOLD);
+
             this.activeTypedChain = "";
             this.activeWrongChar = null;
             this.spawnTimer = 0; // Will spawn new word immediately after interval
