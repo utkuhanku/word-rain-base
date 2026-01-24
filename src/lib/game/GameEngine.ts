@@ -20,6 +20,7 @@ export class GameEngine {
     private spawnRate: number = 2000;
     private lastSpawnTime: number = 0;
     private difficultyTimer: number = 0; // Fixed: Added missing property
+    private invulnerableTimer: number = 0; // SHIELD for Revive
 
     // Visuals
     activeTypedChain: string = "";
@@ -80,7 +81,8 @@ export class GameEngine {
 
             this.activeTypedChain = "";
             this.activeWrongChar = null;
-            this.spawnTimer = -500; // Delay first spawn slightly (0.5s grace period)
+            this.spawnTimer = -500;
+            this.invulnerableTimer = 2000; // 2 Seconds Shield on Revive
         } else {
             // FRESH START
             this.entities = [];
@@ -89,6 +91,7 @@ export class GameEngine {
             this.spawnTimer = 0;
             this.lastSpawnTime = 0;
             this.difficultyTimer = 0;
+            this.invulnerableTimer = 0;
 
             this.spawnInterval = 2000;
             this.baseSpeed = 1.0;
@@ -123,6 +126,11 @@ export class GameEngine {
     }
 
     update(dt: number) {
+        // Shield Tick
+        if (this.invulnerableTimer > 0) {
+            this.invulnerableTimer -= dt;
+        }
+
         // 1. Difficulty Ramp
         this.difficultyTimer += dt;
         if (this.difficultyTimer > 10000) { // Every 10s
@@ -180,6 +188,8 @@ export class GameEngine {
     }
 
     handleLifeLost(entity: WordEntity) {
+        if (this.invulnerableTimer > 0) return;
+
         useGameStore.getState().loseLife();
         // Screen shake or effect could be triggered here via store or event
         const lives = useGameStore.getState().lives;
