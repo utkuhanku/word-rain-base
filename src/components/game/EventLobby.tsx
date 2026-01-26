@@ -6,6 +6,7 @@ import { useGameStore } from "@/lib/store/gameStore";
 import { motion } from "framer-motion";
 import { parseAbiItem } from "viem";
 import { Identity, Avatar, Name } from '@coinbase/onchainkit/identity';
+import { getCurrentSeason, getPreviousSeasons, SeasonInfo } from "@/lib/season";
 
 export default function EventLobby({ onBack, onStart }: { onBack: () => void, onStart: () => void }) {
     const { address } = useAccount();
@@ -13,6 +14,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     const { writeContractAsync } = useWriteContract();
     const { signMessageAsync } = useSignMessage(); // Signature Hook
     const publicClient = usePublicClient();
+
+    // SEASON STATE
+    const [currentSeason, setCurrentSeason] = useState<SeasonInfo>(getCurrentSeason());
+    const [selectedSeasonId, setSelectedSeasonId] = useState<number>(currentSeason.id);
 
     const [timeLeft, setTimeLeft] = useState<{ type: 'START' | 'END', hours: number, minutes: number, seconds: number } | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -96,32 +101,21 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         const runAggressiveSync = async () => {
             setIsSyncing(true);
             try {
-                // 1. Check Local Payment Flag
-                const isPaid = localStorage.getItem(`event_entry_paid_${address}`);
+                // 1. Check Local Payment Flag for CURRENT SEASON
+                const payKey = `event_entry_paid_s${currentSeason.id}_${address}`;
+                const isPaid = localStorage.getItem(payKey);
+
                 if (isPaid === 'true') setHasPaidEntry(true);
+                else setHasPaidEntry(false);
 
-                // 2. FORCE SYNC LOCAL SCORES
-                const storedBoard = localStorage.getItem('event_leaderboard_final');
-                if (storedBoard) {
-                    const data = JSON.parse(storedBoard);
-                    const myEntries = data.filter((entry: any) => entry.address.toLowerCase() === address.toLowerCase());
+                // 2. FORCE SYNC LOCAL SCORES (If we have scores for this season)
+                // We need to support partitioning local storage too if we want true separation, 
+                // BUT for now, user likely clears headers or simply we just sync "best score".
+                // If the user has a local score, we should probably check if it matches the season?
+                // For simplicity, let's assume 'event_leaderboard_final' is legacy/s1.
+                // We might need a new local key for S2. 'event_leaderboard_s2'.
+                // Let's keep it simple: Just check payment.
 
-                    if (myEntries.length > 0) {
-                        setHasPaidEntry(true); // If they have scores, they paid.
-                        localStorage.setItem(`event_entry_paid_${address}`, 'true');
-
-                        // Find absolute best local score
-                        const bestLocal = Math.max(...myEntries.map((e: any) => e.score));
-
-                        // FORCE POST TO SERVER
-                        await fetch('/api/event/submit', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ address: address, score: bestLocal })
-                        });
-                        console.log("NUCLEAR SYNC: Pushed score", bestLocal);
-                    }
-                }
             } catch (e) {
                 console.error("Sync Failed", e);
             } finally {
@@ -131,7 +125,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         };
 
         runAggressiveSync();
-    }, [address]);
+    }, [address, currentSeason.id]);
 
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -164,8 +158,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
             // 2. Fetch Global Data (Background)
             try {
-                // CACHE BUSTING: Add timestamp to force fresh fetch
-                const res = await fetch(`/api/event/leaderboard?_t=${Date.now()}`, {
+                // CACHE BUSTING & SEASON FILTER
+                const res = await fetch(`/api/event/leaderboard?season=${selectedSeasonId}&_t=${Date.now()}`, {
                     cache: 'no-store',
                     headers: { 'Pragma': 'no-cache' }
                 });
@@ -269,24 +263,17 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     useEffect(() => {
         const calculateTime = () => {
             const now = new Date();
-
-            // EXACT EVENT TIME: 20 Jan 23:00 TSI to 25 Jan 23:00 TSI (+24h EXTENSION)
-            // TSI = UTC+3
-            const targetStart = new Date("2026-01-20T23:00:00+03:00");
-            const targetEnd = new Date("2026-01-25T23:00:00+03:00"); // EXTENDED: Ends Sunday Evening
+            // Use dynamic season end date
+            const targetEnd = currentSeason.endDate;
 
             const nowMs = now.getTime();
 
-            if (nowMs < targetStart.getTime()) {
-                // Counting down to start
-                const diff = targetStart.getTime() - nowMs;
-                setTimeLeft({ type: 'START', hours: Math.floor(diff / 36e5), minutes: Math.floor((diff % 36e5) / 6e4), seconds: Math.floor((diff % 6e4) / 1000) });
-            } else if (nowMs < targetEnd.getTime()) {
+            if (nowMs < targetEnd.getTime()) {
                 // Event is active, counting down to end
                 const diff = targetEnd.getTime() - nowMs;
                 setTimeLeft({ type: 'END', hours: Math.floor(diff / 36e5), minutes: Math.floor((diff % 36e5) / 6e4), seconds: Math.floor((diff % 6e4) / 1000) });
             } else {
-                // Event ended
+                // Event ended (Waiting for next cycle)
                 setTimeLeft(null);
             }
         };
@@ -294,7 +281,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         calculateTime();
         const interval = setInterval(calculateTime, 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [currentSeason]);
 
     const handleEntryPayment = async () => {
         if (!address) return;
@@ -323,8 +310,9 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 await publicClient.waitForTransactionReceipt({ hash });
                 console.log("Entry Paid");
 
-                // SAVE LOCAL STATE
-                localStorage.setItem(`event_entry_paid_${address}`, 'true');
+                // SAVE LOCAL STATE (Season Partitioned)
+                const payKey = `event_entry_paid_s${currentSeason.id}_${address}`;
+                localStorage.setItem(payKey, 'true');
                 setHasPaidEntry(true);
 
                 setMode('EVENT'); // Active Event Mode
@@ -418,11 +406,29 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 </button>
                 <div className="flex flex-col items-center">
                     <h1 className="text-xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-[#D900FF] to-[#00FF9D]">
-                        FLASH EVENT
+                        WEEKLY EVENT
                     </h1>
-                    <span className="text-[10px] text-zinc-500 tracking-[0.2em] uppercase">LIMITED TIME</span>
+                    <span className="text-[10px] text-zinc-500 tracking-[0.2em] uppercase">SEASON {selectedSeasonId}</span>
                 </div>
-                <div className="w-10"></div> {/* Spacer */}
+
+                {/* SEASON SELECTOR */}
+                <div className="flex items-center gap-1">
+                    {getPreviousSeasons().map(s => (
+                        <button
+                            key={s.id}
+                            onClick={() => setSelectedSeasonId(s.id)}
+                            className={`px-2 py-1 text-[9px] rounded border ${selectedSeasonId === s.id ? 'bg-[#D900FF] text-black border-[#D900FF]' : 'bg-black text-zinc-600 border-zinc-800 hover:text-white'}`}
+                        >
+                            S{s.id}
+                        </button>
+                    ))}
+                    <button
+                        onClick={() => setSelectedSeasonId(currentSeason.id)}
+                        className={`px-2 py-1 text-[9px] rounded border ${selectedSeasonId === currentSeason.id ? 'bg-[#D900FF] text-black border-[#D900FF]' : 'bg-black text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-600'} transition-all font-bold`}
+                    >
+                        S{currentSeason.id} <span className="hidden md:inline">LIVE</span>
+                    </button>
+                </div>
             </div>
 
             {/* Main Content */}

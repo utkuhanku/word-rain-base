@@ -1,5 +1,6 @@
 import { kv } from '@/lib/database';
 import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentSeason } from '@/lib/season';
 
 export const runtime = 'edge';
 
@@ -12,24 +13,18 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
         }
 
-        // Redis Sorted Set: specific key for this event
-        // ZADD key score member
-        // We use 'GT' (Greater Than) implicitly by logic or just overwrite?
-        // KV doesn't support 'GT' option in simple SDK easily without specific command options object.
-        // But for simplicity, we just add. Rank is determined by score. 
-        // We want HIGHEST score. 
-        // If we just ZADD, it overwrites the score for that member.
-        // We only want to update if new score is higher.
+        const season = getCurrentSeason();
+        const DB_KEY = season.id === 1 ? 'event_leaderboard_final' : `event_leaderboard_s${season.id}`;
 
-        // 1. Get current score
-        const currentScore = await kv.zscore('event_leaderboard_final', address);
+        // 1. Get current score from SPECIFIC season key
+        const currentScore = await kv.zscore(DB_KEY, address);
 
         if (currentScore === null || score > currentScore) {
-            await kv.zadd('event_leaderboard_final', { score: score, member: address });
-            return NextResponse.json({ success: true, updated: true });
+            await kv.zadd(DB_KEY, { score: score, member: address });
+            return NextResponse.json({ success: true, updated: true, season: season.id });
         }
 
-        return NextResponse.json({ success: true, updated: false, message: "Score not higher" });
+        return NextResponse.json({ success: true, updated: false, message: "Score not higher", season: season.id });
 
     } catch (error) {
         console.error("Score Submit Error:", error);

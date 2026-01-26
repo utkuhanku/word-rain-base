@@ -273,17 +273,40 @@ export default function Lobby({ onStart }: LobbyProps) {
                         {/* Center Hero */}
                         <div className="flex-grow flex flex-col items-center justify-center gap-6 -mt-12">
 
-                            {/* Prize Pool Badge */}
+                            {/* WEEKLY REWARD VISUAL */}
                             <motion.div
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 }}
-                                className="px-5 py-2 rounded-full border border-[#0052FF]/30 bg-[#0052FF]/5 backdrop-blur flex items-center gap-3 shadow-[0_0_30px_rgba(0,82,255,0.15)] mb-2"
+                                initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                transition={{ delay: 0.5, type: "spring" }}
+                                className="relative group cursor-pointer z-30"
+                                onClick={() => setShowEvent(true)}
                             >
-                                <span className="text-xl drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">🏆</span>
-                                <div className="flex flex-col items-start leading-none gap-1">
-                                    <span className="text-xs text-white font-bold font-mono uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,82,255,0.8)]">$250 PRIZE POOL</span>
-                                    <span className="text-[9px] text-zinc-400 font-mono tracking-wider">TOP 3 RANKED AGENTS</span>
+                                <div className="absolute inset-0 bg-[#D900FF] rounded-2xl blur-[20px] opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
+                                <div className="relative px-6 py-4 rounded-2xl border border-[#D900FF]/40 bg-black/80 backdrop-blur-xl flex flex-col items-center gap-3 overflow-hidden shadow-[0_0_40px_rgba(217,0,255,0.15)] hover:shadow-[0_0_60px_rgba(217,0,255,0.25)] transition-all transform hover:-translate-y-1">
+                                    {/* Shining Effect */}
+                                    <div className="absolute top-0 left-[-100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-25deg] group-hover:animate-shine" />
+
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D900FF] to-[#7000FF] flex items-center justify-center text-2xl shadow-lg transform rotate-3 group-hover:rotate-6 transition-transform">
+                                            💎
+                                        </div>
+                                        <div className="flex flex-col items-start">
+                                            <span className="text-[10px] text-[#D900FF] font-black tracking-[0.2em] uppercase mb-0.5">WEEKLY LOOT</span>
+                                            <div className="text-3xl font-black text-white leading-none tracking-tighter flex items-center gap-2 drop-shadow-md">
+                                                $100
+                                                <span className="text-[10px] bg-white text-black px-1.5 py-0.5 rounded font-bold uppercase tracking-wide self-start mt-1">USDC</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                                    <div className="flex justify-between w-full text-[9px] font-mono font-bold text-zinc-400">
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="w-1.5 h-1.5 bg-[#00FF9D] rounded-full animate-pulse shadow-[0_0_5px_lime]"></span>
+                                            SEASON ACTIVE
+                                        </span>
+                                        <span className="text-[#D900FF] group-hover:text-white transition-colors">MON-SUN CYCLE →</span>
+                                    </div>
                                 </div>
                             </motion.div>
 
@@ -373,8 +396,8 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         <div className="flex items-center gap-2">
                                             <span className="text-xl">⚡️</span>
                                             <div className="flex flex-col items-start leading-none">
-                                                <span>SPECIAL EVENT</span>
-                                                <span className="text-[9px] font-mono opacity-80 mt-0.5 text-white/70 group-hover:text-black/70">LIVE • $100 POOL</span>
+                                                <span>WEEKLY EVENT</span>
+                                                <span className="text-[9px] font-mono opacity-80 mt-0.5 text-white/70 group-hover:text-black/70">RECURRING • $100 POOL</span>
                                             </div>
                                         </div>
                                         <span className="text-xs group-hover:translate-x-1 transition-transform bg-[#D900FF] text-black px-1.5 py-0.5 rounded font-bold">ENTER</span>
