@@ -1,0 +1,24 @@
+[
+  {
+    "rank": 0,
+    "score": 1500,
+    "member": "wallet:0xUSER_REVIVE_TEST",
+    "type": "wallet",
+    "identifier": "0xUSER_REVIVE_TEST",
+    "displayName": "0xUSER...TEST",
+    "streak": 10,
+    "revivesUsed": 2,
+    "activeSince": "2026-02-14T04:05:15.374Z"
+  },
+  {
+    "rank": 0,
+    "score": 8,
+    "member": "wallet:0x6edd22E9792132614dD487aC6434dec3709b79A8",
+    "type": "wallet",
+    "identifier": "0x6edd22E9792132614dD487aC6434dec3709b79A8",
+    "displayName": "0x6edd...79A8",
+    "streak": 0,
+    "revivesUsed": 1,
+    "activeSince": "2026-02-14T15:10:31.145Z"
+  }
+]

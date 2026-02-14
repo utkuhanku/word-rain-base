@@ -13,8 +13,8 @@ export default function PaygateOverlay() {
     const mode = useGameStore((state) => state.mode);
     const score = useGameStore((state) => state.score);
     const resetGame = useGameStore((state) => state.resetGame);
-    const setStatus = useGameStore((state) => state.setStatus);
-    const reviveGame = useGameStore((state) => state.reviveGame); // New Action
+
+    const useRevive = useGameStore((state) => state.useRevive); // Updated Action
     const pvpGameId = useGameStore((state) => state.pvpGameId);
     const setPvPGameId = useGameStore((state) => state.setPvPGameId);
     const { isConnected } = useAccount();
@@ -53,11 +53,11 @@ export default function PaygateOverlay() {
             return () => clearTimeout(timer);
         } else {
             // Countdown finished
-            reviveGame();
+            useRevive();
             setReviveCountdown(null);
             setIsPaid(false); // Allow saving the new (higher) score on next death
         }
-    }, [reviveCountdown, reviveGame]);
+    }, [reviveCountdown, useRevive]);
 
     const [isConfirmingTx, setIsConfirmingTx] = useState(false);
 
@@ -309,7 +309,7 @@ export default function PaygateOverlay() {
                         )}
 
                         <button
-                            onClick={() => { setStatus('idle'); setIsPaid(false); }}
+                            onClick={() => { resetGame(); setIsPaid(false); }}
                             className="w-full py-4 border border-zinc-800 bg-black hover:bg-zinc-900 text-zinc-500 font-mono text-xs uppercase tracking-widest transition-all rounded-xl"
                         >
                             Return to Event Lobby
@@ -333,7 +333,7 @@ export default function PaygateOverlay() {
                             </p>
                         </div>
                         <button
-                            onClick={() => { setStatus('idle'); setPvPGameId(null); }}
+                            onClick={() => { resetGame(); }}
                             className="w-full py-4 bg-white hover:bg-zinc-200 text-black font-bold tracking-tight text-sm uppercase transition-all"
                         >
                             Return to Lobby
@@ -341,7 +341,7 @@ export default function PaygateOverlay() {
                     </div>
                 ) : (
                     <div className="w-full h-full max-w-md bg-black/90 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden relative shadow-2xl animate-in slide-in-from-bottom-10 duration-500">
-                        <GlobalLeaderboard onClose={() => setStatus('idle')} />
+                        <GlobalLeaderboard onClose={() => resetGame()} />
                     </div>
                 )
             )}

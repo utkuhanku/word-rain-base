@@ -13,12 +13,8 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
     const [season, setSeason] = useState<'S2' | 'S1'>('S2');
 
     useEffect(() => {
-        fetchLeaderboard();
-    }, [fetchLeaderboard]);
-
-    const filteredLeaderboard = leaderboard.filter(entry =>
-        season === 'S1' ? entry.isLegacy : !entry.isLegacy
-    ).sort((a, b) => b.score - a.score);
+        fetchLeaderboard(season === 'S2' ? 2 : 1);
+    }, [fetchLeaderboard, season]);
 
     return (
         <div className="absolute inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
@@ -92,19 +88,19 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                     {isLoading ? (
                         <div className="h-full flex flex-col items-center justify-center gap-4 opacity-50">
                             <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                            <p className="text-[10px] font-mono text-zinc-500 tracking-widest uppercase">Scanning Chain...</p>
+                            <p className="text-[10px] font-mono text-zinc-500 tracking-widest uppercase">Syncing Database...</p>
                         </div>
-                    ) : filteredLeaderboard.length === 0 ? (
+                    ) : leaderboard.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center opacity-30">
                             <p className="text-xs font-mono text-zinc-500 uppercase">No Entries Yet</p>
                         </div>
                     ) : (
-                        filteredLeaderboard.map((entry, i) => {
+                        leaderboard.map((entry, i) => {
                             const rank = i + 1;
 
                             // Rank Styles
                             let rowStyle = "bg-white/[0.02] hover:bg-white/[0.06] border-transparent hover:border-white/5";
-                            let rankIcon = rank.toString().padStart(2, '0');
+                            let rankIcon = <span className="font-mono">{rank.toString().padStart(2, '0')}</span> as any;
                             let rankColor = "text-zinc-600 group-hover:text-zinc-400";
                             let nameColor = "text-zinc-300 group-hover:text-white";
                             let ringColor = "bg-zinc-800 border border-white/10";
@@ -128,12 +124,6 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                                 rankColor = "text-amber-600 text-lg";
                                 nameColor = "text-amber-500 font-bold";
                                 ringColor = "ring-1 ring-amber-600";
-                            }
-
-                            if (season === 'S1') {
-                                // S1 Specifics: Maybe less glowy?
-                                // User wants them to see Top 3 so keep glow.
-                                // We can add opacity if needed but lets clear it up.
                             }
 
                             return (
@@ -164,6 +154,12 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                                                     {rank === 1 && (
                                                         <span className="bg-[#FFD700] text-black text-[8px] font-bold px-1.5 py-0.5 rounded animate-pulse">
                                                             MVP
+                                                        </span>
+                                                    )}
+                                                    {/* Streak Badge */}
+                                                    {(entry.streak || 0) > 0 && (
+                                                        <span className="text-[9px] text-orange-500 font-mono flex items-center gap-0.5 bg-orange-500/10 px-1 rounded border border-orange-500/20">
+                                                            <span>🔥</span>{entry.streak}
                                                         </span>
                                                     )}
                                                 </div>

@@ -200,7 +200,7 @@ export class GameEngine {
 
     gameOver() {
         this.stop();
-        useGameStore.getState().setStatus('game_over');
+        useGameStore.getState().endGame();
     }
 
     // Input Handling

@@ -32,9 +32,11 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [showCompetition, setShowCompetition] = useState(false);
     const [showEvent, setShowEvent] = useState(false);
+    const [showEthDenver, setShowEthDenver] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu State
     const [isLeaderboardOpening, setIsLeaderboardOpening] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
+    const [showEventIntro, setShowEventIntro] = useState(false);
 
     // Leaderboard Hook
     const { leaderboard, fetchLeaderboard, isLoading: isScanningList } = useLeaderboard();
@@ -184,6 +186,7 @@ export default function Lobby({ onStart }: LobbyProps) {
 
             {/* Overlays */}
             <AnimatePresence>
+
                 {showLeaderboard && (
                     <GlobalLeaderboard onClose={() => setShowLeaderboard(false)} />
                 )}
@@ -193,16 +196,92 @@ export default function Lobby({ onStart }: LobbyProps) {
                         onStartGame={handleStartPvP}
                     />
                 )}
+                {/* Event Lobby (ETHDenver) */}
                 {showEvent && (
-                    <div className="fixed inset-0 z-50 bg-black">
-                        <EventLobby onBack={() => setShowEvent(false)} onStart={onStart} />
-                    </div>
+                    <EventLobby
+                        onBack={() => setShowEvent(false)}
+                        onStart={onStart}
+                    />
                 )}
+
+                {/* ETH Denver Modal */}
+                {showEthDenver && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl"
+                        onClick={() => setShowEthDenver(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full max-w-sm bg-[#0A0A0A] border border-white/10 rounded-3xl p-8 relative overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#3B82F6]/20 blur-[50px] rounded-full" />
+
+                            <div className="relative z-10 flex flex-col items-center text-center gap-6">
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="w-16 h-16 bg-gradient-to-br from-[#3B82F6] to-[#1d4ed8] rounded-2xl flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(59,130,246,0.3)] mb-2">
+                                        🏔️
+                                    </div>
+                                    <h2 className="text-2xl font-black text-white italic tracking-tighter uppercase">
+                                        ETHDenver<br /><span className="text-[#3B82F6]">Special</span>
+                                    </h2>
+                                    <p className="text-xs font-mono text-zinc-400 tracking-widest max-w-[200px]">
+                                        COMPETE FOR THE HIGHEST SCORE ON THE OFFICIAL LEADERBOARD
+                                    </p>
+                                </div>
+
+                                <div className="w-full h-px bg-white/10" />
+
+                                <div className="w-full flex flex-col gap-3">
+                                    <div className="flex justify-between items-center text-sm font-bold font-mono">
+                                        <span className="text-zinc-500">1ST PLACE</span>
+                                        <span className="text-white">$100 USDC</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm font-bold font-mono">
+                                        <span className="text-zinc-500">2ND PLACE</span>
+                                        <span className="text-white">$75 USDC</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm font-bold font-mono">
+                                        <span className="text-zinc-500">3RD PLACE</span>
+                                        <span className="text-white">$50 USDC</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm font-bold font-mono">
+                                        <span className="text-zinc-500">4TH PLACE</span>
+                                        <span className="text-white">$25 USDC</span>
+                                    </div>
+                                </div>
+
+                                <div className="w-full h-px bg-white/10" />
+
+                                <button
+                                    onClick={() => {
+                                        setShowEthDenver(false);
+                                        setShowEvent(true);
+                                    }}
+                                    className="w-full py-4 bg-white text-black font-bold font-space tracking-widest uppercase hover:bg-zinc-200 transition-colors rounded-xl flex items-center justify-center gap-2"
+                                >
+                                    ENTER FOR $1
+                                </button>
+
+                                <p className="text-[9px] text-zinc-600 font-mono">
+                                    WINNERS ANNOUNCED AT THE END OF THE EVENT
+                                </p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
                 {showHelp && (
                     <HelpModal onClose={() => setShowHelp(false)} />
                 )}
+                {/* ... streak success ... */}
                 {showStreakSuccess && (
-                    // ... existing streak success code ...
                     <motion.div
                         key="streak-success"
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -230,7 +309,7 @@ export default function Lobby({ onStart }: LobbyProps) {
 
             {/* Main Content */}
             <AnimatePresence mode="wait">
-                {isReady && !showLeaderboard ? (
+                {isReady && !showLeaderboard && !showEvent ? (
                     <motion.div
                         key="main-interface"
                         initial={{ opacity: 0 }}
@@ -239,76 +318,18 @@ export default function Lobby({ onStart }: LobbyProps) {
                         transition={{ duration: 0.5 }}
                         className="flex flex-col justify-between w-full h-full max-w-md mx-auto p-6 relative z-10"
                     >
-                        {/* Reward Banner */}
-                        <div className="w-full h-6 bg-[#0052FF] flex items-center overflow-hidden relative z-20 shrink-0 mb-2 rounded-sm">
-                            <motion.div
-                                className="flex whitespace-nowrap gap-8"
-                                animate={{ x: ["0%", "-50%"] }}
-                                transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
-                            >
-                                {[...Array(4)].map((_, i) => (
-                                    <span key={i} className="text-white font-bold font-mono text-[9px] tracking-widest uppercase flex items-center gap-4">
-                                        <span className="text-[#0052FF]">FEBRUARY SPRINT</span>
-                                        <span className="text-white/40">//</span>
-                                        <span>$250 PRIZE POOL</span>
-                                        <span className="text-white/40">//</span>
-                                        <span className="text-emerald-400">TOP 3 WINS</span>
-                                        <span className="text-white/40">//</span>
-                                        <span>ENDS FEB 28</span>
-                                        <span className="text-white/40">//</span>
-                                    </span>
-                                ))}
-                            </motion.div>
-                        </div>
 
                         {/* Header Status */}
-                        <div className="w-full flex justify-between items-center py-2 border-b border-white/5">
+                        <div className="w-full flex justify-between items-center py-4 border-b border-white/5">
                             <div className="flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                 <span className="text-[10px] font-mono text-zinc-500 tracking-[0.2em] uppercase">System Online</span>
                             </div>
-                            <span className="text-[10px] font-mono text-zinc-600 tracking-widest">V.2.1.0</span>
+                            <span className="text-[10px] font-mono text-zinc-600 tracking-widest">ETHDenver Edition</span>
                         </div>
 
                         {/* Center Hero */}
                         <div className="flex-grow flex flex-col items-center justify-center gap-6 -mt-12">
-
-                            {/* WEEKLY REWARD VISUAL */}
-                            <motion.div
-                                initial={{ opacity: 0, y: -20, scale: 0.9 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                transition={{ delay: 0.5, type: "spring" }}
-                                className="relative group cursor-pointer z-30"
-                                onClick={() => setShowEvent(true)}
-                            >
-                                <div className="absolute inset-0 bg-[#D900FF] rounded-2xl blur-[20px] opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
-                                <div className="relative px-6 py-4 rounded-2xl border border-[#D900FF]/40 bg-black/80 backdrop-blur-xl flex flex-col items-center gap-3 overflow-hidden shadow-[0_0_40px_rgba(217,0,255,0.15)] hover:shadow-[0_0_60px_rgba(217,0,255,0.25)] transition-all transform hover:-translate-y-1">
-                                    {/* Shining Effect */}
-                                    <div className="absolute top-0 left-[-100%] w-[50%] h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-25deg] group-hover:animate-shine" />
-
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D900FF] to-[#7000FF] flex items-center justify-center text-2xl shadow-lg transform rotate-3 group-hover:rotate-6 transition-transform">
-                                            💎
-                                        </div>
-                                        <div className="flex flex-col items-start">
-                                            <span className="text-[10px] text-[#D900FF] font-black tracking-[0.2em] uppercase mb-0.5">WEEKLY LOOT</span>
-                                            <div className="text-3xl font-black text-white leading-none tracking-tighter flex items-center gap-2 drop-shadow-md">
-                                                $100
-                                                <span className="text-[10px] bg-white text-black px-1.5 py-0.5 rounded font-bold uppercase tracking-wide self-start mt-1">USDC</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-                                    <div className="flex justify-between w-full text-[9px] font-mono font-bold text-zinc-400">
-                                        <span className="flex items-center gap-1.5">
-                                            <span className="w-1.5 h-1.5 bg-[#00FF9D] rounded-full animate-pulse shadow-[0_0_5px_lime]"></span>
-                                            SEASON ACTIVE
-                                        </span>
-                                        <span className="text-[#D900FF] group-hover:text-white transition-colors">MON-SUN CYCLE →</span>
-                                    </div>
-                                </div>
-                            </motion.div>
 
                             {/* Main Title - Responsive Sizing */}
                             <div className="relative text-center">
@@ -368,7 +389,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         </span>
                                     </motion.button>
 
-                                    {/* Navigation Bar: Single Help Button */}
+                                    {/* Help Button */}
                                     <div className="w-full">
                                         <button
                                             onClick={() => setShowHelp(true)}
@@ -380,49 +401,98 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-3 w-full animate-in slide-in-from-bottom-5 fade-in duration-300">
+                                    {/* ETHDenver Special Event Button - PRIMARY CTA */}
+                                    <div className="relative w-full group/event">
+                                        {/* Animated Arrows & Price Labels */}
+                                        <div className="absolute -left-2 top-1/2 -translate-y-1/2 -translate-x-full hidden md:flex flex-col items-center gap-1 animate-pulse">
+                                            <span className="text-[10px] font-black text-[#0052FF] rotate-90 tracking-widest">$250</span>
+                                            <span className="text-2xl text-[#0052FF]">⮕</span>
+                                        </div>
+                                        <div className="absolute -right-2 top-1/2 -translate-y-1/2 translate-x-full hidden md:flex flex-col items-center gap-1 animate-pulse">
+                                            <span className="text-[10px] font-black text-[#0052FF] -rotate-90 tracking-widest">$250</span>
+                                            <span className="text-2xl text-[#0052FF] rotate-180">⮕</span>
+                                        </div>
+
+                                        {/* Mobile Inline Arrows (Visible only on small screens) */}
+                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-2 md:hidden">
+                                            <span className="text-[8px] font-black text-[#0052FF] bg-white px-1.5 py-0.5 rounded shadow-sm animate-bounce">
+                                                WIN $250
+                                            </span>
+                                        </div>
+
+                                        <motion.button
+                                            onClick={() => setShowEventIntro(true)}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="w-full h-20 relative overflow-hidden rounded-xl group border-2 border-[#0052FF] shadow-[0_0_20px_rgba(0,82,255,0.3)]"
+                                        >
+                                            <div className="absolute inset-0 bg-[#0052FF] animate-pulse" />
+                                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-40 mix-blend-overlay" />
+                                            <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
+
+                                            <div className="relative z-10 flex items-center justify-between px-6 h-full">
+                                                <div className="flex flex-col items-start gap-1">
+                                                    <span className="text-[10px] font-black italic tracking-widest text-white/90 uppercase bg-black/20 px-2 py-0.5 rounded backdrop-blur-sm border border-white/10">
+                                                        LIMITED TIME EVENT
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-2xl filter drop-shadow-lg">🏔️</span>
+                                                        <div className="flex flex-col items-start leading-none">
+                                                            <span className="text-2xl font-black text-white italic tracking-tighter uppercase drop-shadow-md">
+                                                                ETHDENVER
+                                                            </span>
+                                                            <span className="text-[10px] font-mono text-white/80 tracking-[0.2em] uppercase">
+                                                                OFFICIAL SERIES
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-1">
+                                                    <div className="bg-white text-[#0052FF] px-3 py-1 rounded-lg font-black font-mono text-sm shadow-lg flex items-center gap-1">
+                                                        <span>$250</span>
+                                                        <span className="text-[8px] opacity-60">USDC</span>
+                                                    </div>
+                                                    <span className="text-[9px] text-white/80 font-mono text-right">
+                                                        1 USDC ENTRY
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </motion.button>
+                                    </div>
+
+                                    <div className="w-full h-px bg-white/10 my-1" />
+
                                     <button
                                         onClick={onStart}
-                                        className="w-full h-14 bg-white text-black font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 hover:bg-zinc-200 transition-colors"
+                                        className="w-full h-14 bg-zinc-100 text-black font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 hover:bg-white transition-colors border border-white/20"
                                     >
-                                        <span>Start Mission</span>
-                                        <span>→</span>
+                                        <span className="text-zinc-600 group-hover:text-black transition-colors">Training Mode</span>
+                                        <span className="opacity-50">→</span>
                                     </button>
 
-                                    {/* SPECIAL EVENT (Replaces Competition) */}
-                                    <button
-                                        onClick={() => setShowEvent(true)}
-                                        className="w-full h-14 bg-black border border-[#D900FF] bg-[#D900FF]/10 text-[#D900FF] font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 hover:bg-[#D900FF] hover:text-black transition-all shadow-[0_0_15px_rgba(217,0,255,0.2)] group"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xl">⚡️</span>
-                                            <div className="flex flex-col items-start leading-none">
-                                                <span>WEEKLY EVENT</span>
-                                                <span className="text-[9px] font-mono opacity-80 mt-0.5 text-white/70 group-hover:text-black/70">RECURRING • $100 POOL</span>
-                                            </div>
-                                        </div>
-                                        <span className="text-xs group-hover:translate-x-1 transition-transform bg-[#D900FF] text-black px-1.5 py-0.5 rounded font-bold">ENTER</span>
-                                    </button>
-
-                                    {/* GM Streak Button (Onchain) */}
+                                    {/* GM Streak Button */}
                                     <button
                                         onClick={handleGMaction}
                                         disabled={isSending}
-                                        className={`w-full h-14 ${canGM ? "bg-[#0052FF] hover:bg-[#0040DD] text-white shadow-[0_0_20px_rgba(0,82,255,0.3)]" : "bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/20"} font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 transition-all`}
+                                        className={`w-full h-14 ${canGM ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)] border-none" : "bg-zinc-900 border border-zinc-800 text-zinc-500"} font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 transition-all relative overflow-hidden group`}
                                     >
-                                        <div className="flex flex-col items-start gap-0.5">
-                                            <span className="text-[10px] opacity-70 font-mono leading-none">
-                                                {canGM ? "READY TO LEVEL UP" : "DAILY STREAK ACTIVE"}
+                                        {canGM && <div className="absolute inset-0 bg-white/20 animate-pulse" />}
+
+                                        <div className="flex flex-col items-start gap-0.5 relative z-10">
+                                            <span className="text-[9px] opacity-90 font-mono leading-none tracking-wider">
+                                                {canGM ? "BUILD YOUR LEGACY" : "LEGACY SECURED"}
                                             </span>
-                                            <span>
-                                                {isSending ? "MINTING..." : (canGM ? "GM STREAK ⚡" : `STREAK: ${streak} 🔥`)}
+                                            <span className="flex items-center gap-2">
+                                                {isSending ? "MINTING..." : (canGM ? "GM STREAK" : `STREAK: ${streak}`)}
+                                                <span className="text-lg">🔥</span>
                                             </span>
                                         </div>
                                         {canGM ? (
-                                            <span className="text-[10px] font-mono opacity-80 bg-white/20 px-2 py-0.5 rounded">
+                                            <span className="text-[10px] font-black bg-white text-orange-600 px-2 py-1 rounded shadow-sm">
                                                 +1
                                             </span>
                                         ) : (
-                                            <span className="text-[10px] font-mono opacity-80 border border-current px-2 py-0.5 rounded">
+                                            <span className="text-[10px] font-mono opacity-60 border border-zinc-700 px-2 py-0.5 rounded">
                                                 SHARE
                                             </span>
                                         )}
@@ -430,13 +500,12 @@ export default function Lobby({ onStart }: LobbyProps) {
 
                                     <button
                                         onClick={handleOpenLeaderboard}
-                                        className={`w-full h-14 border ${hasPaid ? "border-[#0052FF] text-[#0052FF] bg-[#0052FF]/5" : "border-white/10 text-zinc-400"} font-mono text-xs tracking-widest uppercase flex items-center justify-between px-6 hover:border-[#0052FF] hover:bg-[#0052FF]/10 transition-all`}
+                                        className={`w-full h-14 border ${hasPaid ? "border-[#0052FF]/30 text-[#0052FF] bg-[#0052FF]/5" : "border-white/10 text-zinc-500"} font-mono text-xs tracking-widest uppercase flex items-center justify-between px-6 hover:border-[#0052FF] hover:bg-[#0052FF]/10 transition-all`}
                                     >
                                         <span className="flex items-center gap-2">
-                                            {isCheckingPayment || isLeaderboardOpening ? "Verifying..." : "Global Leaderboard"}
+                                            {isCheckingPayment || isLeaderboardOpening ? "Verifying..." : "GLOBAL STANDINGS"}
                                             {hasPaid && !isCheckingPayment && <div className="w-1.5 h-1.5 bg-[#0052FF] rounded-full animate-pulse shadow-[0_0_5px_#0052FF]" />}
                                         </span>
-                                        {!hasPaid && !isCheckingPayment && <span className="opacity-50 border border-current px-1.5 py-0.5 rounded-[2px] text-[9px]">0.15 USDC</span>}
                                     </button>
                                 </div>
                             )}
@@ -469,6 +538,75 @@ export default function Lobby({ onStart }: LobbyProps) {
                         <span className="animate-pulse">LOADING RESOURCES...</span>
                     </motion.div>
                 ) : null}
+                {/* ETHDenver Intro Modal */}
+                {showEventIntro && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                        onClick={() => setShowEventIntro(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="w-full max-w-sm bg-[#0052FF] rounded-2xl p-1 shadow-[0_0_50px_rgba(0,82,255,0.4)] border border-white/20 overflow-hidden relative"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+
+                            <div className="bg-black/90 rounded-xl p-6 relative z-10 flex flex-col items-center text-center gap-6">
+                                <div className="space-y-2">
+                                    <div className="inline-block bg-[#0052FF]/20 text-[#0052FF] px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border border-[#0052FF]/50">
+                                        Feb 13 - Feb 28
+                                    </div>
+                                    <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">
+                                        <span className="block text-2xl text-zinc-500">The</span>
+                                        ETHDenver
+                                        <span className="block text-[#0052FF]">Sprint</span>
+                                    </h2>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 w-full">
+                                    <div className="bg-white/5 rounded-lg p-3 flex flex-col items-center border border-white/5">
+                                        <span className="text-2xl mb-1">💰</span>
+                                        <span className="text-xs text-zinc-400 uppercase tracking-wider font-mono">Prize Pool</span>
+                                        <span className="text-xl font-bold text-white">$250</span>
+                                    </div>
+                                    <div className="bg-white/5 rounded-lg p-3 flex flex-col items-center border border-white/5">
+                                        <span className="text-2xl mb-1">🎟️</span>
+                                        <span className="text-xs text-zinc-400 uppercase tracking-wider font-mono">Entry Fee</span>
+                                        <span className="text-xl font-bold text-white">1 USDC</span>
+                                    </div>
+                                </div>
+
+                                <div className="text-sm text-zinc-400 font-mono leading-relaxed">
+                                    Competitors have 2 weeks to set the highest score. Top 3 players share the pot.
+                                    <br />
+                                    <span className="text-white font-bold">Unlocks Exclusive Badge.</span>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        setShowEventIntro(false);
+                                        setShowEthDenver(true);
+                                    }}
+                                    className="w-full bg-[#0052FF] hover:bg-[#004ad1] text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all shadow-lg hover:shadow-[#0052FF]/25 hover:scale-[1.02] active:scale-[0.98]"
+                                >
+                                    Enter Arena
+                                </button>
+
+                                <button
+                                    onClick={() => setShowEventIntro(false)}
+                                    className="text-xs text-zinc-500 hover:text-white transition-colors"
+                                >
+                                    Maybe Later
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
             </AnimatePresence>
         </div>
     );

@@ -17,12 +17,12 @@ export default function Home() {
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
 
   // Game Actions
-  const resetGame = useGameStore((state) => state.resetGame);
+  const startGame = useGameStore((state) => state.startGame);
 
   const handleStartGame = () => {
     setAppState('game');
     setTimeout(() => {
-      resetGame(); // Triggers status: 'playing' but we might want to wait for HUD intro logic if any
+      startGame(); // CORRECT: Sets status: 'playing'
     }, 500); // Wait for transition
   };
 

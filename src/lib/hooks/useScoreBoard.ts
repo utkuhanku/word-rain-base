@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { usePublicClient, useWalletClient } from 'wagmi';
 import { parseAbi } from 'viem';
 import { ScoreRegistryABI } from '@/lib/abi/ScoreRegistryABI';
+import { useGameStore } from '@/lib/store/gameStore';
 
 // Config
 const REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_SCORE_REGISTRY_ADDRESS as `0x${string}` || "0x9Dc0EC4618506538AF41fbBd2c1340cb25675108";
@@ -14,6 +15,7 @@ export function useScoreBoard() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [step, setStep] = useState(""); // Granular Status
+    const revivesUsed = useGameStore(state => state.revivesUsed);
 
     const submitScore = useCallback(async (score: number, mode: 'CLASSIC' | 'PVP' | 'EVENT' = 'CLASSIC') => {
         if (!walletClient || !publicClient) {
@@ -59,12 +61,31 @@ export function useScoreBoard() {
 
                 setStep("Transmitting...");
 
+                // Get Streak Data
+                const streakKey = `streak_${account}`;
+                const rawStreak = localStorage.getItem(streakKey);
+                let streak = 0;
+                if (rawStreak) {
+                    try {
+                        const parsed = JSON.parse(rawStreak);
+                        streak = parsed.current;
+                    } catch (e) {
+                        streak = Number(rawStreak) || 0;
+                    }
+                }
+
                 try {
                     // POST to API
-                    const res = await fetch('/api/event/submit', {
+                    const res = await fetch('/api/leaderboard/submit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ address: account, score })
+                        body: JSON.stringify({
+                            wallet: account,
+                            score,
+                            streak,
+                            revivesUsed
+                            // fid: undefined // TODO: Pass FID if available
+                        })
                     });
 
                     if (!res.ok) throw new Error("Failed to sync score globally");
