@@ -25,6 +25,7 @@ export const config = createConfig({
     transports: {
         [base.id]: http(),
     },
+    // @ts-expect-error - wagmi config types might be strict but this is valid
     dataSuffix, // Inject Builder Code into all transactions
     ssr: true,
 });

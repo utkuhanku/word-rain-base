@@ -112,7 +112,9 @@ export async function GET(request: NextRequest) {
                             enrichmentMap[`fid:${u.fid}`] = {
                                 username: u.username,
                                 pfp_url: u.pfp_url,
-                                display_name: u.display_name
+                                display_name: u.display_name,
+                                power_badge: u.power_badge,
+                                active_status: u.active_status
                             };
                         });
                     }
@@ -137,22 +139,19 @@ export async function GET(request: NextRequest) {
                         const users = data[addrKey];
                         if (Array.isArray(users) && users.length > 0) {
                             const u = users[0]; // Use first/main profile
-                            // Map back to our wallet:0x... format. 
-                            // Since we don't know which specific casing matched, we might need to normalize.
-                            // But for now, we can try to match the input wallet.
                             const originalWallet = walletsToEnrich.find(w => w.toLowerCase() === addrKey.toLowerCase());
+                            const enrichedData = {
+                                username: u.username,
+                                pfp_url: u.pfp_url,
+                                display_name: u.display_name,
+                                power_badge: u.power_badge,
+                                active_status: u.active_status
+                            };
+
                             if (originalWallet) {
-                                enrichmentMap[`wallet:${originalWallet}`] = {
-                                    username: u.username,
-                                    pfp_url: u.pfp_url,
-                                    display_name: u.display_name
-                                };
+                                enrichmentMap[`wallet:${originalWallet}`] = enrichedData;
                                 // Also support direct 0x lookups if member key was just address
-                                enrichmentMap[originalWallet] = {
-                                    username: u.username,
-                                    pfp_url: u.pfp_url,
-                                    display_name: u.display_name
-                                };
+                                enrichmentMap[originalWallet] = enrichedData;
                             }
                         }
                     });

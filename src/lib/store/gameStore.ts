@@ -25,6 +25,8 @@ interface GameState {
     reviveGame: () => void;
     useRevive: () => void;
     setBestScore: (score: number) => void;
+    setPvPGameId: (id: string | null) => void;
+    setHasUsedRetry: (used: boolean) => void;
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -66,6 +68,9 @@ export const useGameStore = create<GameState>((set) => ({
     setMode: (mode) => set({ mode }),
 
     setBestScore: (score) => set({ bestScore: score }),
+
+    setPvPGameId: (id) => set({ pvpGameId: id }),
+    setHasUsedRetry: (used) => set({ hasUsedRetry: used }),
 
     resetGame: () => set({
         status: 'idle',

@@ -202,7 +202,7 @@ export default function PaygateOverlay() {
                     <div className="grid gap-3">
                         <div className="flex gap-2">
                             <button
-                                onClick={() => { setStatus('idle'); setPvPGameId(null); }}
+                                onClick={() => { resetGame(); }}
                                 className="flex-1 py-4 border border-zinc-800 hover:bg-zinc-900 text-zinc-500 font-mono text-xs uppercase tracking-widest transition-all"
                             >
                                 Home

@@ -166,135 +166,124 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     </button>
                 </div>
 
-                {/* Rankings */}
-                <div className="space-y-2">
+                {/* Rankings - PREMIUM REDESIGN */}
+                <div className="space-y-6 pb-20">
                     {leaderboard.length === 0 ? (
-                        <div className="text-center py-12 border border-dashed border-white/10 rounded-xl">
-                            <p className="text-zinc-600 text-xs uppercase tracking-widest">No Entries Yet</p>
+                        <div className="text-center py-20 border border-dashed border-white/5 rounded-3xl bg-white/5 mx-6">
+                            <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest animate-pulse">Waiting for Players...</p>
                         </div>
                     ) : (
-                        leaderboard.map((entry: any, i) => (
-                            <div
-                                key={entry.member || entry.address}
-                                className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${i < 3 ? "bg-white/10 border-white/10" : "bg-white/5 border-white/5 hover:bg-white/10"}`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className={`font-mono font-bold w-6 text-center ${i === 0 ? "text-yellow-400 text-lg" : i === 1 ? "text-zinc-300 text-base" : i === 2 ? "text-orange-400 text-base" : "text-zinc-600 text-xs"}`}>
-                                        {i + 1}
-                                    </span>
-
-                                    <div className="flex flex-col">
-                                        <div className="flex flex-col">
-                                            {entry.pfp_url ? (
-                                                <div className="flex items-center gap-2">
-                                                    <img
-                                                        src={entry.pfp_url}
-                                                        alt="pfp"
-                                                        className="w-8 h-8 rounded-full border border-white/10"
-                                                        onError={(e) => {
-                                                            (e.target as HTMLImageElement).style.display = 'none';
-                                                        }}
-                                                    />
-                                                    <div className="flex flex-col">
-                                                        <span className="text-xs font-bold text-white leading-none">
-                                                            {entry.username ? `@${entry.username}` : entry.displayName}
-                                                        </span>
-                                                        {/* STREAK BADGE */}
-                                                        {entry.streak > 0 && (
-                                                            <div className="flex items-center gap-1 mt-0.5">
-                                                                <span className="text-[10px] text-orange-500 font-mono flex items-center gap-0.5">
-                                                                    🔥 {entry.streak}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ) : (
-
-                                                (() => {
-                                                    const rawAddress = (entry.identifier || entry.member)?.replace('wallet:', '');
-                                                    const isValidAddress = rawAddress?.startsWith('0x') && rawAddress.length === 42;
-                                                    const address = isValidAddress ? (rawAddress as `0x${string}`) : undefined;
-
-                                                    // Fallback for non-address identities (e.g. un-enriched FIDs in mock mode)
-                                                    if (!address) {
-                                                        return (
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="w-8 h-8 rounded-full border border-white/10 bg-zinc-900 flex items-center justify-center text-xs">
-                                                                    👤
-                                                                </div>
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-xs font-bold text-white leading-none">
-                                                                        {entry.displayName || "Unknown Player"}
-                                                                    </span>
-                                                                    <span className="text-[10px] text-zinc-500 font-mono leading-none">
-                                                                        {entry.type === 'fid' ? `FID: ${entry.identifier}` : 'Guest'}
-                                                                    </span>
-                                                                    {entry.streak > 0 && (
-                                                                        <span className="text-[10px] text-orange-500 font-mono flex items-center gap-0.5 mt-0.5">
-                                                                            🔥 {entry.streak}
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    }
-
-
-                                                    const formattedAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
-
-                                                    return (
-                                                        <div className="flex items-center gap-2">
-                                                            {/* Avatar Isolated */}
-                                                            <Identity address={address}>
-                                                                <Avatar className="w-8 h-8 rounded-full border border-white/10" />
-                                                            </Identity>
-
-                                                            <div className="flex flex-col">
-                                                                {/* Name Isolated */}
-                                                                <Identity address={address}>
-                                                                    <Name className="text-xs font-bold text-white leading-none min-h-[12px]">
-                                                                        {/* Fallback to API data if Name component yields nothing/loading? 
-                                                                             OnchainKit Name usually handles this, but since user is having issues, 
-                                                                             we trust the server's displayName as a reasonable "loading" state or backup. */}
-                                                                    </Name>
-                                                                </Identity>
-
-                                                                {/* Explicit Address String (Always Visible) */}
-                                                                <span className="text-[10px] text-zinc-500 font-mono leading-none">
-                                                                    {formattedAddress}
-                                                                </span>
-
-                                                                {entry.streak > 0 && (
-                                                                    <span className="text-[10px] text-orange-500 font-mono flex items-center gap-0.5 mt-0.5">
-                                                                        🔥 {entry.streak}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })()
-                                            )}
-
+                        <>
+                            {/* TOP 3 PODIUM */}
+                            <div className="grid grid-cols-3 gap-2 px-1 items-end">
+                                {/* RANK 2 (Silver) */}
+                                {leaderboard[1] && (
+                                    <div className="flex flex-col items-center gap-2 mb-4">
+                                        <div className="relative group">
+                                            <div className="absolute inset-0 bg-zinc-400/20 blur-xl rounded-full group-hover:bg-zinc-400/30 transition-all"></div>
+                                            <img
+                                                src={leaderboard[1].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[1].username || '2'}`}
+                                                className="w-16 h-16 rounded-2xl border-2 border-zinc-400 relative z-10 object-cover"
+                                            />
+                                            <div className="absolute -bottom-2 -right-2 bg-zinc-800 text-zinc-300 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-zinc-600 z-20">2</div>
+                                        </div>
+                                        <div className="text-center">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <span className="text-white font-bold text-xs truncate max-w-[80px]">
+                                                    {leaderboard[1].username || leaderboard[1].displayName}
+                                                </span>
+                                                {leaderboard[1].power_badge && <span className="text-[#855DCD]" title="Power User">⚡</span>}
+                                            </div>
+                                            <div className="text-zinc-400 text-[10px] font-mono">{leaderboard[1].score}</div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
 
-                                <div className="flex items-center gap-3">
-                                    <div className="flex flex-col items-end">
-                                        <span className={`font-mono font-bold ${i < 3 ? "text-[#0052FF] text-lg" : "text-zinc-400 text-sm"}`}>
-                                            {typeof entry.score === 'object' ? entry.score.score : entry.score}
-                                        </span>
+                                {/* RANK 1 (Gold) */}
+                                {leaderboard[0] && (
+                                    <div className="flex flex-col items-center gap-2">
+                                        <div className="relative group">
+                                            <div className="absolute inset-0 bg-yellow-500/30 blur-2xl rounded-full group-hover:bg-yellow-500/40 transition-all animate-pulse"></div>
+                                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-2xl animate-bounce">👑</div>
+                                            <img
+                                                src={leaderboard[0].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[0].username || '1'}`}
+                                                className="w-24 h-24 rounded-3xl border-4 border-yellow-500 relative z-10 object-cover shadow-[0_0_30px_rgba(234,179,8,0.3)]"
+                                            />
+                                            <div className="absolute -bottom-3 -right-3 bg-yellow-500 text-black w-8 h-8 flex items-center justify-center rounded-full text-base font-black border-2 border-white z-20 shadow-lg">1</div>
+                                        </div>
+                                        <div className="text-center mt-2">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <span className="text-white font-black text-sm truncate max-w-[100px]">
+                                                    {leaderboard[0].username || leaderboard[0].displayName}
+                                                </span>
+                                                {leaderboard[0].power_badge && <span className="text-[#855DCD]" title="Power User">⚡</span>}
+                                            </div>
+                                            <div className="text-yellow-500 text-xs font-mono font-bold tracking-wider">{leaderboard[0].score} PTS</div>
+                                        </div>
                                     </div>
-                                    <button
-                                        onClick={() => setSelectedPlayer(entry)}
-                                        className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
-                                    >
-                                        ℹ️
-                                    </button>
-                                </div>
+                                )}
+
+                                {/* RANK 3 (Bronze) */}
+                                {leaderboard[2] && (
+                                    <div className="flex flex-col items-center gap-2 mb-4">
+                                        <div className="relative group">
+                                            <div className="absolute inset-0 bg-orange-700/20 blur-xl rounded-full group-hover:bg-orange-700/30 transition-all"></div>
+                                            <img
+                                                src={leaderboard[2].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[2].username || '3'}`}
+                                                className="w-16 h-16 rounded-2xl border-2 border-orange-700 relative z-10 object-cover"
+                                            />
+                                            <div className="absolute -bottom-2 -right-2 bg-zinc-900 text-orange-700 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-orange-900 z-20">3</div>
+                                        </div>
+                                        <div className="text-center">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <span className="text-white font-bold text-xs truncate max-w-[80px]">
+                                                    {leaderboard[2].username || leaderboard[2].displayName}
+                                                </span>
+                                                {leaderboard[2].power_badge && <span className="text-[#855DCD]" title="Power User">⚡</span>}
+                                            </div>
+                                            <div className="text-zinc-500 text-[10px] font-mono">{leaderboard[2].score}</div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        ))
+
+                            {/* THE REST (Rank 4+) */}
+                            <div className="space-y-1 mt-6 bg-white/5 rounded-2xl p-2 border border-white/5">
+                                {leaderboard.slice(3).map((entry: any, i) => (
+                                    <div
+                                        key={entry.member || entry.address}
+                                        onClick={() => setSelectedPlayer(entry)}
+                                        className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer group active:scale-[0.98]"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-mono text-zinc-600 text-[10px] w-4 text-center">{i + 4}</span>
+
+                                            <div className="relative">
+                                                <img
+                                                    src={entry.pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.username || 'guest'}`}
+                                                    className="w-8 h-8 rounded-full bg-zinc-800 object-cover border border-white/5"
+                                                />
+                                                {entry.active_status === 'active' && <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border border-black"></div>}
+                                            </div>
+
+                                            <div className="flex flex-col">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="text-white font-bold text-xs truncate max-w-[120px]">
+                                                        {entry.username || entry.displayName}
+                                                    </span>
+                                                    {entry.power_badge && <span className="text-[10px]">⚡</span>}
+                                                </div>
+                                                {entry.streak > 0 && <span className="text-[9px] text-orange-500 font-mono">🔥 {entry.streak} Day Streak</span>}
+                                            </div>
+                                        </div>
+
+                                        <div className="text-right">
+                                            <span className="text-white font-mono font-bold text-sm block">{entry.score}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </div>
 
