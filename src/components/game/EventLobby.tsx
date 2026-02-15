@@ -20,12 +20,31 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
 
-    // Check Local Payment Flag for ETHDenver
+    // Check Persistent Payment Flag (Server + Local Fallback)
     useEffect(() => {
         if (!address) return;
-        const payKey = `ethdenver_entry_paid_${address}`;
-        const isPaid = localStorage.getItem(payKey);
-        if (isPaid === 'true') setHasPaidEntry(true);
+        const checkAccess = async () => {
+            try {
+                // 1. Check Local First (Instant)
+                const payKey = `ethdenver_entry_paid_${address}`;
+                if (localStorage.getItem(payKey) === 'true') {
+                    setHasPaidEntry(true);
+                }
+
+                // 2. Check Server (Authoritative)
+                const res = await fetch(`/api/event/access?address=${address}`);
+                if (res.ok) {
+                    const { hasAccess } = await res.json();
+                    if (hasAccess) {
+                        setHasPaidEntry(true);
+                        localStorage.setItem(payKey, 'true'); // Re-sync local
+                    }
+                }
+            } catch (e) {
+                console.error("Access check failed", e);
+            }
+        };
+        checkAccess();
     }, [address]);
 
     // Load Leaderboard (ETHDenver Partition)
@@ -81,6 +100,15 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
             if (publicClient) {
                 await publicClient.waitForTransactionReceipt({ hash });
+
+                // SAVE PERSISTENT STATE
+                await fetch('/api/event/access', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ address }),
+                });
 
                 // SAVE LOCAL STATE
                 const payKey = `ethdenver_entry_paid_${address}`;
@@ -166,7 +194,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     </button>
                 </div>
 
-                {/* Rankings - PREMIUM REDESIGN */}
+                {/* Rankings - PREMIUM REDESIGN (TOP 4 PODIUM) */}
                 <div className="space-y-6 pb-20">
                     {leaderboard.length === 0 ? (
                         <div className="text-center py-20 border border-dashed border-white/5 rounded-3xl bg-white/5 mx-6">
@@ -174,89 +202,103 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         </div>
                     ) : (
                         <>
-                            {/* TOP 3 PODIUM */}
-                            <div className="grid grid-cols-3 gap-2 px-1 items-end">
-                                {/* RANK 2 (Silver) */}
-                                {leaderboard[1] && (
-                                    <div className="flex flex-col items-center gap-2 mb-4">
-                                        <div className="relative group">
-                                            <div className="absolute inset-0 bg-zinc-400/20 blur-xl rounded-full group-hover:bg-zinc-400/30 transition-all"></div>
-                                            <img
-                                                src={leaderboard[1].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[1].username || '2'}`}
-                                                className="w-16 h-16 rounded-2xl border-2 border-zinc-400 relative z-10 object-cover"
-                                            />
-                                            <div className="absolute -bottom-2 -right-2 bg-zinc-800 text-zinc-300 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-zinc-600 z-20">2</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="flex items-center justify-center gap-1">
-                                                <span className="text-white font-bold text-xs truncate max-w-[80px]">
-                                                    {leaderboard[1].username || leaderboard[1].displayName}
-                                                </span>
-                                                {leaderboard[1].power_badge && <span className="text-[#855DCD]" title="Power User">⚡</span>}
-                                            </div>
-                                            <div className="text-zinc-400 text-[10px] font-mono">{leaderboard[1].score}</div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* RANK 1 (Gold) */}
+                            {/* TOP 4 PODIUM GRID */}
+                            <div className="grid grid-cols-2 gap-3 px-1">
+                                {/* RANK 1 (Gold - Full Width/Big) */}
                                 {leaderboard[0] && (
-                                    <div className="flex flex-col items-center gap-2">
+                                    <div className="col-span-2 flex flex-col items-center gap-2 bg-gradient-to-b from-yellow-500/10 to-transparent p-4 rounded-3xl border border-yellow-500/30">
                                         <div className="relative group">
                                             <div className="absolute inset-0 bg-yellow-500/30 blur-2xl rounded-full group-hover:bg-yellow-500/40 transition-all animate-pulse"></div>
                                             <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-2xl animate-bounce">👑</div>
                                             <img
                                                 src={leaderboard[0].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[0].username || '1'}`}
-                                                className="w-24 h-24 rounded-3xl border-4 border-yellow-500 relative z-10 object-cover shadow-[0_0_30px_rgba(234,179,8,0.3)]"
+                                                className="w-20 h-20 rounded-2xl border-4 border-yellow-500 relative z-10 object-cover shadow-[0_0_30px_rgba(234,179,8,0.3)]"
                                             />
                                             <div className="absolute -bottom-3 -right-3 bg-yellow-500 text-black w-8 h-8 flex items-center justify-center rounded-full text-base font-black border-2 border-white z-20 shadow-lg">1</div>
                                         </div>
-                                        <div className="text-center mt-2">
+                                        <div className="text-center mt-1">
                                             <div className="flex items-center justify-center gap-1">
-                                                <span className="text-white font-black text-sm truncate max-w-[100px]">
+                                                <span className="text-white font-black text-lg truncate max-w-[150px]">
                                                     {leaderboard[0].username || leaderboard[0].displayName}
                                                 </span>
                                                 {leaderboard[0].power_badge && <span className="text-[#855DCD]" title="Power User">⚡</span>}
                                             </div>
-                                            <div className="text-yellow-500 text-xs font-mono font-bold tracking-wider">{leaderboard[0].score} PTS</div>
+                                            <div className="text-yellow-500 text-sm font-mono font-bold tracking-wider">{leaderboard[0].score} PTS</div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* RANK 2 (Silver) */}
+                                {leaderboard[1] && (
+                                    <div className="flex flex-col items-center gap-2 p-3 bg-zinc-400/5 rounded-2xl border border-zinc-400/20">
+                                        <div className="relative group">
+                                            <img
+                                                src={leaderboard[1].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[1].username || '2'}`}
+                                                className="w-14 h-14 rounded-xl border-2 border-zinc-400 relative z-10 object-cover"
+                                            />
+                                            <div className="absolute -bottom-2 -right-2 bg-zinc-300 text-black w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-zinc-500 z-20">2</div>
+                                        </div>
+                                        <div className="text-center">
+                                            <span className="text-white font-bold text-xs truncate max-w-[80px] block">
+                                                {leaderboard[1].username || leaderboard[1].displayName}
+                                            </span>
+                                            <div className="text-zinc-400 text-[10px] font-mono">{leaderboard[1].score}</div>
                                         </div>
                                     </div>
                                 )}
 
                                 {/* RANK 3 (Bronze) */}
                                 {leaderboard[2] && (
-                                    <div className="flex flex-col items-center gap-2 mb-4">
+                                    <div className="flex flex-col items-center gap-2 p-3 bg-orange-700/5 rounded-2xl border border-orange-700/20">
                                         <div className="relative group">
-                                            <div className="absolute inset-0 bg-orange-700/20 blur-xl rounded-full group-hover:bg-orange-700/30 transition-all"></div>
                                             <img
                                                 src={leaderboard[2].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[2].username || '3'}`}
-                                                className="w-16 h-16 rounded-2xl border-2 border-orange-700 relative z-10 object-cover"
+                                                className="w-14 h-14 rounded-xl border-2 border-orange-700 relative z-10 object-cover"
                                             />
-                                            <div className="absolute -bottom-2 -right-2 bg-zinc-900 text-orange-700 w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-orange-900 z-20">3</div>
+                                            <div className="absolute -bottom-2 -right-2 bg-orange-600 text-black w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-orange-800 z-20">3</div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="flex items-center justify-center gap-1">
-                                                <span className="text-white font-bold text-xs truncate max-w-[80px]">
-                                                    {leaderboard[2].username || leaderboard[2].displayName}
-                                                </span>
-                                                {leaderboard[2].power_badge && <span className="text-[#855DCD]" title="Power User">⚡</span>}
-                                            </div>
-                                            <div className="text-zinc-500 text-[10px] font-mono">{leaderboard[2].score}</div>
+                                            <span className="text-white font-bold text-xs truncate max-w-[80px] block">
+                                                {leaderboard[2].username || leaderboard[2].displayName}
+                                            </span>
+                                            <div className="text-orange-600 text-[10px] font-mono">{leaderboard[2].score}</div>
                                         </div>
+                                    </div>
+                                )}
+
+                                {/* RANK 4 (Iron/Runner Up - NEW) */}
+                                {leaderboard[3] && (
+                                    <div className="col-span-2 flex items-center justify-between p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20 mt-1">
+                                        <div className="flex items-center gap-3">
+                                            <div className="relative">
+                                                <img
+                                                    src={leaderboard[3].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[3].username || '4'}`}
+                                                    className="w-12 h-12 rounded-xl border-2 border-blue-500/50 object-cover"
+                                                />
+                                                <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold border border-blue-800">4</div>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-white font-bold text-sm">
+                                                    {leaderboard[3].username || leaderboard[3].displayName}
+                                                </span>
+                                                <span className="text-blue-400 text-[10px] uppercase font-bold tracking-wider">Runner Up</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-blue-400 font-mono font-bold text-sm">{leaderboard[3].score}</div>
                                     </div>
                                 )}
                             </div>
 
-                            {/* THE REST (Rank 4+) */}
+                            {/* THE REST (Rank 5+) */}
                             <div className="space-y-1 mt-6 bg-white/5 rounded-2xl p-2 border border-white/5">
-                                {leaderboard.slice(3).map((entry: any, i) => (
+                                {leaderboard.slice(4).map((entry: any, i) => (
                                     <div
                                         key={entry.member || entry.address}
                                         onClick={() => setSelectedPlayer(entry)}
                                         className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer group active:scale-[0.98]"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <span className="font-mono text-zinc-600 text-[10px] w-4 text-center">{i + 4}</span>
+                                            <span className="font-mono text-zinc-600 text-[10px] w-4 text-center">{i + 5}</span>
 
                                             <div className="relative">
                                                 <img
