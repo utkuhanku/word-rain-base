@@ -174,9 +174,20 @@ export default function Lobby({ onStart }: LobbyProps) {
         onStart();
     };
 
+    const [activeTab, setActiveTab] = useState<'EVENT' | 'TRAINING'>('EVENT');
+    const { setMode } = useGameStore();
+
+    // ... (keep existing hooks)
+
+    const handleStartTraining = () => {
+        setMode('CLASSIC'); // Default to classic/training
+        onStart();
+    };
+
+
     return (
         <div className="fixed inset-0 w-full h-[100dvh] overflow-hidden bg-[#050505] flex flex-col items-center z-20">
-            {/* Background Ambience */}
+            {/* Background Ambience (Keep existing) */}
             <div className="absolute inset-0 pointer-events-none -z-10">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] bg-[#0052FF]/10 blur-[150px] rounded-full animate-pulse opacity-50" />
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
@@ -184,28 +195,17 @@ export default function Lobby({ onStart }: LobbyProps) {
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_60%,transparent_100%)]" />
             </div>
 
-            {/* Overlays */}
+            {/* Overlays (Keep existing) */}
             <AnimatePresence>
-
-                {showLeaderboard && (
-                    <GlobalLeaderboard onClose={() => setShowLeaderboard(false)} />
-                )}
-                {showCompetition && (
-                    <CompetitionLobby
-                        onClose={() => setShowCompetition(false)}
-                        onStartGame={handleStartPvP}
-                    />
-                )}
-                {/* Event Lobby (ETHDenver) */}
+                {/* Only EventLobby and HelpModal needed now. GlobalLeaderboard is embedded. */}
                 {showEvent && (
                     <EventLobby
                         onBack={() => setShowEvent(false)}
                         onStart={onStart}
                     />
                 )}
-
-                {/* ETH Denver Modal */}
                 {showEthDenver && (
+                    // ... Keep existing ETHDenver Modal ...
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -276,11 +276,9 @@ export default function Lobby({ onStart }: LobbyProps) {
                         </motion.div>
                     </motion.div>
                 )}
-
                 {showHelp && (
                     <HelpModal onClose={() => setShowHelp(false)} />
                 )}
-                {/* ... streak success ... */}
                 {showStreakSuccess && (
                     <motion.div
                         key="streak-success"
@@ -305,240 +303,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
-
-            {/* Main Content */}
-            <AnimatePresence mode="wait">
-                {isReady && !showLeaderboard && !showEvent ? (
-                    <motion.div
-                        key="main-interface"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                        transition={{ duration: 0.5 }}
-                        className="flex flex-col justify-between w-full h-full max-w-md mx-auto p-6 relative z-10"
-                    >
-
-                        {/* Header Status */}
-                        <div className="w-full flex justify-between items-center py-4 border-b border-white/5">
-                            <div className="flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                                <span className="text-[10px] font-mono text-zinc-500 tracking-[0.2em] uppercase">System Online</span>
-                            </div>
-                            <span className="text-[10px] font-mono text-zinc-600 tracking-widest">ETHDenver Edition</span>
-                        </div>
-
-                        {/* Center Hero */}
-                        <div className="flex-grow flex flex-col items-center justify-center gap-6 -mt-12">
-
-                            {/* Main Title - Responsive Sizing */}
-                            <div className="relative text-center">
-                                <motion.h1
-                                    className="text-[3.5rem] leading-[0.85] md:text-8xl font-black tracking-[-0.05em] text-white font-space"
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.8, ease: "circOut" }}
-                                >
-                                    WORD<br />
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-br from-zinc-300 to-zinc-600 block mt-1">
-                                        RAIN
-                                    </span>
-                                </motion.h1>
-                                <motion.div
-                                    className="absolute -right-2 top-0 text-[#0052FF] text-[9px] font-mono tracking-widest border border-[#0052FF]/30 px-1.5 py-0.5 rounded animate-pulse"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 1 }}
-                                >
-                                    BETA
-                                </motion.div>
-                            </div>
-
-                            {/* Pilot Identity */}
-                            <motion.div
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 0.4 }}
-                                className="mt-4 px-6 py-2 bg-white/[0.02] border border-white/10 rounded-full backdrop-blur-md flex items-center gap-3"
-                            >
-                                <div className="w-1.5 h-1.5 bg-[#0052FF] rotate-45 shadow-[0_0_10px_#0052FF]" />
-                                {displayName ? (
-                                    <span className="text-xs font-mono tracking-[0.15em] text-zinc-400">
-                                        PILOT: <span className="text-white font-bold">{displayName}</span>
-                                    </span>
-                                ) : (
-                                    <span className="text-xs font-mono tracking-[0.15em] text-zinc-600 animate-pulse">
-                                        ESTABLISHING LINK...
-                                    </span>
-                                )}
-                            </motion.div>
-                        </div>
-
-                        {/* Bottom Controls */}
-                        <div className="w-full flex flex-col gap-3 pb-8">
-                            {!isMenuOpen ? (
-                                <div className="space-y-3">
-                                    <motion.button
-                                        onClick={handleInitialize}
-                                        whileTap={{ scale: 0.98 }}
-                                        className="w-full h-14 bg-white text-black font-space font-bold text-lg tracking-widest uppercase relative overflow-hidden group hover:scale-[1.02] transition-transform"
-                                    >
-                                        <div className="absolute inset-0 bg-zinc-200 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                        <span className="relative z-10 flex items-center justify-center gap-2">
-                                            [{!displayName && context?.client ? "Connect Farcaster" : (displayName ? "Initialize System" : "Connect Identity")}]
-                                        </span>
-                                    </motion.button>
-
-                                    {/* Help Button */}
-                                    <div className="w-full">
-                                        <button
-                                            onClick={() => setShowHelp(true)}
-                                            className="w-full h-10 border border-white/5 hover:bg-white/5 text-[10px] tracking-widest font-mono text-zinc-600 hover:text-white uppercase transition-colors flex items-center justify-center gap-2 group"
-                                        >
-                                            <span className="opacity-30 group-hover:opacity-100 transition-opacity text-xs">?</span> HOW TO PLAY
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col gap-3 w-full animate-in slide-in-from-bottom-5 fade-in duration-300">
-                                    {/* ETHDenver Special Event Button - PRIMARY CTA */}
-                                    <div className="relative w-full group/event">
-                                        {/* Animated Arrows & Price Labels */}
-                                        <div className="absolute -left-2 top-1/2 -translate-y-1/2 -translate-x-full hidden md:flex flex-col items-center gap-1 animate-pulse">
-                                            <span className="text-[10px] font-black text-[#0052FF] rotate-90 tracking-widest">$250</span>
-                                            <span className="text-2xl text-[#0052FF]">⮕</span>
-                                        </div>
-                                        <div className="absolute -right-2 top-1/2 -translate-y-1/2 translate-x-full hidden md:flex flex-col items-center gap-1 animate-pulse">
-                                            <span className="text-[10px] font-black text-[#0052FF] -rotate-90 tracking-widest">$250</span>
-                                            <span className="text-2xl text-[#0052FF] rotate-180">⮕</span>
-                                        </div>
-
-                                        {/* Mobile Inline Arrows (Visible only on small screens) */}
-                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-2 md:hidden">
-                                            <span className="text-[8px] font-black text-[#0052FF] bg-white px-1.5 py-0.5 rounded shadow-sm animate-bounce">
-                                                WIN $250
-                                            </span>
-                                        </div>
-
-                                        <motion.button
-                                            onClick={() => setShowEventIntro(true)}
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                            className="w-full h-20 relative overflow-hidden rounded-xl group border-2 border-[#0052FF] shadow-[0_0_20px_rgba(0,82,255,0.3)]"
-                                        >
-                                            <div className="absolute inset-0 bg-[#0052FF] animate-pulse" />
-                                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-40 mix-blend-overlay" />
-                                            <div className="absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
-
-                                            <div className="relative z-10 flex items-center justify-between px-6 h-full">
-                                                <div className="flex flex-col items-start gap-1">
-                                                    <span className="text-[10px] font-black italic tracking-widest text-white/90 uppercase bg-black/20 px-2 py-0.5 rounded backdrop-blur-sm border border-white/10">
-                                                        LIMITED TIME EVENT
-                                                    </span>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-2xl filter drop-shadow-lg">🏔️</span>
-                                                        <div className="flex flex-col items-start leading-none">
-                                                            <span className="text-2xl font-black text-white italic tracking-tighter uppercase drop-shadow-md">
-                                                                ETHDENVER
-                                                            </span>
-                                                            <span className="text-[10px] font-mono text-white/80 tracking-[0.2em] uppercase">
-                                                                OFFICIAL SERIES
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex flex-col items-end gap-1">
-                                                    <div className="bg-white text-[#0052FF] px-3 py-1 rounded-lg font-black font-mono text-sm shadow-lg flex items-center gap-1">
-                                                        <span>$250</span>
-                                                        <span className="text-[8px] opacity-60">USDC</span>
-                                                    </div>
-                                                    <span className="text-[9px] text-white/80 font-mono text-right">
-                                                        1 USDC ENTRY
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </motion.button>
-                                    </div>
-
-                                    <div className="w-full h-px bg-white/10 my-1" />
-
-                                    <button
-                                        onClick={onStart}
-                                        className="w-full h-14 bg-zinc-100 text-black font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 hover:bg-white transition-colors border border-white/20"
-                                    >
-                                        <span className="text-zinc-600 group-hover:text-black transition-colors">Training Mode</span>
-                                        <span className="opacity-50">→</span>
-                                    </button>
-
-                                    {/* GM Streak Button */}
-                                    <button
-                                        onClick={handleGMaction}
-                                        disabled={isSending}
-                                        className={`w-full h-14 ${canGM ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)] border-none" : "bg-zinc-900 border border-zinc-800 text-zinc-500"} font-space font-bold text-base tracking-widest uppercase flex items-center justify-between px-6 transition-all relative overflow-hidden group`}
-                                    >
-                                        {canGM && <div className="absolute inset-0 bg-white/20 animate-pulse" />}
-
-                                        <div className="flex flex-col items-start gap-0.5 relative z-10">
-                                            <span className="text-[9px] opacity-90 font-mono leading-none tracking-wider">
-                                                {canGM ? "BUILD YOUR LEGACY" : "LEGACY SECURED"}
-                                            </span>
-                                            <span className="flex items-center gap-2">
-                                                {isSending ? "MINTING..." : (canGM ? "GM STREAK" : `STREAK: ${streak}`)}
-                                                <span className="text-lg">🔥</span>
-                                            </span>
-                                        </div>
-                                        {canGM ? (
-                                            <span className="text-[10px] font-black bg-white text-orange-600 px-2 py-1 rounded shadow-sm">
-                                                +1
-                                            </span>
-                                        ) : (
-                                            <span className="text-[10px] font-mono opacity-60 border border-zinc-700 px-2 py-0.5 rounded">
-                                                SHARE
-                                            </span>
-                                        )}
-                                    </button>
-
-                                    <button
-                                        onClick={handleOpenLeaderboard}
-                                        className={`w-full h-14 border ${hasPaid ? "border-[#0052FF]/30 text-[#0052FF] bg-[#0052FF]/5" : "border-white/10 text-zinc-500"} font-mono text-xs tracking-widest uppercase flex items-center justify-between px-6 hover:border-[#0052FF] hover:bg-[#0052FF]/10 transition-all`}
-                                    >
-                                        <span className="flex items-center gap-2">
-                                            {isCheckingPayment || isLeaderboardOpening ? "Verifying..." : "GLOBAL STANDINGS"}
-                                            {hasPaid && !isCheckingPayment && <div className="w-1.5 h-1.5 bg-[#0052FF] rounded-full animate-pulse shadow-[0_0_5px_#0052FF]" />}
-                                        </span>
-                                    </button>
-                                </div>
-                            )}
-
-                            <div className="flex justify-between items-center text-[10px] font-mono text-zinc-700 mt-2">
-                                <span>SECURE CONNECTION</span>
-                                <span>BASE MAINNET</span>
-                            </div>
-                        </div>
-
-                        {/* Error Toast */}
-                        {errorMsg && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="absolute bottom-24 left-6 right-6 bg-red-500/10 border border-red-500/50 text-red-500 font-mono text-[10px] px-4 py-2 text-center backdrop-blur-md"
-                            >
-                                {errorMsg}
-                            </motion.div>
-                        )}
-                    </motion.div>
-                ) : (!isReady) ? (
-                    <motion.div
-                        key="loading-screen"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 flex items-center justify-center bg-[#050505] z-50 text-white font-mono text-[10px] tracking-[0.5em]"
-                    >
-                        <span className="animate-pulse">LOADING RESOURCES...</span>
-                    </motion.div>
-                ) : null}
-                {/* ETHDenver Intro Modal */}
+                {/* Event Intro Modal (Keep or remove? Maybe remove for simplicity if user wants less complexity. Let's keep it as it adds info) */}
                 {showEventIntro && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -607,6 +372,210 @@ export default function Lobby({ onStart }: LobbyProps) {
                         </motion.div>
                     </motion.div>
                 )}
+
+
+            </AnimatePresence>
+
+
+            {/* Main Content */}
+            <AnimatePresence mode="wait">
+                {isReady && !showEvent ? (
+                    <motion.div
+                        key="main-interface"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                        transition={{ duration: 0.5 }}
+                        className="flex flex-col w-full h-full max-w-md mx-auto relative z-10"
+                    >
+                        {/* TOP HEADER */}
+                        <div className="flex justify-between items-center p-6 border-b border-white/5 bg-black/50 backdrop-blur-sm">
+                            {/* Pilot Info */}
+                            <div className="flex items-center gap-3">
+                                <div className="w-1.5 h-1.5 bg-[#0052FF] rotate-45 shadow-[0_0_10px_#0052FF]" />
+                                {displayName ? (
+                                    <span className="text-xs font-mono tracking-[0.15em] text-zinc-400">
+                                        <span className="text-white font-bold">{displayName}</span>
+                                    </span>
+                                ) : (
+                                    <span className="text-xs font-mono tracking-[0.15em] text-zinc-600 animate-pulse">
+                                        CONNECTING...
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Tab Switcher */}
+                            <div className="flex bg-white/5 rounded-full p-1 border border-white/5">
+                                <button
+                                    onClick={() => setActiveTab('EVENT')}
+                                    className={`px-4 py-1.5 rounded-full text-[10px] font-bold font-mono tracking-widest uppercase transition-all ${activeTab === 'EVENT' ? "bg-[#0052FF] text-white shadow-lg" : "text-zinc-500 hover:text-white"}`}
+                                >
+                                    Event
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('TRAINING')}
+                                    className={`px-4 py-1.5 rounded-full text-[10px] font-bold font-mono tracking-widest uppercase transition-all ${activeTab === 'TRAINING' ? "bg-white text-black shadow-lg" : "text-zinc-500 hover:text-white"}`}
+                                >
+                                    Training
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* CONTENT AREA */}
+                        <div className="flex-1 overflow-hidden relative flex flex-col">
+
+                            {/* EVENT TAB CONTENT */}
+                            {activeTab === 'EVENT' && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                    className="flex flex-col items-center justify-center flex-1 p-6 gap-8 h-full"
+                                >
+                                    {/* Hero Title */}
+                                    <div className="text-center">
+                                        <h1 className="text-6xl font-black tracking-[-0.05em] text-white font-space italic leading-none">
+                                            ETH<br />
+                                            <span className="text-[#0052FF]">DENVER</span>
+                                        </h1>
+                                        <p className="text-zinc-500 font-mono text-[10px] tracking-[0.5em] uppercase mt-2">
+                                            OFFICIAL TOURNAMENT
+                                        </p>
+                                    </div>
+
+                                    {/* Action Card */}
+                                    <div onClick={() => setShowEventIntro(true)} className="w-full relative group cursor-pointer">
+                                        <div className="absolute -inset-1 bg-gradient-to-br from-[#0052FF] to-blue-900 rounded-2xl blur opacity-30 group-hover:opacity-60 transition-opacity" />
+                                        <div className="relative bg-[#0A0A0A] border border-white/10 rounded-xl p-6 overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-4 opacity-50">
+                                                <span className="text-4xl filter grayscale group-hover:grayscale-0 transition-all">🏔️</span>
+                                            </div>
+
+                                            <div className="flex flex-col gap-1">
+                                                <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">
+                                                    $250 Prize Pool
+                                                </h3>
+                                                <p className="text-zinc-400 font-mono text-xs">
+                                                    Top 3 scores share the rewards.
+                                                </p>
+                                            </div>
+
+                                            <div className="mt-6 flex items-center justify-between">
+                                                <span className="text-[#0052FF] font-mono text-xs font-bold tracking-widest bg-[#0052FF]/10 px-2 py-1 rounded border border-[#0052FF]/20">
+                                                    1 USDC ENTRY
+                                                </span>
+                                                <span className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform">
+                                                    →
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </motion.div>
+                            )}
+
+
+                            {/* TRAINING TAB CONTENT */}
+                            {activeTab === 'TRAINING' && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="flex flex-col h-full flex-1"
+                                >
+                                    {/* Training Header / Action */}
+                                    <div className="p-6 shrink-0 flex flex-col gap-4 border-b border-white/5">
+                                        <div className="flex justify-between items-end">
+                                            <div>
+                                                <h2 className="text-xl font-bold text-white uppercase font-space tracking-widest">Training<br />Grounds</h2>
+                                                <p className="text-zinc-500 text-[10px] font-mono mt-1">Free Play. Global Rankings.</p>
+                                            </div>
+
+                                            <button
+                                                onClick={handleStartTraining}
+                                                className="h-12 px-6 bg-white text-black font-space font-bold uppercase tracking-widest rounded transition-transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                                            >
+                                                Start Train
+                                            </button>
+                                        </div>
+
+                                        {/* GM Streak (Moved here) */}
+                                        <button
+                                            onClick={handleGMaction}
+                                            disabled={isSending}
+                                            className={`w-full py-2 ${canGM ? "bg-orange-500/10 text-orange-500 border-orange-500/30" : "bg-zinc-900/50 text-zinc-600 border-zinc-800"} border rounded flex items-center justify-center gap-2 font-mono text-[10px] tracking-widest uppercase hover:bg-white/5 transition-all`}
+                                        >
+                                            <span>{canGM ? "Claim Daily GM" : `GM Streak: ${streak}`}</span>
+                                            <span>🔥</span>
+                                        </button>
+                                    </div>
+
+                                    {/* Embedded Leaderboard (Simple List) */}
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-1">
+                                        <h3 className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mb-2 px-2 sticky top-0 bg-[#050505] py-2 z-10">
+                                            Global Top Agents
+                                        </h3>
+                                        {isScanningList ? (
+                                            <div className="flex justify-center py-10 opacity-50">
+                                                <span className="text-[10px] font-mono text-zinc-500 animate-pulse">SYNCING DATABASE...</span>
+                                            </div>
+                                        ) : (
+                                            leaderboard.slice(0, 20).map((entry, i) => (
+                                                <div key={i} className="flex items-center justify-between p-3 rounded hover:bg-white/5 transition-colors group">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className={`font-mono text-xs w-5 text-center ${i < 3 ? "text-white font-bold" : "text-zinc-600"}`}>
+                                                            {i === 0 ? "1" : i === 1 ? "2" : i === 2 ? "3" : i + 1}
+                                                        </span>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-xs font-bold text-zinc-300 group-hover:text-white transition-colors">{entry.name}</span>
+                                                            {entry.streak > 0 && <span className="text-[8px] text-orange-500 font-mono">🔥 {entry.streak}</span>}
+                                                        </div>
+                                                    </div>
+                                                    <span className="font-mono text-xs font-bold text-zinc-500 group-hover:text-white transition-colors">
+                                                        {entry.score}
+                                                    </span>
+                                                </div>
+                                            ))
+                                        )}
+                                        {/* View All / More hint */}
+                                        <div className="text-center py-4">
+                                            <p className="text-[9px] text-zinc-700 font-mono">
+                                                SHOWING TOP 20 PILOTS
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                </motion.div>
+                            )}
+
+                        </div>
+
+                        {/* Footer / How to Play */}
+                        {!isMenuOpen && !showEvent && !showEventIntro && (
+                            // Only show if not in flow? Actually tabs replaced menu. 
+                            // Let's add a small footer link for How To Play
+                            <div className="w-full absolute bottom-4 flex justify-center pointer-events-none">
+                                <button
+                                    onClick={() => setShowHelp(true)}
+                                    className="pointer-events-auto text-[9px] text-zinc-600 font-mono uppercase hover:text-white transition-colors"
+                                >
+                                    [ How to Play ]
+                                </button>
+                            </div>
+                        )}
+
+                    </motion.div>
+                ) : (!isReady) ? (
+                    <motion.div
+                        key="loading-screen"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 flex items-center justify-center bg-[#050505] z-50 text-white font-mono text-[10px] tracking-[0.5em]"
+                    >
+                        <span className="animate-pulse">LOADING RESOURCES...</span>
+                    </motion.div>
+                ) : null}
             </AnimatePresence>
         </div>
     );
