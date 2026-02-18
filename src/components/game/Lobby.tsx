@@ -170,7 +170,35 @@ export default function Lobby({ onStart }: LobbyProps) {
     }, [isChecking]);
 
     const [isTrainingExpanded, setIsTrainingExpanded] = useState(false);
+    const [hasEventAccess, setHasEventAccess] = useState(false);
     const { setMode } = useGameStore();
+
+    // Check Persistent Event Access (Server + Local Fallback)
+    useEffect(() => {
+        if (!address) return;
+        const checkAccess = async () => {
+            try {
+                const payKey = `ethdenver_entry_paid_${address}`;
+                // 1. Check Local First (Instant)
+                if (localStorage.getItem(payKey) === 'true') {
+                    setHasEventAccess(true);
+                }
+
+                // 2. Check Server (Authoritative)
+                const res = await fetch(`/api/event/access?address=${address}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.hasAccess) {
+                        setHasEventAccess(true);
+                        localStorage.setItem(payKey, 'true'); // Re-sync local
+                    }
+                }
+            } catch (e) {
+                console.error("Access check failed", e);
+            }
+        };
+        checkAccess();
+    }, [address]);
 
     // ... (keep existing hooks)
 
@@ -267,7 +295,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                     }}
                                     className="w-full py-4 bg-white text-black font-bold font-space tracking-widest uppercase hover:bg-zinc-200 transition-colors rounded-xl flex items-center justify-center gap-2"
                                 >
-                                    ENTER FOR $1
+                                    {hasEventAccess ? "ENTER ARENA" : "ENTER FOR $1"}
                                 </button>
 
                                 <p className="text-[9px] text-zinc-600 font-mono">
@@ -343,7 +371,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                     <div className="bg-white/5 rounded-lg p-3 flex flex-col items-center border border-white/5">
                                         <span className="text-2xl mb-1">🎟️</span>
                                         <span className="text-xs text-zinc-400 uppercase tracking-wider font-mono">Entry Fee</span>
-                                        <span className="text-xl font-bold text-white">1 USDC</span>
+                                        <span className="text-xl font-bold text-white">{hasEventAccess ? "PAID" : "1 USDC"}</span>
                                     </div>
                                 </div>
 
@@ -360,7 +388,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                     }}
                                     className="w-full bg-[#0052FF] hover:bg-[#004ad1] text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all shadow-lg hover:shadow-[#0052FF]/25 hover:scale-[1.02] active:scale-[0.98]"
                                 >
-                                    Enter Arena
+                                    {hasEventAccess ? "ENTER ARENA" : "ENTER ARENA ($1)"}
                                 </button>
 
                                 <button
@@ -492,7 +520,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         </div>
 
                                         <button className="w-full h-12 bg-[#0052FF] text-white font-black uppercase tracking-widest rounded-lg shadow-[0_0_20px_rgba(0,82,255,0.4)] hover:bg-[#004ad1] transition-colors flex items-center justify-center gap-2">
-                                            ENTER ARENA ($1)
+                                            {hasEventAccess ? "ENTER ARENA" : "ENTER ARENA ($1)"}
                                         </button>
                                     </div>
                                 </div>
