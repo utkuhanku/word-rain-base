@@ -218,8 +218,14 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                         </div>
                                         <div className="text-center mt-1">
                                             <div className="flex items-center justify-center gap-1">
-                                                <span className="text-white font-black text-lg truncate max-w-[150px]">
-                                                    {leaderboard[0].username || leaderboard[0].displayName}
+                                                <span className="text-white font-black text-lg max-w-[150px] whitespace-nowrap overflow-hidden">
+                                                    {leaderboard[0].username ? (
+                                                        leaderboard[0].username
+                                                    ) : leaderboard[0].type === 'wallet' || leaderboard[0].identifier?.startsWith('0x') ? (
+                                                        <Name address={leaderboard[0].identifier as `0x${string}`} />
+                                                    ) : (
+                                                        leaderboard[0].displayName || `Pilot ${leaderboard[0].identifier?.slice(0, 4)}`
+                                                    )}
                                                 </span>
                                                 {leaderboard[0].power_badge && <span className="text-[#855DCD]" title="Power User">⚡</span>}
                                             </div>
@@ -239,8 +245,14 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             <div className="absolute -bottom-2 -right-2 bg-zinc-300 text-black w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-zinc-500 z-20">2</div>
                                         </div>
                                         <div className="text-center">
-                                            <span className="text-white font-bold text-xs truncate max-w-[80px] block">
-                                                {leaderboard[1].username || leaderboard[1].displayName}
+                                            <span className="text-white font-bold text-xs max-w-[80px] block whitespace-nowrap overflow-hidden text-center">
+                                                {leaderboard[1].username ? (
+                                                    leaderboard[1].username
+                                                ) : leaderboard[1].type === 'wallet' || leaderboard[1].identifier?.startsWith('0x') ? (
+                                                    <Name address={leaderboard[1].identifier as `0x${string}`} />
+                                                ) : (
+                                                    leaderboard[1].displayName || `Pilot ${leaderboard[1].identifier?.slice(0, 4)}`
+                                                )}
                                             </span>
                                             <div className="text-zinc-400 text-[10px] font-mono">{leaderboard[1].score}</div>
                                         </div>
@@ -258,8 +270,14 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             <div className="absolute -bottom-2 -right-2 bg-orange-600 text-black w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-orange-800 z-20">3</div>
                                         </div>
                                         <div className="text-center">
-                                            <span className="text-white font-bold text-xs truncate max-w-[80px] block">
-                                                {leaderboard[2].username || leaderboard[2].displayName}
+                                            <span className="text-white font-bold text-xs max-w-[80px] block whitespace-nowrap overflow-hidden text-center">
+                                                {leaderboard[2].username ? (
+                                                    leaderboard[2].username
+                                                ) : leaderboard[2].type === 'wallet' || leaderboard[2].identifier?.startsWith('0x') ? (
+                                                    <Name address={leaderboard[2].identifier as `0x${string}`} />
+                                                ) : (
+                                                    leaderboard[2].displayName || `Pilot ${leaderboard[2].identifier?.slice(0, 4)}`
+                                                )}
                                             </span>
                                             <div className="text-orange-600 text-[10px] font-mono">{leaderboard[2].score}</div>
                                         </div>
@@ -278,8 +296,14 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                 <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold border border-blue-800">4</div>
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-white font-bold text-sm">
-                                                    {leaderboard[3].username || leaderboard[3].displayName}
+                                                <span className="text-white font-bold text-sm max-w-[120px] whitespace-nowrap overflow-hidden">
+                                                    {leaderboard[3].username ? (
+                                                        leaderboard[3].username
+                                                    ) : leaderboard[3].type === 'wallet' || leaderboard[3].identifier?.startsWith('0x') ? (
+                                                        <Name address={leaderboard[3].identifier as `0x${string}`} />
+                                                    ) : (
+                                                        leaderboard[3].displayName || `Pilot ${leaderboard[3].identifier?.slice(0, 4)}`
+                                                    )}
                                                 </span>
                                                 <span className="text-blue-400 text-[10px] uppercase font-bold tracking-wider">Runner Up</span>
                                             </div>
@@ -310,8 +334,14 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-1.5">
-                                                    <span className="text-white font-bold text-xs truncate max-w-[120px]">
-                                                        {entry.username || entry.displayName}
+                                                    <span className="text-white font-bold text-xs max-w-[120px] whitespace-nowrap overflow-hidden">
+                                                        {entry.username ? (
+                                                            entry.username
+                                                        ) : entry.type === 'wallet' || entry.identifier?.startsWith('0x') ? (
+                                                            <Name address={entry.identifier as `0x${string}`} />
+                                                        ) : (
+                                                            entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`
+                                                        )}
                                                     </span>
                                                     {entry.power_badge && <span className="text-[10px]">⚡</span>}
                                                 </div>
