@@ -161,6 +161,57 @@ export async function GET(request: NextRequest) {
             }
         }
 
+        // Fallback: Enrich Wallets via web3.bio (with caching)
+        if (walletsToEnrich.length > 0) {
+            // 1. Fetch web3.bio cache from KV
+            const web3bioPipeline = kv.pipeline();
+            walletsToEnrich.forEach(w => web3bioPipeline.get(`wordrain:lb:ethdenver:web3bio:${w}`));
+            const web3bioCacheResults = await web3bioPipeline.exec();
+
+            // 2. Map cached results or fetch from API
+            await Promise.all(walletsToEnrich.map(async (wallet, index) => {
+                const targetKey1 = `wallet:${wallet}`;
+                const targetKey2 = wallet;
+
+                if (!enrichmentMap[targetKey1] && !enrichmentMap[targetKey2]) {
+                    const cached = web3bioCacheResults[index] as any;
+
+                    if (cached) {
+                        if (!cached.empty) {
+                            enrichmentMap[targetKey1] = cached;
+                            enrichmentMap[targetKey2] = cached;
+                        }
+                    } else {
+                        // Fetch from web3.bio
+                        try {
+                            const bioRes = await fetch(`https://api.web3.bio/profile/${wallet}`);
+                            if (bioRes.ok) {
+                                const bioData = await bioRes.json();
+                                const profile = bioData.find((p: any) => p.platform === 'farcaster') || bioData.find((p: any) => p.platform === 'ens') || bioData[0];
+
+                                if (profile && profile.identity) {
+                                    const enrichedData = {
+                                        username: profile.platform === 'farcaster' ? `@${profile.identity}` : profile.identity,
+                                        pfp_url: profile.avatar,
+                                        display_name: profile.displayName || profile.identity,
+                                    };
+                                    enrichmentMap[targetKey1] = enrichedData;
+                                    enrichmentMap[targetKey2] = enrichedData;
+                                    await kv.set(`wordrain:lb:ethdenver:web3bio:${wallet}`, enrichedData, { ex: 3600 * 24 }); // Cache 24h
+                                } else {
+                                    await kv.set(`wordrain:lb:ethdenver:web3bio:${wallet}`, { empty: true }, { ex: 3600 * 24 });
+                                }
+                            } else {
+                                await kv.set(`wordrain:lb:ethdenver:web3bio:${wallet}`, { empty: true }, { ex: 3600 }); // Cache failures briefly
+                            }
+                        } catch (e) {
+                            // ignore, fallback to raw address component
+                        }
+                    }
+                }
+            }));
+        }
+
         // Final Merge
         const normalized = entries.map(e => {
             const enrichment = enrichmentMap[e.member] || {};

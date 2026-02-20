@@ -206,7 +206,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                             <div className="grid grid-cols-2 gap-3 px-1">
                                 {/* RANK 1 (Gold - Full Width/Big) */}
                                 {leaderboard[0] && (
-                                    <div className="col-span-2 flex flex-col items-center gap-2 bg-gradient-to-b from-yellow-500/10 to-transparent p-4 rounded-3xl border border-yellow-500/30">
+                                    <div
+                                        onClick={() => setSelectedPlayer(leaderboard[0])}
+                                        className="col-span-2 flex flex-col items-center gap-2 bg-gradient-to-b from-yellow-500/10 to-transparent p-4 rounded-3xl border border-yellow-500/30 cursor-pointer hover:bg-yellow-500/20 active:scale-[0.98] transition-all"
+                                    >
                                         <div className="relative group">
                                             <div className="absolute inset-0 bg-yellow-500/30 blur-2xl rounded-full group-hover:bg-yellow-500/40 transition-all animate-pulse"></div>
                                             <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-2xl animate-bounce">👑</div>
@@ -236,7 +239,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                                 {/* RANK 2 (Silver) */}
                                 {leaderboard[1] && (
-                                    <div className="flex flex-col items-center gap-2 p-3 bg-zinc-400/5 rounded-2xl border border-zinc-400/20">
+                                    <div
+                                        onClick={() => setSelectedPlayer(leaderboard[1])}
+                                        className="flex flex-col items-center gap-2 p-3 bg-zinc-400/5 rounded-2xl border border-zinc-400/20 cursor-pointer hover:bg-zinc-400/10 active:scale-[0.98] transition-all"
+                                    >
                                         <div className="relative group">
                                             <img
                                                 src={leaderboard[1].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[1].username || '2'}`}
@@ -261,7 +267,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                                 {/* RANK 3 (Bronze) */}
                                 {leaderboard[2] && (
-                                    <div className="flex flex-col items-center gap-2 p-3 bg-orange-700/5 rounded-2xl border border-orange-700/20">
+                                    <div
+                                        onClick={() => setSelectedPlayer(leaderboard[2])}
+                                        className="flex flex-col items-center gap-2 p-3 bg-orange-700/5 rounded-2xl border border-orange-700/20 cursor-pointer hover:bg-orange-700/10 active:scale-[0.98] transition-all"
+                                    >
                                         <div className="relative group">
                                             <img
                                                 src={leaderboard[2].pfp_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${leaderboard[2].username || '3'}`}
@@ -286,7 +295,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                                 {/* RANK 4 (Iron/Runner Up - NEW) */}
                                 {leaderboard[3] && (
-                                    <div className="col-span-2 flex items-center justify-between p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20 mt-1">
+                                    <div
+                                        onClick={() => setSelectedPlayer(leaderboard[3])}
+                                        className="col-span-2 flex items-center justify-between p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20 mt-1 cursor-pointer hover:bg-blue-500/20 active:scale-[0.98] transition-all"
+                                    >
                                         <div className="flex items-center gap-3">
                                             <div className="relative">
                                                 <img
