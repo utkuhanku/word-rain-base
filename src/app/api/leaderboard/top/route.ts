@@ -85,6 +85,7 @@ export async function GET(request: NextRequest) {
             const meta = metadataResults[i] as any; // e.g. { streak: 5, lastActive: '...' }
             if (meta) {
                 e.streak = meta.streak ? parseInt(meta.streak) : 0;
+                e.revivesUsed = meta.revivesUsed ? parseInt(meta.revivesUsed) : 0;
                 e.lastActive = meta.lastActive;
                 e.platform = meta.platform;
             }

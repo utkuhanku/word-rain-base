@@ -66,13 +66,18 @@ export default function PlayerDetailModal({ isOpen, onClose, player }: PlayerDet
                                 {/* Avatar & Identity */}
                                 <div className="relative mb-4">
                                     <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-br from-[#0052FF] to-purple-500">
-                                        <div className="w-full h-full rounded-full bg-black overflow-hidden relative">
-                                            {address ? (
+                                        <div className="w-full h-full rounded-full bg-black overflow-hidden relative flex items-center justify-center">
+                                            {player.pfp_url ? (
+                                                <img src={player.pfp_url} alt="Profile" className="w-full h-full object-cover" />
+                                            ) : address ? (
                                                 <Identity address={address} className="w-full h-full">
-                                                    <Avatar className="w-full h-full object-cover" />
+                                                    <Avatar
+                                                        className="w-full h-full object-cover"
+                                                        defaultComponent={<img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" className="w-full h-full object-cover bg-white/5 p-4" />}
+                                                    />
                                                 </Identity>
                                             ) : (
-                                                <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-3xl">👤</div>
+                                                <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Profile" className="w-full h-full object-cover bg-white/5 p-4" />
                                             )}
                                         </div>
                                     </div>
