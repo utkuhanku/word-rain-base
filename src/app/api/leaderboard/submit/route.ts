@@ -8,7 +8,7 @@ const LEADERBOARD_KEY = process.env.LEADERBOARD_KEY || 'wordrain:lb:ethdenver';
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { score, wallet, fid, streak, revivesUsed } = body;
+        const { score, wallet, fid, streak, revivesUsed, partition, seasonId } = body;
 
         // Validation
         if (!wallet || typeof score !== 'number') {
@@ -58,11 +58,19 @@ export async function POST(request: NextRequest) {
 
         await kv.hset(META_KEY, metadata);
 
+        // Determine DB Key
+        let targetKey = process.env.LEADERBOARD_KEY || 'wordrain:lb:ethdenver';
+        if (partition === 'ethdenver') {
+            targetKey = 'event_leaderboard_ethdenver';
+        } else if (partition === 'season' && seasonId) {
+            targetKey = seasonId === 1 ? 'event_leaderboard_final' : `event_leaderboard_s${seasonId}`;
+        }
+
         // Check Existing Score
-        const currentScore = await kv.zscore(LEADERBOARD_KEY, member);
+        const currentScore = await kv.zscore(targetKey, member);
 
         if (currentScore === null || score > currentScore) {
-            await kv.zadd(LEADERBOARD_KEY, { score, member });
+            await kv.zadd(targetKey, { score, member });
             // Store Metadata (optional, strictly speaking ZSET only stores score/member, 
             // but we might want to store extra data in a hash if we needed it. 
             // For now, sticking to the plan: ZSET only)

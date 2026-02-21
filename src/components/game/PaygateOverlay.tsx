@@ -67,8 +67,8 @@ export default function PaygateOverlay() {
             // Use same Treasury for consistency
             const TARGET = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
 
-            // PRICE LOGIC: 0.50 USDC for Event, 1.00 USDC for Classic
-            const REVIVE_PRICE = mode === 'EVENT' ? BigInt(500000) : BigInt(1000000);
+            // PRICE LOGIC: 0.50 USDC for all modes
+            const REVIVE_PRICE = BigInt(500000);
 
             const hash = await writeContractAsync({
                 address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC Base
@@ -271,7 +271,7 @@ export default function PaygateOverlay() {
 
                             {!pvpGameId && (
                                 <p className="text-[10px] text-zinc-600 font-mono mt-2 uppercase tracking-wide">
-                                    * Recording your score on-chain requires a 0.15 USDC Fee + Gas. Unsaved scores will be lost.
+                                    * Submitting your score will save your history on the Global Leaderboard. Unsaved scores will be lost.
                                 </p>
                             )}
                         </div>

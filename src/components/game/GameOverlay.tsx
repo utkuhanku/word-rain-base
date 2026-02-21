@@ -80,7 +80,7 @@ export default function GameOverlay() {
                                 disabled={isSubmitting}
                                 className={`w-full py-4 border ${isSubmitting ? "border-[#0052FF] bg-[#0052FF]/10 text-[#0052FF]" : "border-[#0052FF]/30 text-[#0052FF] hover:border-[#0052FF]"} font-mono text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-all`}
                             >
-                                {isSubmitting ? "Processing..." : "Submit Score (0.15 USDC)"}
+                                {isSubmitting ? "Processing..." : "Submit Score"}
                             </button>
                         )}
 

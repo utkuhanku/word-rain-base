@@ -50,7 +50,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
 
                         <div className="p-3 bg-[#0052FF]/10 border border-[#0052FF]/20 rounded">
                             <h3 className="text-[#0052FF] font-bold mb-1">VERIFICATION</h3>
-                            <p>Reach the end to submit your logic score onchain (0.15 USDC). Only verified agents appear on the Global Elite Leaderboard.</p>
+                            <p>Reach the end to submit your logic score. Only verified agents appear on the Global Elite Leaderboard.</p>
                         </div>
                     </div>
 
