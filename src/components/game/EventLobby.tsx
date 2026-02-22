@@ -228,11 +228,12 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     whileTap={{ scale: 0.98 }}
                     onClick={handleEntryPayment}
                     disabled={isProcessing}
-                    className="w-full py-5 bg-white text-black font-black text-xl uppercase tracking-widest rounded-xl relative overflow-hidden group shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                    className="w-full py-5 font-black text-xl uppercase tracking-widest rounded-xl relative overflow-hidden group shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                    style={{ backgroundColor: '#ffffff', color: '#000000' }}
                 >
                     <span className="relative z-10 flex items-center justify-center gap-3">
                         {isProcessing ? "PROCESSING..." : (hasPaidEntry ? "PLAY NOW" : "ENTER EVENT")}
-                        {!hasPaidEntry && <span className="bg-black text-white px-2 py-1 rounded text-xs font-bold font-mono">1 USDC</span>}
+                        {!hasPaidEntry && <span className="px-2 py-1 rounded text-xs font-bold font-mono" style={{ backgroundColor: '#000000', color: '#ffffff' }}>1 USDC</span>}
                     </span>
                     {hasPaidEntry && <div className="absolute inset-0 bg-[#3B82F6]/20 animate-pulse"></div>}
                 </motion.button>
@@ -271,12 +272,17 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             <div className="text-[#D4AF37] font-black text-2xl italic tracking-tighter w-8 text-center drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]">1</div>
                                             <div className="relative">
                                                 <div className="absolute inset-0 bg-[#D4AF37] blur-md rounded-full opacity-40 group-hover:opacity-70 transition-opacity"></div>
-                                                <img
-                                                    src={leaderboard[0].pfp_url || '/base-logo.svg'}
-                                                    onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
-                                                    className="w-16 h-16 rounded-full border border-[#D4AF37] relative z-10 object-cover bg-black"
-                                                    alt="pfp"
-                                                />
+                                                <div className="relative w-16 h-16 rounded-full border border-[#D4AF37] overflow-hidden z-10 bg-zinc-900 border-2 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
+                                                    <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-mono text-xl">B</div>
+                                                    {leaderboard[0].pfp_url && (
+                                                        <img
+                                                            src={leaderboard[0].pfp_url}
+                                                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                            className="absolute inset-0 w-full h-full object-cover z-20"
+                                                            alt="pfp"
+                                                        />
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
@@ -301,12 +307,17 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             className="flex flex-col items-center bg-gradient-to-b from-[#C0C0C0]/10 to-transparent p-4 rounded-2xl border border-[#C0C0C0]/20 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all group relative overflow-hidden"
                                         >
                                             <div className="absolute top-3 left-3 text-[#C0C0C0] font-black italic tracking-tighter">2</div>
-                                            <img
-                                                src={leaderboard[1].pfp_url || '/base-logo.svg'}
-                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
-                                                className="w-12 h-12 rounded-full border border-[#C0C0C0]/50 object-cover bg-black mt-2 mb-3 shadow-[0_0_15px_rgba(192,192,192,0.2)]"
-                                                alt="pfp"
-                                            />
+                                            <div className="relative w-12 h-12 rounded-full border border-[#C0C0C0] overflow-hidden z-10 bg-zinc-900 border-2 mt-2 mb-3 shadow-[0_0_15px_rgba(192,192,192,0.2)]">
+                                                <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-mono text-lg">B</div>
+                                                {leaderboard[1].pfp_url && (
+                                                    <img
+                                                        src={leaderboard[1].pfp_url}
+                                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                        className="absolute inset-0 w-full h-full object-cover z-20"
+                                                        alt="pfp"
+                                                    />
+                                                )}
+                                            </div>
                                             <span className="text-white font-bold text-sm max-w-[100px] whitespace-nowrap overflow-hidden">
                                                 {leaderboard[1].username ? leaderboard[1].username : leaderboard[1].type === 'wallet' || leaderboard[1].identifier?.startsWith('0x') ? <Name address={leaderboard[1].identifier as `0x${string}`} /> : (leaderboard[1].displayName || `Pilot`)}
                                             </span>
@@ -321,12 +332,17 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             className="flex flex-col items-center bg-gradient-to-b from-[#CD7F32]/10 to-transparent p-4 rounded-2xl border border-[#CD7F32]/20 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all group relative overflow-hidden"
                                         >
                                             <div className="absolute top-3 left-3 text-[#CD7F32] font-black italic tracking-tighter">3</div>
-                                            <img
-                                                src={leaderboard[2].pfp_url || '/base-logo.svg'}
-                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
-                                                className="w-12 h-12 rounded-full border border-[#CD7F32]/50 object-cover bg-black mt-2 mb-3 shadow-[0_0_15px_rgba(205,127,50,0.2)]"
-                                                alt="pfp"
-                                            />
+                                            <div className="relative w-12 h-12 rounded-full border border-[#CD7F32] overflow-hidden z-10 bg-zinc-900 border-2 mt-2 mb-3 shadow-[0_0_15px_rgba(205,127,50,0.2)]">
+                                                <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-mono text-lg">B</div>
+                                                {leaderboard[2].pfp_url && (
+                                                    <img
+                                                        src={leaderboard[2].pfp_url}
+                                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                        className="absolute inset-0 w-full h-full object-cover z-20"
+                                                        alt="pfp"
+                                                    />
+                                                )}
+                                            </div>
                                             <span className="text-white font-bold text-sm max-w-[100px] whitespace-nowrap overflow-hidden">
                                                 {leaderboard[2].username ? leaderboard[2].username : leaderboard[2].type === 'wallet' || leaderboard[2].identifier?.startsWith('0x') ? <Name address={leaderboard[2].identifier as `0x${string}`} /> : (leaderboard[2].displayName || `Pilot`)}
                                             </span>

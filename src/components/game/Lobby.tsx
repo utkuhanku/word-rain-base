@@ -577,7 +577,8 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         e.stopPropagation();
                                         handleStartTraining();
                                     }}
-                                    className="w-full h-14 bg-white text-black font-space font-black uppercase tracking-widest rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.5)] flex items-center justify-center gap-2 shrink-0 relative z-50 pointer-events-auto"
+                                    className="w-full h-14 font-space font-black uppercase tracking-widest rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.5)] flex items-center justify-center gap-2 shrink-0 relative z-50 pointer-events-auto"
+                                    style={{ backgroundColor: '#ffffff', color: '#000000' }}
                                 >
                                     <span>START TRAINING</span>
                                     <span className="text-xs font-bold opacity-60">(FREE)</span>
