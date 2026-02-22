@@ -250,7 +250,6 @@ export default function Lobby({ onStart }: LobbyProps) {
                             className="w-full max-w-sm bg-[#0A0A0A] border border-white/10 rounded-3xl p-8 relative overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#3B82F6]/20 blur-[50px] rounded-full" />
 
                             <div className="relative z-10 flex flex-col items-center text-center gap-6">
                                 <div className="flex flex-col items-center gap-2">

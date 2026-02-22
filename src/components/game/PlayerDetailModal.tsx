@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Identity, Avatar, Name, Address, Badge } from '@coinbase/onchainkit/identity';
 
 interface PlayerDetailModalProps {
     isOpen: boolean;
@@ -68,16 +67,9 @@ export default function PlayerDetailModal({ isOpen, onClose, player }: PlayerDet
                                     <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-br from-[#0052FF] to-purple-500">
                                         <div className="w-full h-full rounded-full bg-black overflow-hidden relative flex items-center justify-center">
                                             {player.pfp_url ? (
-                                                <img src={player.pfp_url} alt="Profile" className="w-full h-full object-cover" />
-                                            ) : address ? (
-                                                <Identity address={address} className="w-full h-full">
-                                                    <Avatar
-                                                        className="w-full h-full object-cover"
-                                                        defaultComponent={<img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" className="w-full h-full object-cover bg-white/5 p-4" />}
-                                                    />
-                                                </Identity>
+                                                <img src={player.pfp_url} alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }} />
                                             ) : (
-                                                <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Profile" className="w-full h-full object-cover bg-white/5 p-4" />
+                                                <img src="/base-logo.svg" alt="Profile" className="w-full h-full object-cover bg-white/5 p-4" />
                                             )}
                                         </div>
                                     </div>
@@ -89,11 +81,15 @@ export default function PlayerDetailModal({ isOpen, onClose, player }: PlayerDet
 
                                 {/* Name & Address */}
                                 <div className="text-center mb-8">
-                                    {address ? (
-                                        <Identity address={address} className="flex flex-col items-center">
-                                            <Name className="text-xl font-bold text-white tracking-tight" />
-                                            <Address className="text-xs text-zinc-500 font-mono mt-1" />
-                                        </Identity>
+                                    {player.identifier ? (
+                                        <div className="flex flex-col items-center">
+                                            <h2 className="text-xl font-bold text-white tracking-tight">{player.displayName || player.username || "PLAYER ONE"}</h2>
+                                            <span className="text-xs text-zinc-500 font-mono mt-1">
+                                                {player.type === 'wallet' && player.identifier.length > 10
+                                                    ? `${player.identifier.slice(0, 6)}...${player.identifier.slice(-4)}`
+                                                    : player.identifier}
+                                            </span>
+                                        </div>
                                     ) : (
                                         <h2 className="text-xl font-bold text-white">Unknown Agent</h2>
                                     )}

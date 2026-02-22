@@ -382,7 +382,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     <div className="flex flex-col gap-3">
                                         {[
                                             '0xe555eBCa692D41300773F488FDb92244AAf81Fa7',
-                                            '0xB27F239610e47cACDfF082A79bE829384d46b976'
+                                            '0xB27F239610e47cACDfF082A79bE829384d46b976',
+                                            '0x53481a207B5dd683a7C018157709A5092774b09A'
                                         ].map(blockedAddr => (
                                             <div key={blockedAddr} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
                                                 {/* Striped warning background */}
