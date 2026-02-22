@@ -214,8 +214,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             <div className="absolute inset-0 bg-yellow-500/30 blur-2xl rounded-full group-hover:bg-yellow-500/40 transition-all animate-pulse"></div>
                                             <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-2xl animate-bounce">👑</div>
                                             <img
-                                                src={leaderboard[0].pfp_url || `https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg`}
-                                                onError={(e) => { e.currentTarget.src = 'https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg'; }}
+                                                src={leaderboard[0].pfp_url || `/base-logo.svg`}
+                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
                                                 className="w-20 h-20 rounded-2xl border-4 border-yellow-500 relative z-10 object-cover shadow-[0_0_30px_rgba(234,179,8,0.3)] bg-white/5 p-2"
                                             />
                                             <div className="absolute -bottom-3 -right-3 bg-yellow-500 text-black w-8 h-8 flex items-center justify-center rounded-full text-base font-black border-2 border-white z-20 shadow-lg">1</div>
@@ -246,8 +246,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     >
                                         <div className="relative group">
                                             <img
-                                                src={leaderboard[1].pfp_url || `https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg`}
-                                                onError={(e) => { e.currentTarget.src = 'https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg'; }}
+                                                src={leaderboard[1].pfp_url || `/base-logo.svg`}
+                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
                                                 className="w-14 h-14 rounded-xl border-2 border-zinc-400 relative z-10 object-cover bg-white/5 p-1.5"
                                             />
                                             <div className="absolute -bottom-2 -right-2 bg-zinc-300 text-black w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-zinc-500 z-20">2</div>
@@ -275,8 +275,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     >
                                         <div className="relative group">
                                             <img
-                                                src={leaderboard[2].pfp_url || `https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg`}
-                                                onError={(e) => { e.currentTarget.src = 'https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg'; }}
+                                                src={leaderboard[2].pfp_url || `/base-logo.svg`}
+                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
                                                 className="w-14 h-14 rounded-xl border-2 border-orange-700 relative z-10 object-cover bg-white/5 p-1.5"
                                             />
                                             <div className="absolute -bottom-2 -right-2 bg-orange-600 text-black w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-orange-800 z-20">3</div>
@@ -305,8 +305,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                         <div className="flex items-center gap-3">
                                             <div className="relative">
                                                 <img
-                                                    src={leaderboard[3].pfp_url || `https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg`}
-                                                    onError={(e) => { e.currentTarget.src = 'https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg'; }}
+                                                    src={leaderboard[3].pfp_url || `/base-logo.svg`}
+                                                    onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
                                                     className="w-12 h-12 rounded-xl border-2 border-blue-500/50 object-cover bg-white/5 p-1"
                                                 />
                                                 <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold border border-blue-800">4</div>
@@ -342,8 +342,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                                             <div className="relative">
                                                 <img
-                                                    src={entry.pfp_url || `https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg`}
-                                                    onError={(e) => { e.currentTarget.src = 'https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg'; }}
+                                                    src={entry.pfp_url || `/base-logo.svg`}
+                                                    onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
                                                     className="w-8 h-8 rounded-full bg-zinc-800 object-cover border border-white/5 p-1"
                                                 />
                                                 {entry.active_status === 'active' && <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border border-black"></div>}
@@ -393,7 +393,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                         <span className="font-mono text-red-500/50 text-[10px] w-4 text-center">X</span>
                                                         <div className="relative">
                                                             <img
-                                                                src={`https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg`}
+                                                                src={`/base-logo.svg`}
                                                                 className="w-8 h-8 rounded-full bg-black/50 object-cover border border-red-500/30 p-1 opacity-50 grayscale"
                                                             />
                                                         </div>
