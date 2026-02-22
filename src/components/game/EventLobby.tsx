@@ -263,7 +263,12 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                                                 <div className="relative shrink-0">
                                                     <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border-2 ${isTop4 ? 'border-[#0052FF]/50 shadow-[0_0_15px_rgba(0,82,255,0.3)] bg-[#0052FF]/10' : 'border-white/10 bg-zinc-900 border-transparent'}`}>
-                                                        <span className="text-zinc-600 font-mono text-sm">B</span>
+                                                        {/* FALLBACK BLUE ICON */}
+                                                        <div className="absolute inset-0 bg-gradient-to-tr from-[#0033A0] to-[#0052FF] flex items-center justify-center rounded-full">
+                                                            <svg className="w-1/2 h-1/2 text-white opacity-90 drop-shadow-md" viewBox="0 0 24 24" fill="currentColor">
+                                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                                            </svg>
+                                                        </div>
                                                         {entry.pfp_url && (
                                                             <img
                                                                 src={entry.pfp_url}

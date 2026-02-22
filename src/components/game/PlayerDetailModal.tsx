@@ -67,7 +67,12 @@ export default function PlayerDetailModal({ isOpen, onClose, player }: PlayerDet
                                     <div className="relative mb-4">
                                         <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-br from-[#0052FF] to-purple-500">
                                             <div className="w-full h-full rounded-full bg-zinc-900 border-2 border-transparent overflow-hidden relative flex items-center justify-center shadow-[0_0_30px_rgba(0,82,255,0.3)]">
-                                                <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-mono text-3xl">B</div>
+                                                {/* FALLBACK BLUE ICON */}
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-[#0033A0] to-[#0052FF] flex items-center justify-center rounded-full">
+                                                    <svg className="w-1/2 h-1/2 text-white opacity-90 drop-shadow-md" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                                    </svg>
+                                                </div>
                                                 {player.pfp_url && (
                                                     <img
                                                         src={player.pfp_url}
