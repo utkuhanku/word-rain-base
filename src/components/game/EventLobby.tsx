@@ -8,6 +8,53 @@ import { parseAbiItem } from "viem";
 import { Identity, Avatar, Name, Address } from '@coinbase/onchainkit/identity';
 import PlayerDetailModal from './PlayerDetailModal';
 
+// --- Countdown Component ---
+const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
+    const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            const difference = targetDate.getTime() - new Date().getTime();
+            if (difference > 0) {
+                setTimeLeft({
+                    d: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                    h: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                    m: Math.floor((difference / 1000 / 60) % 60),
+                    s: Math.floor((difference / 1000) % 60)
+                });
+            } else {
+                setTimeLeft({ d: 0, h: 0, m: 0, s: 0 });
+            }
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [targetDate]);
+
+    return (
+        <div className="flex justify-center items-center gap-4">
+            <div className="flex flex-col items-center">
+                <span className="text-2xl font-black text-white italic tracking-tighter">{timeLeft.d.toString().padStart(2, '0')}</span>
+                <span className="text-[8px] text-zinc-500 font-mono tracking-widest uppercase">Days</span>
+            </div>
+            <span className="text-zinc-700 pb-3 font-black">:</span>
+            <div className="flex flex-col items-center">
+                <span className="text-2xl font-black text-white italic tracking-tighter">{timeLeft.h.toString().padStart(2, '0')}</span>
+                <span className="text-[8px] text-zinc-500 font-mono tracking-widest uppercase">Hrs</span>
+            </div>
+            <span className="text-zinc-700 pb-3 font-black">:</span>
+            <div className="flex flex-col items-center">
+                <span className="text-2xl font-black text-white italic tracking-tighter">{timeLeft.m.toString().padStart(2, '0')}</span>
+                <span className="text-[8px] text-zinc-500 font-mono tracking-widest uppercase">Min</span>
+            </div>
+            <span className="text-zinc-700 pb-3 font-black">:</span>
+            <div className="flex flex-col items-center">
+                <span className="text-2xl font-black text-[#3B82F6] italic tracking-tighter drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">{timeLeft.s.toString().padStart(2, '0')}</span>
+                <span className="text-[8px] text-[#3B82F6]/70 font-mono tracking-widest uppercase">Sec</span>
+            </div>
+        </div>
+    );
+};
+// ----------------------------
+
 export default function EventLobby({ onBack, onStart }: { onBack: () => void, onStart: () => void }) {
     const { address } = useAccount();
     const { setMode } = useGameStore();
@@ -150,6 +197,16 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 <div className="w-10" /> {/* Spacer */}
             </div>
 
+            {/* Countdown Banner */}
+            <div className="w-full flex justify-center py-6 border-b border-white/5 relative bg-[#0A0A0A] overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#3B82F6]/5 to-transparent pointer-events-none" />
+                <div className="flex flex-col items-center relative z-10">
+                    <span className="text-[9px] text-[#3B82F6] font-bold tracking-[0.3em] uppercase mb-4">EVENT CONCLUDES IN</span>
+                    <CountdownTimer targetDate={new Date('2026-02-23T00:00:00Z')} />
+                    <span className="text-[8px] text-zinc-600 tracking-widest uppercase mt-4">Ends UTC 22 FEB MIDNIGHT</span>
+                </div>
+            </div>
+
             {/* Main Content */}
             <div className="flex-1 overflow-y-auto p-6 relative z-10 scrollbar-hide space-y-6">
 
@@ -202,172 +259,116 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         </div>
                     ) : (
                         <>
-                            {/* TOP 4 PODIUM GRID */}
-                            <div className="grid grid-cols-2 gap-3 px-1">
-                                {/* RANK 1 (Gold - Full Width/Big) */}
+                            {/* TOP 3 PODIUM - SLEEK DESIGN */}
+                            <div className="flex flex-col gap-4">
+                                {/* RANK 1 (Gold) */}
                                 {leaderboard[0] && (
                                     <div
                                         onClick={() => setSelectedPlayer(leaderboard[0])}
-                                        className="col-span-2 flex flex-col items-center gap-2 bg-gradient-to-b from-yellow-500/10 to-transparent p-4 rounded-3xl border border-yellow-500/30 cursor-pointer hover:bg-yellow-500/20 active:scale-[0.98] transition-all"
+                                        className="w-full flex items-center justify-between bg-gradient-to-r from-[#D4AF37]/20 via-[#0A0A0A] to-[#0A0A0A] p-4 rounded-2xl border border-[#D4AF37]/30 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all group"
                                     >
-                                        <div className="relative group">
-                                            <div className="absolute inset-0 bg-yellow-500/30 blur-2xl rounded-full group-hover:bg-yellow-500/40 transition-all animate-pulse"></div>
-                                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-2xl animate-bounce">👑</div>
-                                            <img
-                                                src={leaderboard[0].pfp_url || `/base-logo.svg`}
-                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
-                                                className="w-20 h-20 rounded-2xl border-4 border-yellow-500 relative z-10 object-cover shadow-[0_0_30px_rgba(234,179,8,0.3)] bg-white/5 p-2"
-                                            />
-                                            <div className="absolute -bottom-3 -right-3 bg-yellow-500 text-black w-8 h-8 flex items-center justify-center rounded-full text-base font-black border-2 border-white z-20 shadow-lg">1</div>
-                                        </div>
-                                        <div className="text-center mt-1">
-                                            <div className="flex items-center justify-center gap-1">
-                                                <span className="text-white font-black text-lg max-w-[150px] whitespace-nowrap overflow-hidden">
-                                                    {leaderboard[0].username ? (
-                                                        leaderboard[0].username
-                                                    ) : leaderboard[0].type === 'wallet' || leaderboard[0].identifier?.startsWith('0x') ? (
-                                                        <Name address={leaderboard[0].identifier as `0x${string}`} />
-                                                    ) : (
-                                                        leaderboard[0].displayName || `Pilot ${leaderboard[0].identifier?.slice(0, 4)}`
-                                                    )}
-                                                </span>
-                                                {leaderboard[0].power_badge && <span className="text-[#855DCD]" title="Power User">⚡</span>}
-                                            </div>
-                                            <div className="text-yellow-500 text-sm font-mono font-bold tracking-wider">{leaderboard[0].score} PTS</div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* RANK 2 (Silver) */}
-                                {leaderboard[1] && (
-                                    <div
-                                        onClick={() => setSelectedPlayer(leaderboard[1])}
-                                        className="flex flex-col items-center gap-2 p-3 bg-zinc-400/5 rounded-2xl border border-zinc-400/20 cursor-pointer hover:bg-zinc-400/10 active:scale-[0.98] transition-all"
-                                    >
-                                        <div className="relative group">
-                                            <img
-                                                src={leaderboard[1].pfp_url || `/base-logo.svg`}
-                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
-                                                className="w-14 h-14 rounded-xl border-2 border-zinc-400 relative z-10 object-cover bg-white/5 p-1.5"
-                                            />
-                                            <div className="absolute -bottom-2 -right-2 bg-zinc-300 text-black w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-zinc-500 z-20">2</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <span className="text-white font-bold text-xs max-w-[80px] block whitespace-nowrap overflow-hidden text-center">
-                                                {leaderboard[1].username ? (
-                                                    leaderboard[1].username
-                                                ) : leaderboard[1].type === 'wallet' || leaderboard[1].identifier?.startsWith('0x') ? (
-                                                    <Name address={leaderboard[1].identifier as `0x${string}`} />
-                                                ) : (
-                                                    leaderboard[1].displayName || `Pilot ${leaderboard[1].identifier?.slice(0, 4)}`
-                                                )}
-                                            </span>
-                                            <div className="text-zinc-400 text-[10px] font-mono">{leaderboard[1].score}</div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* RANK 3 (Bronze) */}
-                                {leaderboard[2] && (
-                                    <div
-                                        onClick={() => setSelectedPlayer(leaderboard[2])}
-                                        className="flex flex-col items-center gap-2 p-3 bg-orange-700/5 rounded-2xl border border-orange-700/20 cursor-pointer hover:bg-orange-700/10 active:scale-[0.98] transition-all"
-                                    >
-                                        <div className="relative group">
-                                            <img
-                                                src={leaderboard[2].pfp_url || `/base-logo.svg`}
-                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
-                                                className="w-14 h-14 rounded-xl border-2 border-orange-700 relative z-10 object-cover bg-white/5 p-1.5"
-                                            />
-                                            <div className="absolute -bottom-2 -right-2 bg-orange-600 text-black w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold border border-orange-800 z-20">3</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <span className="text-white font-bold text-xs max-w-[80px] block whitespace-nowrap overflow-hidden text-center">
-                                                {leaderboard[2].username ? (
-                                                    leaderboard[2].username
-                                                ) : leaderboard[2].type === 'wallet' || leaderboard[2].identifier?.startsWith('0x') ? (
-                                                    <Name address={leaderboard[2].identifier as `0x${string}`} />
-                                                ) : (
-                                                    leaderboard[2].displayName || `Pilot ${leaderboard[2].identifier?.slice(0, 4)}`
-                                                )}
-                                            </span>
-                                            <div className="text-orange-600 text-[10px] font-mono">{leaderboard[2].score}</div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* RANK 4 (Iron/Runner Up - NEW) */}
-                                {leaderboard[3] && (
-                                    <div
-                                        onClick={() => setSelectedPlayer(leaderboard[3])}
-                                        className="col-span-2 flex items-center justify-between p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20 mt-1 cursor-pointer hover:bg-blue-500/20 active:scale-[0.98] transition-all"
-                                    >
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-[#D4AF37] font-black text-2xl italic tracking-tighter w-8 text-center drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]">1</div>
                                             <div className="relative">
+                                                <div className="absolute inset-0 bg-[#D4AF37] blur-md rounded-full opacity-40 group-hover:opacity-70 transition-opacity"></div>
                                                 <img
-                                                    src={leaderboard[3].pfp_url || `/base-logo.svg`}
+                                                    src={leaderboard[0].pfp_url || '/base-logo.svg'}
                                                     onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
-                                                    className="w-12 h-12 rounded-xl border-2 border-blue-500/50 object-cover bg-white/5 p-1"
+                                                    className="w-16 h-16 rounded-full border border-[#D4AF37] relative z-10 object-cover bg-black"
+                                                    alt="pfp"
                                                 />
-                                                <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold border border-blue-800">4</div>
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-white font-bold text-sm max-w-[120px] whitespace-nowrap overflow-hidden">
-                                                    {leaderboard[3].username ? (
-                                                        leaderboard[3].username
-                                                    ) : leaderboard[3].type === 'wallet' || leaderboard[3].identifier?.startsWith('0x') ? (
-                                                        <Name address={leaderboard[3].identifier as `0x${string}`} />
-                                                    ) : (
-                                                        leaderboard[3].displayName || `Pilot ${leaderboard[3].identifier?.slice(0, 4)}`
-                                                    )}
-                                                </span>
-                                                <span className="text-blue-400 text-[10px] uppercase font-bold tracking-wider">Runner Up</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-white font-bold text-lg max-w-[150px] whitespace-nowrap overflow-hidden">
+                                                        {leaderboard[0].username ? leaderboard[0].username : leaderboard[0].type === 'wallet' || leaderboard[0].identifier?.startsWith('0x') ? <Name address={leaderboard[0].identifier as `0x${string}`} /> : (leaderboard[0].displayName || `Pilot ${leaderboard[0].identifier?.slice(0, 4)}`)}
+                                                    </span>
+                                                    {leaderboard[0].power_badge && <span className="text-[#D4AF37] text-xs">⚡</span>}
+                                                </div>
+                                                <span className="text-[#D4AF37] text-[10px] font-mono tracking-widest uppercase">CHAMPION</span>
                                             </div>
                                         </div>
-                                        <div className="text-blue-400 font-mono font-bold text-sm">{leaderboard[3].score}</div>
+                                        <div className="text-[#D4AF37] font-space font-black text-2xl tracking-tighter">{leaderboard[0].score}</div>
                                     </div>
                                 )}
+
+                                {/* RANK 2 (Silver) & RANK 3 (Bronze) Grid */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    {/* RANK 2 */}
+                                    {leaderboard[1] && (
+                                        <div
+                                            onClick={() => setSelectedPlayer(leaderboard[1])}
+                                            className="flex flex-col items-center bg-gradient-to-b from-[#C0C0C0]/10 to-transparent p-4 rounded-2xl border border-[#C0C0C0]/20 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all group relative overflow-hidden"
+                                        >
+                                            <div className="absolute top-3 left-3 text-[#C0C0C0] font-black italic tracking-tighter">2</div>
+                                            <img
+                                                src={leaderboard[1].pfp_url || '/base-logo.svg'}
+                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
+                                                className="w-12 h-12 rounded-full border border-[#C0C0C0]/50 object-cover bg-black mt-2 mb-3 shadow-[0_0_15px_rgba(192,192,192,0.2)]"
+                                                alt="pfp"
+                                            />
+                                            <span className="text-white font-bold text-sm max-w-[100px] whitespace-nowrap overflow-hidden">
+                                                {leaderboard[1].username ? leaderboard[1].username : leaderboard[1].type === 'wallet' || leaderboard[1].identifier?.startsWith('0x') ? <Name address={leaderboard[1].identifier as `0x${string}`} /> : (leaderboard[1].displayName || `Pilot`)}
+                                            </span>
+                                            <div className="text-[#C0C0C0] font-space font-bold mt-1">{leaderboard[1].score}</div>
+                                        </div>
+                                    )}
+
+                                    {/* RANK 3 */}
+                                    {leaderboard[2] && (
+                                        <div
+                                            onClick={() => setSelectedPlayer(leaderboard[2])}
+                                            className="flex flex-col items-center bg-gradient-to-b from-[#CD7F32]/10 to-transparent p-4 rounded-2xl border border-[#CD7F32]/20 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all group relative overflow-hidden"
+                                        >
+                                            <div className="absolute top-3 left-3 text-[#CD7F32] font-black italic tracking-tighter">3</div>
+                                            <img
+                                                src={leaderboard[2].pfp_url || '/base-logo.svg'}
+                                                onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
+                                                className="w-12 h-12 rounded-full border border-[#CD7F32]/50 object-cover bg-black mt-2 mb-3 shadow-[0_0_15px_rgba(205,127,50,0.2)]"
+                                                alt="pfp"
+                                            />
+                                            <span className="text-white font-bold text-sm max-w-[100px] whitespace-nowrap overflow-hidden">
+                                                {leaderboard[2].username ? leaderboard[2].username : leaderboard[2].type === 'wallet' || leaderboard[2].identifier?.startsWith('0x') ? <Name address={leaderboard[2].identifier as `0x${string}`} /> : (leaderboard[2].displayName || `Pilot`)}
+                                            </span>
+                                            <div className="text-[#CD7F32] font-space font-bold mt-1">{leaderboard[2].score}</div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* THE REST (Rank 5+) */}
-                            <div className="space-y-1 mt-6 bg-white/5 rounded-2xl p-2 border border-white/5">
-                                {leaderboard.slice(4).map((entry: any, i) => (
+                            {/* THE REST (Rank 4+) */}
+                            <div className="space-y-1 mt-6">
+                                {leaderboard.slice(3).map((entry: any, i) => (
                                     <div
                                         key={entry.member || entry.address}
                                         onClick={() => setSelectedPlayer(entry)}
-                                        className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer group active:scale-[0.98]"
+                                        className="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all cursor-pointer group active:scale-[0.98] bg-[#0A0A0A] border border-white/5"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <span className="font-mono text-zinc-600 text-[10px] w-4 text-center">{i + 5}</span>
+                                        <div className="flex items-center gap-4">
+                                            <span className="font-space text-zinc-600 text-sm font-bold w-6 text-center">{i + 4}</span>
 
                                             <div className="relative">
                                                 <img
-                                                    src={entry.pfp_url || `/base-logo.svg`}
+                                                    src={entry.pfp_url || '/base-logo.svg'}
                                                     onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
-                                                    className="w-8 h-8 rounded-full bg-zinc-800 object-cover border border-white/5 p-1"
+                                                    className="w-10 h-10 rounded-full bg-zinc-900 object-cover border border-white/10"
+                                                    alt="pfp"
                                                 />
-                                                {entry.active_status === 'active' && <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border border-black"></div>}
                                             </div>
 
-                                            <div className="flex flex-col">
+                                            <div className="flex flex-col justify-center">
                                                 <div className="flex items-center gap-1.5">
-                                                    <span className="text-white font-bold text-xs max-w-[120px] whitespace-nowrap overflow-hidden">
-                                                        {entry.username ? (
-                                                            entry.username
-                                                        ) : entry.type === 'wallet' || entry.identifier?.startsWith('0x') ? (
-                                                            <Name address={entry.identifier as `0x${string}`} />
-                                                        ) : (
-                                                            entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`
-                                                        )}
+                                                    <span className="text-white font-bold text-sm max-w-[120px] whitespace-nowrap overflow-hidden">
+                                                        {entry.username ? entry.username : entry.type === 'wallet' || entry.identifier?.startsWith('0x') ? <Name address={entry.identifier as `0x${string}`} /> : (entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`)}
                                                     </span>
                                                     {entry.power_badge && <span className="text-[10px]">⚡</span>}
                                                 </div>
-                                                {entry.streak > 0 && <span className="text-[9px] text-orange-500 font-mono">🔥 {entry.streak} Day Streak</span>}
+                                                {entry.streak > 0 && <span className="text-[9px] text-orange-500 font-mono tracking-widest mt-0.5">🔥 {entry.streak} DAY</span>}
                                             </div>
                                         </div>
 
                                         <div className="text-right">
-                                            <span className="text-white font-mono font-bold text-sm block">{entry.score}</span>
+                                            <span className="text-white font-space font-bold text-lg group-hover:text-[#3B82F6] transition-colors">{entry.score}</span>
                                         </div>
                                     </div>
                                 ))}

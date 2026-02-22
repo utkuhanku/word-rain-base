@@ -288,11 +288,13 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 <div className="w-full h-px bg-white/10" />
 
                                 <button
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
                                         setShowEthDenver(false);
-                                        setShowEvent(true);
+                                        setTimeout(() => setShowEvent(true), 50);
                                     }}
-                                    className="w-full py-4 bg-white text-black font-bold font-space tracking-widest uppercase hover:bg-zinc-200 transition-colors rounded-xl flex items-center justify-center gap-2"
+                                    className="w-full h-14 bg-[#3B82F6] text-white font-black font-space tracking-widest uppercase hover:bg-[#2563EB] active:scale-95 transition-all rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.5)] flex items-center justify-center gap-2 relative z-50 disabled:opacity-50"
                                 >
                                     {hasEventAccess ? "ENTER ARENA" : "ENTER FOR $1"}
                                 </button>
@@ -381,11 +383,13 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 </div>
 
                                 <button
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
                                         setShowEventIntro(false);
-                                        setShowEthDenver(true);
+                                        setTimeout(() => setShowEthDenver(true), 50);
                                     }}
-                                    className="w-full bg-[#0052FF] hover:bg-[#004ad1] text-white font-black py-4 rounded-xl uppercase tracking-widest transition-all shadow-lg hover:shadow-[#0052FF]/25 hover:scale-[1.02] active:scale-[0.98]"
+                                    className="w-full h-14 bg-[#0052FF] text-white font-black uppercase tracking-widest hover:bg-[#2563EB] active:scale-95 transition-all rounded-xl shadow-[0_0_20px_rgba(0,82,255,0.4)] flex items-center justify-center gap-2 relative z-50"
                                 >
                                     {hasEventAccess ? "ENTER ARENA" : "ENTER ARENA ($1)"}
                                 </button>
@@ -518,7 +522,16 @@ export default function Lobby({ onStart }: LobbyProps) {
                                             <span className="text-sm font-mono text-zinc-500">USDC POOL</span>
                                         </div>
 
-                                        <button className="w-full h-12 bg-[#0052FF] text-white font-black uppercase tracking-widest rounded-lg shadow-[0_0_20px_rgba(0,82,255,0.4)] hover:bg-[#004ad1] transition-colors flex items-center justify-center gap-2">
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setShowEventIntro(false);
+                                                setShowEthDenver(false);
+                                                setShowEvent(true);
+                                            }}
+                                            className="w-full h-14 bg-[#0052FF] text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(0,82,255,0.4)] hover:bg-[#004ad1] transition-colors flex items-center justify-center gap-2 relative z-50"
+                                        >
                                             {hasEventAccess ? "ENTER ARENA" : "ENTER ARENA ($1)"}
                                         </button>
                                     </div>
@@ -558,13 +571,16 @@ export default function Lobby({ onStart }: LobbyProps) {
                             {/* EXPANDED CONTENT */}
                             <div className={`mt-[80px] h-full flex flex-col p-6 gap-6 overflow-hidden ${isTrainingExpanded ? "opacity-100" : "opacity-0"}`}>
 
-                                {/* Play Button */}
                                 <button
-                                    onClick={handleStartTraining}
-                                    className="w-full h-14 bg-white text-black font-space font-bold uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-2 shrink-0"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleStartTraining();
+                                    }}
+                                    className="w-full h-14 bg-white text-black font-space font-black uppercase tracking-widest rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.5)] flex items-center justify-center gap-2 shrink-0 relative z-50"
                                 >
                                     <span>START TRAINING</span>
-                                    <span className="text-xs opacity-50">(FREE)</span>
+                                    <span className="text-xs font-bold opacity-60">(FREE)</span>
                                 </button>
 
                                 {/* Embedded Leaderboard */}
