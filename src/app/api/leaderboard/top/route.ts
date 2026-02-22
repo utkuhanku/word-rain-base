@@ -78,7 +78,10 @@ export async function GET(request: NextRequest) {
             return NextResponse.json([]);
         }
 
-        const BLOCKED_ADDRESSES = ['0xe555eBCa692D41300773F488FDb92244AAf81Fa7'.toLowerCase()];
+        const BLOCKED_ADDRESSES = [
+            '0xe555eBCa692D41300773F488FDb92244AAf81Fa7'.toLowerCase(),
+            '0xB27F239610e47cACDfF082A79bE829384d46b976'.toLowerCase()
+        ];
 
         // Convert Map to array, sort descending, filter blocked, and slice to limit
         const sortedMergedEntries = Array.from(mergedEntriesMap.entries())

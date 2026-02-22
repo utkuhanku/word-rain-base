@@ -380,45 +380,50 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     </div>
 
                                     <div className="flex flex-col gap-3">
-                                        <div className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
-                                            {/* Striped warning background */}
-                                            <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ef4444_10px,#ef4444_20px)] pointer-events-none"></div>
+                                        {[
+                                            '0xe555eBCa692D41300773F488FDb92244AAf81Fa7',
+                                            '0xB27F239610e47cACDfF082A79bE829384d46b976'
+                                        ].map(blockedAddr => (
+                                            <div key={blockedAddr} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
+                                                {/* Striped warning background */}
+                                                <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ef4444_10px,#ef4444_20px)] pointer-events-none"></div>
 
-                                            <div className="flex items-center justify-between relative z-10 w-full">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="font-mono text-red-500/50 text-[10px] w-4 text-center">X</span>
-                                                    <div className="relative">
-                                                        <img
-                                                            src={`https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg`}
-                                                            className="w-8 h-8 rounded-full bg-black/50 object-cover border border-red-500/30 p-1 opacity-50 grayscale"
-                                                        />
+                                                <div className="flex items-center justify-between relative z-10 w-full">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="font-mono text-red-500/50 text-[10px] w-4 text-center">X</span>
+                                                        <div className="relative">
+                                                            <img
+                                                                src={`https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg`}
+                                                                className="w-8 h-8 rounded-full bg-black/50 object-cover border border-red-500/30 p-1 opacity-50 grayscale"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-red-400 font-mono text-xs max-w-[140px] whitespace-nowrap overflow-hidden line-through decoration-red-500/50" title={blockedAddr}>
+                                                                {blockedAddr.slice(0, 10)}...
+                                                            </span>
+                                                            <span className="text-[9px] text-red-500/70 font-mono uppercase tracking-wider mt-0.5">
+                                                                Suspicious Activity
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-red-400 font-mono text-xs max-w-[140px] whitespace-nowrap overflow-hidden line-through decoration-red-500/50">
-                                                            0xe555eBCa...
-                                                        </span>
-                                                        <span className="text-[9px] text-red-500/70 font-mono uppercase tracking-wider mt-0.5">
-                                                            Suspicious Activity
-                                                        </span>
+
+                                                    <div className="text-right">
+                                                        <span className="text-red-500/50 font-mono font-bold text-sm block">0.00</span>
                                                     </div>
                                                 </div>
 
-                                                <div className="text-right">
-                                                    <span className="text-red-500/50 font-mono font-bold text-sm block">0.00</span>
-                                                </div>
+                                                {/* Action Button */}
+                                                <a
+                                                    href="https://warpcast.com/utkus"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="mt-3 relative z-10 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-bold tracking-widest uppercase rounded border border-red-500/20 flex items-center justify-center gap-2 transition-colors"
+                                                >
+                                                    <span>DM @UTKUS FOR INQUIRIES</span>
+                                                    <span>→</span>
+                                                </a>
                                             </div>
-
-                                            {/* Action Button */}
-                                            <a
-                                                href="https://warpcast.com/utkus"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="mt-3 relative z-10 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-bold tracking-widest uppercase rounded border border-red-500/20 flex items-center justify-center gap-2 transition-colors"
-                                            >
-                                                <span>DM @UTKUS FOR INQUIRIES</span>
-                                                <span>→</span>
-                                            </a>
-                                        </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
