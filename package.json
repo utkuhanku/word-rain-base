@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "^1.1.2",
+    "@coinbase/onchainkit": "^0.33.5",
     "@farcaster/auth-kit": "^0.8.1",
     "@farcaster/frame-node": "^0.1.11",
     "@farcaster/frame-sdk": "^0.0.64",
@@ -23,8 +23,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "^3.4.0",
-    "viem": "^2.43.5",
-    "wagmi": "2.19.5",
+    "viem": "^2.45.0",
+    "wagmi": "^2.19.5",
     "zustand": "^5.0.9"
   },
   "devDependencies": {
