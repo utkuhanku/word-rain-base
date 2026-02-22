@@ -78,9 +78,15 @@ export async function GET(request: NextRequest) {
             return NextResponse.json([]);
         }
 
-        // Convert Map to array, sort descending, and slice to limit
+        const BLOCKED_ADDRESSES = ['0xe555eBCa692D41300773F488FDb92244AAf81Fa7'.toLowerCase()];
+
+        // Convert Map to array, sort descending, filter blocked, and slice to limit
         const sortedMergedEntries = Array.from(mergedEntriesMap.entries())
             .map(([member, score]) => ({ member, score }))
+            .filter(entry => {
+                const addressPart = entry.member.split(':')[1]?.toLowerCase() || entry.member.toLowerCase();
+                return !BLOCKED_ADDRESSES.includes(addressPart);
+            })
             .sort((a, b) => b.score - a.score)
             .slice(0, limit);
 
