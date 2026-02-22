@@ -10,6 +10,8 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
+        const partition = searchParams.get('partition');
+        const seasonId = searchParams.get('season') ? parseInt(searchParams.get('season') as string) : null;
 
         const { hasUrl, hasToken } = await import('@/lib/database').then(m => m.hasKvRequestConfig());
 
@@ -23,13 +25,64 @@ export async function GET(request: NextRequest) {
             return NextResponse.json(data);
         }
 
+        // Determine DB Key
+        let targetKey = process.env.LEADERBOARD_KEY || 'wordrain:lb:ethdenver';
+        if (partition === 'ethdenver') {
+            targetKey = 'event_leaderboard_ethdenver';
+        } else if (partition === 'season' && seasonId) {
+            targetKey = seasonId === 1 ? 'event_leaderboard_final' : `event_leaderboard_s${seasonId}`;
+        }
+
         // Fetch Top Scores
         // zrevrange returns [member1, score1, member2, score2...]
-        const rawData = await kv.zrange(LEADERBOARD_KEY, 0, limit - 1, { rev: true, withScores: true });
 
-        if (!rawData || rawData.length === 0) {
+        let mergedEntriesMap = new Map<string, number>();
+
+        if (partition === 'ethdenver') {
+            // MERGE LOGIC for ETHDenver Event Data Loss Recovery
+            const oldKey = 'wordrain:lb:ethdenver';
+            const newKey = 'event_leaderboard_ethdenver';
+
+            const [oldData, newData] = await Promise.all([
+                kv.zrange(oldKey, 0, -1, { rev: true, withScores: true }),
+                kv.zrange(newKey, 0, -1, { rev: true, withScores: true })
+            ]);
+
+            const processRawData = (data: any[]) => {
+                if (!data) return;
+                for (let i = 0; i < data.length; i += 2) {
+                    const member = data[i] as string;
+                    const score = Number(data[i + 1]);
+                    const currentScore = mergedEntriesMap.get(member) || 0;
+                    if (score > currentScore) {
+                        mergedEntriesMap.set(member, score);
+                    }
+                }
+            };
+
+            processRawData(oldData as any[]);
+            processRawData(newData as any[]);
+
+        } else {
+            const rawData = await kv.zrange(targetKey, 0, limit - 1, { rev: true, withScores: true });
+            if (rawData) {
+                for (let i = 0; i < rawData.length; i += 2) {
+                    const member = rawData[i] as string;
+                    const score = Number(rawData[i + 1]);
+                    mergedEntriesMap.set(member, score);
+                }
+            }
+        }
+
+        if (mergedEntriesMap.size === 0) {
             return NextResponse.json([]);
         }
+
+        // Convert Map to array, sort descending, and slice to limit
+        const sortedMergedEntries = Array.from(mergedEntriesMap.entries())
+            .map(([member, score]) => ({ member, score }))
+            .sort((a, b) => b.score - a.score)
+            .slice(0, limit);
 
         const entries: any[] = [];
         const fidsToEnrich: number[] = [];
@@ -39,12 +92,14 @@ export async function GET(request: NextRequest) {
         const pipeline = kv.pipeline();
         const members: string[] = [];
 
-        // Parse ZRange Result
-        for (let i = 0; i < rawData.length; i += 2) {
-            const member = rawData[i] as string;
-            const score = Number(rawData[i + 1]);
+        // Parse Merged Result
+        for (let i = 0; i < sortedMergedEntries.length; i++) {
+            const entry = sortedMergedEntries[i];
+            const member = entry.member;
+            const score = entry.score;
 
             members.push(member);
+            // The metadata key is hardcoded to wordrain:lb:ethdenver:meta:${member} during submit
             pipeline.hgetall(`wordrain:lb:ethdenver:meta:${member}`);
 
             let identifier = member;
