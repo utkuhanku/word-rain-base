@@ -226,23 +226,25 @@ export default function PaygateOverlay() {
                             )}
                         </div>
 
-                        {/* Revive Option */}
-                        {isConnected && (
-                            <button
-                                onClick={handleRevive}
-                                disabled={isReviving}
-                                className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-white font-bold tracking-tight text-sm uppercase transition-all shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2"
-                            >
+                        {/* Revive Option (Always Visible & Attractive) */}
+                        <button
+                            onClick={isConnected ? handleRevive : handleConnect}
+                            disabled={isReviving}
+                            className={`w-full py-5 text-white font-black tracking-widest text-lg uppercase transition-all relative overflow-hidden group flex items-center justify-center gap-3 rounded-xl scale-100 hover:scale-[1.02] ${isConnected ? 'bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 shadow-[0_0_30px_rgba(16,185,129,0.5)]' : 'bg-gradient-to-b from-zinc-800 to-zinc-900 border border-zinc-700 hover:border-zinc-500 shadow-xl'}`}
+                        >
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                            <span className="relative z-10 flex items-center gap-2">
                                 {isReviving ? (
-                                    <span className="animate-pulse">Resurrecting...</span>
+                                    <span className="animate-pulse">{isConfirmingTx ? "CONFIRMING TX..." : "RESURRECTING..."}</span>
                                 ) : (
                                     <>
-                                        <span>❤️ Extra Life (Countdown)</span>
-                                        <span className="bg-black/20 px-1.5 py-0.5 rounded text-[10px] font-mono">$1.00</span>
+                                        <span className="text-xl animate-bounce">❤️</span>
+                                        <span className="drop-shadow-md">{isConnected ? "RESURRECT" : "CONNECT TO RESURRECT"}</span>
+                                        <span className={`${isConnected ? 'bg-black/20 text-white border border-white/10' : 'bg-black/40 text-zinc-400 border border-zinc-700'} px-2 py-0.5 rounded text-xs font-mono tracking-wide ml-2`}>0.50 USDC</span>
                                     </>
                                 )}
-                            </button>
-                        )}
+                            </span>
+                        </button>
 
                         <div>
                             {isConnected ? (
@@ -290,23 +292,25 @@ export default function PaygateOverlay() {
                     </div>
 
                     <div className="grid gap-3">
-                        {/* Revive is TOP PRIORITY in Event */}
-                        {isConnected && (
-                            <button
-                                onClick={handleRevive}
-                                disabled={isReviving}
-                                className="w-full py-6 bg-[#D900FF] hover:bg-[#b300dB] text-black font-black tracking-tight text-xl uppercase transition-all shadow-[0_0_30px_rgba(217,0,255,0.4)] flex items-center justify-center gap-3 rounded-xl scale-100 hover:scale-[1.02]"
-                            >
+                        {/* Revive is TOP PRIORITY in Event (Always Visible) */}
+                        <button
+                            onClick={isConnected ? handleRevive : handleConnect}
+                            disabled={isReviving}
+                            className={`w-full py-6 font-black tracking-tighter text-2xl uppercase transition-all flex items-center justify-center gap-3 rounded-2xl relative overflow-hidden group scale-100 hover:scale-[1.03] ${isConnected ? 'bg-gradient-to-r from-[#D900FF] via-[#FF007F] to-[#D900FF] bg-[length:200%_auto] hover:animate-[gradient_2s_linear_infinite] text-white shadow-[0_0_40px_rgba(217,0,255,0.6)]' : 'bg-gradient-to-b from-zinc-800 to-zinc-950 border-2 border-zinc-800 hover:border-zinc-600 text-zinc-300 shadow-2xl'}`}
+                        >
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                            <span className="relative z-10 flex items-center gap-3 drop-shadow-lg">
                                 {isReviving ? (
-                                    <span className="animate-pulse">{isConfirmingTx ? "CONFIRMING TX..." : "PROCESSING..."}</span>
+                                    <span className="animate-pulse">{isConfirmingTx ? "CONFIRMING TX..." : "SUMMONING..."}</span>
                                 ) : (
                                     <>
-                                        <span>RESURRECT</span>
-                                        <span className="bg-black/20 px-2 py-0.5 rounded text-sm font-mono tracking-wide">0.50 USDC</span>
+                                        <span className="animate-pulse text-3xl">✨</span>
+                                        <span className="tracking-widest">{isConnected ? "RESURRECT NOW" : "CONNECT TO RESURRECT"}</span>
+                                        <span className={`${isConnected ? 'bg-black/30 text-white border border-white/20' : 'bg-black/50 text-zinc-500 border border-zinc-700'} px-3 py-1 rounded-lg text-sm font-mono tracking-widest ml-1`}>0.50 USDC</span>
                                     </>
                                 )}
-                            </button>
-                        )}
+                            </span>
+                        </button>
 
                         <button
                             onClick={() => { resetGame(); setIsPaid(false); }}
