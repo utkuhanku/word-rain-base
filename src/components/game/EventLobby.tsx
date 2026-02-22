@@ -322,7 +322,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     {[
                                         '0xe555eBCa692D41300773F488FDb92244AAf81Fa7',
                                         '0xB27F239610e47cACDfF082A79bE829384d46b976',
-                                        '0x53481a207B5dd683a7C018157709A5092774b09A'
+                                        '0x53481a207B5dd683a7C018157709A5092774b09A',
+                                        '0x0Ea03d210e1E3743A0815204FbCFcD36e07Ec230'
                                     ].map(blockedAddr => (
                                         <div key={blockedAddr} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
                                             {/* Striped warning background */}
@@ -342,7 +343,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                             {blockedAddr.slice(0, 10)}...
                                                         </span>
                                                         <span className="text-[9px] text-red-500/70 font-mono uppercase tracking-wider mt-0.5">
-                                                            Suspicious Activity
+                                                            REFUNDED & DISQUALIFIED
                                                         </span>
                                                     </div>
                                                 </div>
