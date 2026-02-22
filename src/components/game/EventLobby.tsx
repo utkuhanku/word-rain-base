@@ -268,7 +268,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                             <img
                                                                 src={entry.pfp_url}
                                                                 alt="Profile"
-                                                                className="absolute inset-0 w-full h-full object-cover z-20"
+                                                                className="absolute inset-0 w-full h-full object-cover rounded-full z-20"
                                                                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                                             />
                                                         )}
