@@ -569,7 +569,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                             </div>
 
                             {/* EXPANDED CONTENT */}
-                            <div className={`mt-[80px] h-full flex flex-col p-6 gap-6 overflow-hidden ${isTrainingExpanded ? "opacity-100" : "opacity-0"}`}>
+                            <div className={`pt-[100px] pb-6 px-6 h-full flex flex-col gap-6 overflow-hidden ${isTrainingExpanded ? "opacity-100" : "opacity-0"}`}>
 
                                 <button
                                     onClick={(e) => {
@@ -577,7 +577,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         e.stopPropagation();
                                         handleStartTraining();
                                     }}
-                                    className="w-full h-14 bg-white text-black font-space font-black uppercase tracking-widest rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.5)] flex items-center justify-center gap-2 shrink-0 relative z-50"
+                                    className="w-full h-14 bg-white text-black font-space font-black uppercase tracking-widest rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.5)] flex items-center justify-center gap-2 shrink-0 relative z-50 pointer-events-auto"
                                 >
                                     <span>START TRAINING</span>
                                     <span className="text-xs font-bold opacity-60">(FREE)</span>

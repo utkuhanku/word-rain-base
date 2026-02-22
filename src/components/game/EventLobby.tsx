@@ -30,25 +30,25 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
     }, [targetDate]);
 
     return (
-        <div className="flex justify-center items-center gap-4">
+        <div className="flex justify-center items-center gap-3">
             <div className="flex flex-col items-center">
-                <span className="text-2xl font-black text-white italic tracking-tighter">{timeLeft.d.toString().padStart(2, '0')}</span>
-                <span className="text-[8px] text-zinc-500 font-mono tracking-widest uppercase">Days</span>
+                <span className="text-xl font-bold text-white tracking-tight">{timeLeft.d.toString().padStart(2, '0')}</span>
+                <span className="text-[7px] text-zinc-500 font-mono tracking-widest uppercase mt-1">Days</span>
             </div>
-            <span className="text-zinc-700 pb-3 font-black">:</span>
+            <span className="text-zinc-800 pb-3 font-mono text-sm">:</span>
             <div className="flex flex-col items-center">
-                <span className="text-2xl font-black text-white italic tracking-tighter">{timeLeft.h.toString().padStart(2, '0')}</span>
-                <span className="text-[8px] text-zinc-500 font-mono tracking-widest uppercase">Hrs</span>
+                <span className="text-xl font-bold text-white tracking-tight">{timeLeft.h.toString().padStart(2, '0')}</span>
+                <span className="text-[7px] text-zinc-500 font-mono tracking-widest uppercase mt-1">Hrs</span>
             </div>
-            <span className="text-zinc-700 pb-3 font-black">:</span>
+            <span className="text-zinc-800 pb-3 font-mono text-sm">:</span>
             <div className="flex flex-col items-center">
-                <span className="text-2xl font-black text-white italic tracking-tighter">{timeLeft.m.toString().padStart(2, '0')}</span>
-                <span className="text-[8px] text-zinc-500 font-mono tracking-widest uppercase">Min</span>
+                <span className="text-xl font-bold text-white tracking-tight">{timeLeft.m.toString().padStart(2, '0')}</span>
+                <span className="text-[7px] text-zinc-500 font-mono tracking-widest uppercase mt-1">Min</span>
             </div>
-            <span className="text-zinc-700 pb-3 font-black">:</span>
+            <span className="text-zinc-800 pb-3 font-mono text-sm">:</span>
             <div className="flex flex-col items-center">
-                <span className="text-2xl font-black text-[#3B82F6] italic tracking-tighter drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">{timeLeft.s.toString().padStart(2, '0')}</span>
-                <span className="text-[8px] text-[#3B82F6]/70 font-mono tracking-widest uppercase">Sec</span>
+                <span className="text-xl font-bold text-[#3B82F6] tracking-tight">{timeLeft.s.toString().padStart(2, '0')}</span>
+                <span className="text-[7px] text-[#3B82F6]/70 font-mono tracking-widest uppercase mt-1">Sec</span>
             </div>
         </div>
     );
@@ -348,12 +348,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             <span className="font-space text-zinc-600 text-sm font-bold w-6 text-center">{i + 4}</span>
 
                                             <div className="relative">
-                                                <img
-                                                    src={entry.pfp_url || '/base-logo.svg'}
-                                                    onError={(e) => { e.currentTarget.src = '/base-logo.svg'; }}
-                                                    className="w-10 h-10 rounded-full bg-zinc-900 object-cover border border-white/10"
-                                                    alt="pfp"
-                                                />
+                                                <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-full text-[10px] text-zinc-500 font-mono border border-white/10">B</div>
                                             </div>
 
                                             <div className="flex flex-col justify-center">
