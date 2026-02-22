@@ -30,26 +30,14 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
     }, [targetDate]);
 
     return (
-        <div className="flex justify-center items-center gap-3">
-            <div className="flex flex-col items-center">
-                <span className="text-xl font-bold text-white tracking-tight">{timeLeft.d.toString().padStart(2, '0')}</span>
-                <span className="text-[7px] text-zinc-500 font-mono tracking-widest uppercase mt-1">Days</span>
-            </div>
-            <span className="text-zinc-800 pb-3 font-mono text-sm">:</span>
-            <div className="flex flex-col items-center">
-                <span className="text-xl font-bold text-white tracking-tight">{timeLeft.h.toString().padStart(2, '0')}</span>
-                <span className="text-[7px] text-zinc-500 font-mono tracking-widest uppercase mt-1">Hrs</span>
-            </div>
-            <span className="text-zinc-800 pb-3 font-mono text-sm">:</span>
-            <div className="flex flex-col items-center">
-                <span className="text-xl font-bold text-white tracking-tight">{timeLeft.m.toString().padStart(2, '0')}</span>
-                <span className="text-[7px] text-zinc-500 font-mono tracking-widest uppercase mt-1">Min</span>
-            </div>
-            <span className="text-zinc-800 pb-3 font-mono text-sm">:</span>
-            <div className="flex flex-col items-center">
-                <span className="text-xl font-bold text-[#3B82F6] tracking-tight">{timeLeft.s.toString().padStart(2, '0')}</span>
-                <span className="text-[7px] text-[#3B82F6]/70 font-mono tracking-widest uppercase mt-1">Sec</span>
-            </div>
+        <div className="flex justify-center items-center gap-1.5 font-mono">
+            <span className="text-sm font-bold text-white">{timeLeft.d.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">d</span>
+            <span className="text-zinc-700 mx-0.5">:</span>
+            <span className="text-sm font-bold text-white">{timeLeft.h.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">h</span>
+            <span className="text-zinc-700 mx-0.5">:</span>
+            <span className="text-sm font-bold text-white">{timeLeft.m.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">m</span>
+            <span className="text-zinc-700 mx-0.5">:</span>
+            <span className="text-sm font-bold text-[#3B82F6]">{timeLeft.s.toString().padStart(2, '0')}</span><span className="text-[10px] text-[#3B82F6]/70">s</span>
         </div>
     );
 };
@@ -197,14 +185,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 <div className="w-10" /> {/* Spacer */}
             </div>
 
-            {/* Countdown Banner */}
-            <div className="w-full flex justify-center py-6 border-b border-white/5 relative bg-[#0A0A0A] overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-[#3B82F6]/5 to-transparent pointer-events-none" />
-                <div className="flex flex-col items-center relative z-10">
-                    <span className="text-[9px] text-[#3B82F6] font-bold tracking-[0.3em] uppercase mb-4">EVENT CONCLUDES IN</span>
-                    <CountdownTimer targetDate={new Date('2026-02-23T00:00:00Z')} />
-                    <span className="text-[8px] text-zinc-600 tracking-widest uppercase mt-4">Ends UTC 22 FEB MIDNIGHT</span>
-                </div>
+            {/* Minimal Countdown Banner */}
+            <div className="w-full flex items-center justify-between px-6 py-3 border-b border-white/5 bg-[#050505] relative z-20">
+                <span className="text-[10px] text-zinc-500 tracking-widest uppercase font-mono">Ends Feb 22</span>
+                <CountdownTimer targetDate={new Date('2026-02-23T00:00:00Z')} />
             </div>
 
             {/* Main Content */}
@@ -260,184 +244,121 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         </div>
                     ) : (
                         <>
-                            {/* TOP 3 PODIUM - SLEEK DESIGN */}
-                            <div className="flex flex-col gap-4">
-                                {/* RANK 1 (Gold) */}
-                                {leaderboard[0] && (
-                                    <div
-                                        onClick={() => setSelectedPlayer(leaderboard[0])}
-                                        className="w-full flex items-center justify-between bg-gradient-to-r from-[#D4AF37]/20 via-[#0A0A0A] to-[#0A0A0A] p-4 rounded-2xl border border-[#D4AF37]/30 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all group"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-[#D4AF37] font-black text-2xl italic tracking-tighter w-8 text-center drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]">1</div>
-                                            <div className="relative">
-                                                <div className="absolute inset-0 bg-[#D4AF37] blur-md rounded-full opacity-40 group-hover:opacity-70 transition-opacity"></div>
-                                                <div className="relative w-16 h-16 rounded-full border border-[#D4AF37] overflow-hidden z-10 bg-zinc-900 border-2 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
-                                                    <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-mono text-xl">B</div>
-                                                    {leaderboard[0].pfp_url && (
-                                                        <img
-                                                            src={leaderboard[0].pfp_url}
-                                                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                                                            className="absolute inset-0 w-full h-full object-cover z-20"
-                                                            alt="pfp"
-                                                        />
+                            {/* UNIFIED DATA TABLE */}
+                            <div className="flex flex-col w-full rounded-2xl bg-[#030303] border border-white/5 overflow-hidden shadow-2xl pb-4">
+                                {leaderboard.map((entry: any, i) => {
+                                    const isTop4 = i < 4;
+                                    return (
+                                        <div
+                                            key={entry.member || entry.address}
+                                            onClick={() => setSelectedPlayer(entry)}
+                                            className={`flex items-center justify-between p-4 border-b border-white/5 cursor-pointer transition-all hover:bg-white/5 active:bg-white/10 ${isTop4 ? 'bg-gradient-to-r from-[#0052FF]/10 to-transparent relative overflow-hidden' : ''}`}
+                                        >
+                                            {isTop4 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0052FF] shadow-[0_0_10px_rgba(0,82,255,0.8)]" />}
+
+                                            <div className="flex items-center gap-4 relative z-10 w-full px-2">
+                                                <div className={`font-mono text-sm w-6 text-center shrink-0 ${isTop4 ? 'text-[#0052FF] font-black' : 'text-zinc-600 font-bold'}`}>
+                                                    {i + 1}
+                                                </div>
+
+                                                <div className="relative shrink-0">
+                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border-2 ${isTop4 ? 'border-[#0052FF]/50 shadow-[0_0_15px_rgba(0,82,255,0.3)] bg-[#0052FF]/10' : 'border-white/10 bg-zinc-900 border-transparent'}`}>
+                                                        <span className="text-zinc-600 font-mono text-sm">B</span>
+                                                        {entry.pfp_url && (
+                                                            <img
+                                                                src={entry.pfp_url}
+                                                                alt="Profile"
+                                                                className="absolute inset-0 w-full h-full object-cover z-20"
+                                                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-col justify-center flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`font-bold text-sm truncate ${isTop4 ? 'text-white' : 'text-zinc-300'}`}>
+                                                            {entry.username ? entry.username : entry.type === 'wallet' || entry.identifier?.startsWith('0x') ? <Name address={entry.identifier as `0x${string}`} /> : (entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`)}
+                                                        </span>
+                                                        {isTop4 && (
+                                                            <div className="w-3.5 h-3.5 rounded-full bg-[#0052FF] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(0,82,255,0.8)]" title="Prize Winner">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                                            </div>
+                                                        )}
+                                                        {entry.power_badge && <span className="text-[10px] shrink-0">⚡</span>}
+                                                    </div>
+                                                    {isTop4 && (
+                                                        <span className="text-[9px] text-[#0052FF] font-mono tracking-widest uppercase mt-0.5 font-bold">PRIZE WINNER</span>
+                                                    )}
+                                                    {!isTop4 && entry.streak > 0 && (
+                                                        <span className="text-[9px] text-orange-500 font-mono tracking-widest mt-0.5">🔥 {entry.streak} DAY</span>
                                                     )}
                                                 </div>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-white font-bold text-lg max-w-[150px] whitespace-nowrap overflow-hidden">
-                                                        {leaderboard[0].username ? leaderboard[0].username : leaderboard[0].type === 'wallet' || leaderboard[0].identifier?.startsWith('0x') ? <Name address={leaderboard[0].identifier as `0x${string}`} /> : (leaderboard[0].displayName || `Pilot ${leaderboard[0].identifier?.slice(0, 4)}`)}
+
+                                                <div className="text-right shrink-0">
+                                                    <span className={`font-space font-bold text-xl tracking-tight ${isTop4 ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' : 'text-zinc-500'}`}>
+                                                        {entry.score}
                                                     </span>
-                                                    {leaderboard[0].power_badge && <span className="text-[#D4AF37] text-xs">⚡</span>}
                                                 </div>
-                                                <span className="text-[#D4AF37] text-[10px] font-mono tracking-widest uppercase">CHAMPION</span>
                                             </div>
                                         </div>
-                                        <div className="text-[#D4AF37] font-space font-black text-2xl tracking-tighter">{leaderboard[0].score}</div>
-                                    </div>
-                                )}
-
-                                {/* RANK 2 (Silver) & RANK 3 (Bronze) Grid */}
-                                <div className="grid grid-cols-2 gap-3">
-                                    {/* RANK 2 */}
-                                    {leaderboard[1] && (
-                                        <div
-                                            onClick={() => setSelectedPlayer(leaderboard[1])}
-                                            className="flex flex-col items-center bg-gradient-to-b from-[#C0C0C0]/10 to-transparent p-4 rounded-2xl border border-[#C0C0C0]/20 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all group relative overflow-hidden"
-                                        >
-                                            <div className="absolute top-3 left-3 text-[#C0C0C0] font-black italic tracking-tighter">2</div>
-                                            <div className="relative w-12 h-12 rounded-full border border-[#C0C0C0] overflow-hidden z-10 bg-zinc-900 border-2 mt-2 mb-3 shadow-[0_0_15px_rgba(192,192,192,0.2)]">
-                                                <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-mono text-lg">B</div>
-                                                {leaderboard[1].pfp_url && (
-                                                    <img
-                                                        src={leaderboard[1].pfp_url}
-                                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                                                        className="absolute inset-0 w-full h-full object-cover z-20"
-                                                        alt="pfp"
-                                                    />
-                                                )}
-                                            </div>
-                                            <span className="text-white font-bold text-sm max-w-[100px] whitespace-nowrap overflow-hidden">
-                                                {leaderboard[1].username ? leaderboard[1].username : leaderboard[1].type === 'wallet' || leaderboard[1].identifier?.startsWith('0x') ? <Name address={leaderboard[1].identifier as `0x${string}`} /> : (leaderboard[1].displayName || `Pilot`)}
-                                            </span>
-                                            <div className="text-[#C0C0C0] font-space font-bold mt-1">{leaderboard[1].score}</div>
-                                        </div>
-                                    )}
-
-                                    {/* RANK 3 */}
-                                    {leaderboard[2] && (
-                                        <div
-                                            onClick={() => setSelectedPlayer(leaderboard[2])}
-                                            className="flex flex-col items-center bg-gradient-to-b from-[#CD7F32]/10 to-transparent p-4 rounded-2xl border border-[#CD7F32]/20 cursor-pointer hover:bg-white/5 active:scale-[0.98] transition-all group relative overflow-hidden"
-                                        >
-                                            <div className="absolute top-3 left-3 text-[#CD7F32] font-black italic tracking-tighter">3</div>
-                                            <div className="relative w-12 h-12 rounded-full border border-[#CD7F32] overflow-hidden z-10 bg-zinc-900 border-2 mt-2 mb-3 shadow-[0_0_15px_rgba(205,127,50,0.2)]">
-                                                <div className="absolute inset-0 flex items-center justify-center text-zinc-600 font-mono text-lg">B</div>
-                                                {leaderboard[2].pfp_url && (
-                                                    <img
-                                                        src={leaderboard[2].pfp_url}
-                                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                                                        className="absolute inset-0 w-full h-full object-cover z-20"
-                                                        alt="pfp"
-                                                    />
-                                                )}
-                                            </div>
-                                            <span className="text-white font-bold text-sm max-w-[100px] whitespace-nowrap overflow-hidden">
-                                                {leaderboard[2].username ? leaderboard[2].username : leaderboard[2].type === 'wallet' || leaderboard[2].identifier?.startsWith('0x') ? <Name address={leaderboard[2].identifier as `0x${string}`} /> : (leaderboard[2].displayName || `Pilot`)}
-                                            </span>
-                                            <div className="text-[#CD7F32] font-space font-bold mt-1">{leaderboard[2].score}</div>
-                                        </div>
-                                    )}
-                                </div>
+                                    );
+                                })}
                             </div>
 
-                            {/* THE REST (Rank 4+) */}
-                            <div className="space-y-1 mt-6">
-                                {leaderboard.slice(3).map((entry: any, i) => (
-                                    <div
-                                        key={entry.member || entry.address}
-                                        onClick={() => setSelectedPlayer(entry)}
-                                        className="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-all cursor-pointer group active:scale-[0.98] bg-[#0A0A0A] border border-white/5"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <span className="font-space text-zinc-600 text-sm font-bold w-6 text-center">{i + 4}</span>
+                            {/* DISQUALIFIED SECTION */}
+                            <div className="mt-8 pt-6 border-t border-red-500/20">
+                                <div className="flex items-center gap-2 mb-3 px-2">
+                                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                    <h3 className="text-xs font-bold text-red-500 tracking-widest uppercase">Disqualified Players</h3>
+                                </div>
 
-                                            <div className="relative">
-                                                <div className="w-full h-full bg-zinc-800 flex items-center justify-center rounded-full text-[10px] text-zinc-500 font-mono border border-white/10">B</div>
-                                            </div>
+                                <div className="flex flex-col gap-3">
+                                    {[
+                                        '0xe555eBCa692D41300773F488FDb92244AAf81Fa7',
+                                        '0xB27F239610e47cACDfF082A79bE829384d46b976',
+                                        '0x53481a207B5dd683a7C018157709A5092774b09A'
+                                    ].map(blockedAddr => (
+                                        <div key={blockedAddr} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
+                                            {/* Striped warning background */}
+                                            <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ef4444_10px,#ef4444_20px)] pointer-events-none"></div>
 
-                                            <div className="flex flex-col justify-center">
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className="text-white font-bold text-sm max-w-[120px] whitespace-nowrap overflow-hidden">
-                                                        {entry.username ? entry.username : entry.type === 'wallet' || entry.identifier?.startsWith('0x') ? <Name address={entry.identifier as `0x${string}`} /> : (entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`)}
-                                                    </span>
-                                                    {entry.power_badge && <span className="text-[10px]">⚡</span>}
-                                                </div>
-                                                {entry.streak > 0 && <span className="text-[9px] text-orange-500 font-mono tracking-widest mt-0.5">🔥 {entry.streak} DAY</span>}
-                                            </div>
-                                        </div>
-
-                                        <div className="text-right">
-                                            <span className="text-white font-space font-bold text-lg group-hover:text-[#3B82F6] transition-colors">{entry.score}</span>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {/* DISQUALIFIED SECTION */}
-                                <div className="mt-8 pt-6 border-t border-red-500/20">
-                                    <div className="flex items-center gap-2 mb-3 px-2">
-                                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                                        <h3 className="text-xs font-bold text-red-500 tracking-widest uppercase">Disqualified Players</h3>
-                                    </div>
-
-                                    <div className="flex flex-col gap-3">
-                                        {[
-                                            '0xe555eBCa692D41300773F488FDb92244AAf81Fa7',
-                                            '0xB27F239610e47cACDfF082A79bE829384d46b976',
-                                            '0x53481a207B5dd683a7C018157709A5092774b09A'
-                                        ].map(blockedAddr => (
-                                            <div key={blockedAddr} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
-                                                {/* Striped warning background */}
-                                                <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ef4444_10px,#ef4444_20px)] pointer-events-none"></div>
-
-                                                <div className="flex items-center justify-between relative z-10 w-full">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="font-mono text-red-500/50 text-[10px] w-4 text-center">X</span>
-                                                        <div className="relative">
-                                                            <img
-                                                                src={`/base-logo.svg`}
-                                                                className="w-8 h-8 rounded-full bg-black/50 object-cover border border-red-500/30 p-1 opacity-50 grayscale"
-                                                            />
-                                                        </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="text-red-400 font-mono text-xs max-w-[140px] whitespace-nowrap overflow-hidden line-through decoration-red-500/50" title={blockedAddr}>
-                                                                {blockedAddr.slice(0, 10)}...
-                                                            </span>
-                                                            <span className="text-[9px] text-red-500/70 font-mono uppercase tracking-wider mt-0.5">
-                                                                Suspicious Activity
-                                                            </span>
-                                                        </div>
+                                            <div className="flex items-center justify-between relative z-10 w-full">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-mono text-red-500/50 text-[10px] w-4 text-center">X</span>
+                                                    <div className="relative">
+                                                        <img
+                                                            src={`/base-logo.svg`}
+                                                            className="w-8 h-8 rounded-full bg-black/50 object-cover border border-red-500/30 p-1 opacity-50 grayscale"
+                                                        />
                                                     </div>
-
-                                                    <div className="text-right">
-                                                        <span className="text-red-500/50 font-mono font-bold text-sm block">0.00</span>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-red-400 font-mono text-xs max-w-[140px] whitespace-nowrap overflow-hidden line-through decoration-red-500/50" title={blockedAddr}>
+                                                            {blockedAddr.slice(0, 10)}...
+                                                        </span>
+                                                        <span className="text-[9px] text-red-500/70 font-mono uppercase tracking-wider mt-0.5">
+                                                            Suspicious Activity
+                                                        </span>
                                                     </div>
                                                 </div>
 
-                                                {/* Action Button */}
-                                                <a
-                                                    href="https://warpcast.com/utkus"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="mt-3 relative z-10 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-bold tracking-widest uppercase rounded border border-red-500/20 flex items-center justify-center gap-2 transition-colors"
-                                                >
-                                                    <span>DM @UTKUS FOR INQUIRIES</span>
-                                                    <span>→</span>
-                                                </a>
+                                                <div className="text-right">
+                                                    <span className="text-red-500/50 font-mono font-bold text-sm block">0.00</span>
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
+
+                                            {/* Action Button */}
+                                            <a
+                                                href="https://warpcast.com/utkus"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="mt-3 relative z-10 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-bold tracking-widest uppercase rounded border border-red-500/20 flex items-center justify-center gap-2 transition-colors"
+                                            >
+                                                <span>DM @UTKUS FOR INQUIRIES</span>
+                                                <span>→</span>
+                                            </a>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </>
@@ -450,6 +371,6 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 onClose={() => setSelectedPlayer(null)}
                 player={selectedPlayer}
             />
-        </div>
+        </div >
     );
 }
