@@ -21,6 +21,41 @@ interface LobbyProps {
     onStart: () => void;
 }
 
+// --- Countdown Component ---
+const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
+    const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            const difference = targetDate.getTime() - new Date().getTime();
+            if (difference > 0) {
+                setTimeLeft({
+                    d: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                    h: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                    m: Math.floor((difference / 1000 / 60) % 60),
+                    s: Math.floor((difference / 1000) % 60)
+                });
+            } else {
+                setTimeLeft({ d: 0, h: 0, m: 0, s: 0 });
+            }
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [targetDate]);
+
+    return (
+        <div className="flex justify-center items-center gap-1.5 font-mono">
+            <span className="text-sm font-bold text-white">{timeLeft.d.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">d</span>
+            <span className="text-zinc-700 mx-0.5">:</span>
+            <span className="text-sm font-bold text-white">{timeLeft.h.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">h</span>
+            <span className="text-zinc-700 mx-0.5">:</span>
+            <span className="text-sm font-bold text-white">{timeLeft.m.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">m</span>
+            <span className="text-zinc-700 mx-0.5">:</span>
+            <span className="text-sm font-bold text-[#D900FF]">{timeLeft.s.toString().padStart(2, '0')}</span><span className="text-[10px] text-[#D900FF]/70">s</span>
+        </div>
+    );
+};
+// ----------------------------
+
 export default function Lobby({ onStart }: LobbyProps) {
     const { address } = useAccount();
 
@@ -33,6 +68,7 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [showCompetition, setShowCompetition] = useState(false);
     const [showEvent, setShowEvent] = useState(false);
     const [showEthDenver, setShowEthDenver] = useState(false);
+    const [showPastEvents, setShowPastEvents] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu State
     const [isLeaderboardOpening, setIsLeaderboardOpening] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
@@ -483,60 +519,97 @@ export default function Lobby({ onStart }: LobbyProps) {
                             </button>
                         </div>
 
-                        {/* MIDDLE: Event Hero (Flexible Grow) */}
-                        <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-10">
+                        {/* MIDDLE: Event Hero & Past Events (Flexible Grow) */}
+                        <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-10 gap-4">
+                            {/* NEW EVENT BANNER (48H Countdown) */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                onClick={() => setShowEventIntro(true)}
-                                className="w-full relative group cursor-pointer"
+                                className="w-full relative group cursor-default"
                             >
-                                <div className="absolute -inset-1 bg-gradient-to-br from-[#0052FF] to-blue-900 rounded-3xl blur-xl opacity-40 group-hover:opacity-70 transition-opacity animate-pulse" />
-                                <div className="relative bg-[#0A0A0A] border border-white/10 rounded-2xl p-8 overflow-hidden transform transition-transform group-hover:scale-[1.02]">
-
-                                    {/* "Live" Badge */}
-                                    <div className="absolute top-4 left-4 flex items-center gap-2">
-                                        <span className="relative flex h-2 w-2">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                        </span>
-                                        <span className="text-[9px] font-black text-emerald-500 tracking-widest">LIVE</span>
+                                <div className="absolute -inset-2 bg-gradient-to-tr from-[#D900FF] to-[#0052FF] rounded-3xl blur-2xl opacity-40 animate-pulse" />
+                                <div className="relative bg-black border border-[#D900FF]/30 rounded-2xl p-6 overflow-hidden flex flex-col items-center text-center shadow-2xl">
+                                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                                        <span className="text-6xl">🛸</span>
                                     </div>
+                                    <span className="bg-[#D900FF]/10 text-[#D900FF] font-mono font-bold text-[10px] tracking-widest px-3 py-1 rounded-full uppercase mb-4 border border-[#D900FF]/20 shadow-[0_0_15px_rgba(217,0,255,0.2)]">
+                                        Signal Detected
+                                    </span>
+                                    <h2 className="text-4xl font-black italic text-white tracking-tighter uppercase mb-2 drop-shadow-lg">
+                                        NEXT <span className="text-[#D900FF] drop-shadow-[0_0_15px_rgba(217,0,255,0.8)]">MISSION</span>
+                                    </h2>
+                                    <p className="text-[11px] text-zinc-400 font-mono mb-6 max-w-[220px] leading-relaxed">
+                                        A new challenge approaches the Base network. Prepare your reflexes.
+                                    </p>
 
-                                    <div className="absolute top-0 right-0 p-6 opacity-30">
-                                        <span className="text-6xl filter grayscale group-hover:grayscale-0 transition-all">🏔️</span>
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 mt-4 text-center items-center">
-                                        <h1 className="text-5xl font-black text-white italic tracking-[-0.05em] leading-none drop-shadow-lg">
-                                            ETH<span className="text-[#0052FF]">DENVER</span>
-                                        </h1>
-                                        <p className="text-zinc-400 font-mono text-xs tracking-widest uppercase bg-white/5 px-2 py-1 rounded">
-                                            OFFICIAL TOURNAMENT
-                                        </p>
-                                    </div>
-
-                                    <div className="mt-8 flex flex-col items-center gap-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-3xl font-bold text-white">$250</span>
-                                            <span className="text-sm font-mono text-zinc-500">USDC POOL</span>
+                                    {/* 48H Countdown - Hardcoded for visual precision based on user request (e.g. 48h from now = Feb 24) */}
+                                    <div className="w-full bg-[#050505] border border-white/5 rounded-xl p-4 shadow-inner">
+                                        <div className="flex items-center justify-center gap-2 mb-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-[#D900FF] animate-ping" />
+                                            <div className="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">Unlocks In</div>
                                         </div>
-
-                                        <button
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setShowEventIntro(false);
-                                                setShowEthDenver(false);
-                                                setShowEvent(true);
-                                            }}
-                                            className="w-full h-14 bg-[#0052FF] text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(0,82,255,0.4)] hover:bg-[#004ad1] transition-colors flex items-center justify-center gap-2 relative z-50"
-                                        >
-                                            {hasEventAccess ? "ENTER ARENA" : "ENTER ARENA ($1)"}
-                                        </button>
+                                        <CountdownTimer targetDate={new Date(Date.now() + 48 * 60 * 60 * 1000)} />
                                     </div>
                                 </div>
                             </motion.div>
+
+                            {/* PAST EVENTS ACCORDION */}
+                            <div className="w-full flex flex-col gap-2 mt-2">
+                                <button
+                                    onClick={() => setShowPastEvents(!showPastEvents)}
+                                    className="w-full flex items-center justify-between p-3.5 bg-black hover:bg-white/5 border border-white/5 rounded-xl transition-all group"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-mono font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-widest transition-colors">
+                                            Vault: Past Events
+                                        </span>
+                                    </div>
+                                    <span className={`text-zinc-500 text-xs font-mono transition-transform duration-300 ${showPastEvents ? 'rotate-180' : ''}`}>
+                                        ▼
+                                    </span>
+                                </button>
+
+                                <AnimatePresence>
+                                    {showPastEvents && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="w-full relative bg-[#050505] border border-white/5 rounded-xl p-5 overflow-hidden group mt-1">
+                                                <div className="absolute top-0 right-0 p-4 opacity-10 grayscale">
+                                                    <span className="text-5xl">🏔️</span>
+                                                </div>
+                                                <div className="flex flex-col gap-1 items-start relative z-10 w-full">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500/80" />
+                                                        <span className="text-[9px] font-black text-red-500/80 tracking-widest uppercase">CONCLUDED</span>
+                                                    </div>
+                                                    <h3 className="text-xl font-black text-zinc-400 italic tracking-tight uppercase">
+                                                        ETH<span className="text-zinc-600">DENVER</span>
+                                                    </h3>
+                                                    <p className="text-[10px] text-zinc-600 font-mono mt-1">
+                                                        The official 2026 sprint has ended.
+                                                    </p>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            setShowEthDenver(false);
+                                                            setShowEvent(true);
+                                                        }}
+                                                        className="mt-4 w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-zinc-400 hover:text-white font-mono text-xs font-bold uppercase tracking-widest rounded-lg transition-all"
+                                                    >
+                                                        View Final Standings
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
                         </div>
 
 

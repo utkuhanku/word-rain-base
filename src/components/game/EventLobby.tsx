@@ -187,8 +187,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
             {/* Minimal Countdown Banner */}
             <div className="w-full flex items-center justify-between px-6 py-3 border-b border-white/5 bg-[#050505] relative z-20">
-                <span className="text-[10px] text-zinc-500 tracking-widest uppercase font-mono">Ends Feb 22</span>
-                <CountdownTimer targetDate={new Date('2026-02-23T00:00:00Z')} />
+                <span className="text-[10px] text-zinc-500 tracking-widest uppercase font-mono">Status</span>
+                <span className="text-[10px] font-bold text-red-500 animate-pulse tracking-widest uppercase">EVENT CONCLUDED</span>
             </div>
 
             {/* Main Content */}
@@ -206,21 +206,12 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     </p>
                 </div>
 
-                {/* Action Button */}
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleEntryPayment}
-                    disabled={isProcessing}
-                    className="w-full py-5 font-black text-xl uppercase tracking-widest rounded-xl relative overflow-hidden group shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                    style={{ backgroundColor: '#ffffff', color: '#000000' }}
-                >
-                    <span className="relative z-10 flex items-center justify-center gap-3">
-                        {isProcessing ? "PROCESSING..." : (hasPaidEntry ? "PLAY NOW" : "ENTER EVENT")}
-                        {!hasPaidEntry && <span className="px-2 py-1 rounded text-xs font-bold font-mono" style={{ backgroundColor: '#000000', color: '#ffffff' }}>1 USDC</span>}
+                {/* Action Button (Disabled for past event) */}
+                <div className="w-full py-5 font-black text-xl uppercase tracking-widest rounded-xl relative overflow-hidden bg-zinc-900 border border-white/10 text-zinc-500 flex items-center justify-center cursor-not-allowed">
+                    <span className="relative z-10 flex items-center justify-center gap-3 opacity-60">
+                        EVENT CLOSED
                     </span>
-                    {hasPaidEntry && <div className="absolute inset-0 bg-[#3B82F6]/20 animate-pulse"></div>}
-                </motion.button>
+                </div>
 
                 {/* Leaderboard Header */}
                 <div className="flex items-center justify-between px-1 mt-4">
