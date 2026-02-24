@@ -43,25 +43,25 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
     }, [targetDate]);
 
     return (
-        <div className="flex justify-center items-baseline gap-3 sm:gap-6 font-mono">
+        <div className="flex justify-center items-baseline gap-2 font-mono">
             <div className="flex flex-col items-center">
-                <span className="text-4xl sm:text-5xl font-black text-white tracking-tighter">{timeLeft.d.toString().padStart(2, '0')}</span>
-                <span className="text-[10px] text-zinc-500 font-bold tracking-[0.2em] uppercase mt-2">Days</span>
+                <span className="text-3xl font-bold text-white tracking-tight">{timeLeft.d.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] text-zinc-500 font-medium tracking-[0.1em] uppercase mt-0.5">d</span>
             </div>
-            <span className="text-3xl font-black text-zinc-800 translate-y-[-10px]">:</span>
+            <span className="text-xl font-medium text-zinc-800 translate-y-[-10px] block mx-0.5">:</span>
             <div className="flex flex-col items-center">
-                <span className="text-4xl sm:text-5xl font-black text-white tracking-tighter">{timeLeft.h.toString().padStart(2, '0')}</span>
-                <span className="text-[10px] text-zinc-500 font-bold tracking-[0.2em] uppercase mt-2">Hrs</span>
+                <span className="text-3xl font-bold text-white tracking-tight">{timeLeft.h.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] text-zinc-500 font-medium tracking-[0.1em] uppercase mt-0.5">h</span>
             </div>
-            <span className="text-3xl font-black text-zinc-800 translate-y-[-10px]">:</span>
+            <span className="text-xl font-medium text-zinc-800 translate-y-[-10px] block mx-0.5">:</span>
             <div className="flex flex-col items-center">
-                <span className="text-4xl sm:text-5xl font-black text-white tracking-tighter">{timeLeft.m.toString().padStart(2, '0')}</span>
-                <span className="text-[10px] text-zinc-500 font-bold tracking-[0.2em] uppercase mt-2">Min</span>
+                <span className="text-3xl font-bold text-white tracking-tight">{timeLeft.m.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] text-zinc-500 font-medium tracking-[0.1em] uppercase mt-0.5">m</span>
             </div>
-            <span className="text-3xl font-black text-[#0052FF] translate-y-[-10px]">:</span>
+            <span className="text-xl font-medium text-[#0052FF] translate-y-[-10px] block mx-0.5">:</span>
             <div className="flex flex-col items-center">
-                <span className="text-4xl sm:text-5xl font-black text-[#0052FF] tracking-tighter">{timeLeft.s.toString().padStart(2, '0')}</span>
-                <span className="text-[10px] text-[#0052FF]/70 font-bold tracking-[0.2em] uppercase mt-2">Sec</span>
+                <span className="text-3xl font-bold text-[#0052FF] tracking-tight">{timeLeft.s.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] text-[#0052FF]/70 font-medium tracking-[0.1em] uppercase mt-0.5">s</span>
             </div>
         </div>
     );
@@ -534,59 +534,49 @@ export default function Lobby({ onStart }: LobbyProps) {
                         {/* MIDDLE: Event Hero & Past Events (Flexible Grow) */}
                         <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-10 gap-4">
 
-                            {/* NEW EVENT BANNER (True Premium / High Contrast) */}
+                            {/* PREMIUM EVENT BANNER (Perfected Scale) */}
                             <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                                className="w-full relative group cursor-default mt-2 shrink-0 mb-4"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="w-full relative group cursor-default shadow-2xl"
                             >
-                                <div className="relative bg-[#020202] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl">
+                                <div className="relative bg-[#050505] border border-white/10 rounded-2xl overflow-hidden p-6 flex flex-col items-center text-center w-full box-border">
+
                                     {/* Noise texture for premium feel */}
-                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay pointer-events-none" />
+                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
 
-                                    {/* Subtle structured highlight */}
-                                    <div className="absolute top-0 left-10 right-10 w-auto h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-                                    <div className="p-8 sm:p-10 flex flex-col items-center text-center relative z-10">
-                                        {/* Status Header */}
-                                        <div className="flex items-center justify-between w-full mb-10 px-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-2 h-2 rounded-full bg-white opacity-80 animate-pulse" />
-                                                <span className="text-xs font-mono font-bold tracking-[0.25em] text-zinc-400 uppercase">Incoming</span>
-                                            </div>
-                                            <span className="text-xs font-mono font-bold text-zinc-600 tracking-[0.25em] uppercase">
-                                                OMEGA
-                                            </span>
+                                    {/* Status Header */}
+                                    <div className="flex items-center justify-between w-full mb-6 relative z-10 box-border">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-[#0052FF] shadow-[0_0_8px_rgba(0,82,255,0.8)]" />
+                                            <span className="text-[10px] font-mono font-bold tracking-widest text-zinc-400">NEXT EVENT</span>
                                         </div>
+                                        <span className="text-[10px] font-mono font-bold text-zinc-600 tracking-widest uppercase">
+                                            #OMEGA
+                                        </span>
+                                    </div>
 
-                                        {/* Main Typography - Extremely strong and solid */}
-                                        <div className="flex flex-col gap-6 items-center justify-center w-full">
-                                            <h1 className="text-6xl sm:text-7xl font-sans font-black tracking-tighter text-white leading-none">
-                                                NEW ERA
-                                            </h1>
+                                    {/* Main Typography */}
+                                    <div className="flex flex-col gap-3 items-center justify-center w-full relative z-10 box-border">
+                                        <h1 className="text-3xl font-bold tracking-tight text-white m-0 p-0 leading-none">
+                                            NEW ERA
+                                        </h1>
+                                        <span className="text-[11px] font-bold text-[#0052FF] bg-[#0052FF]/10 px-3 py-1.5 rounded-full border border-[#0052FF]/20 mt-1">
+                                            Surprise Reward Pool
+                                        </span>
 
-                                            <div className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2.5 rounded-full mt-2">
-                                                <span className="text-[11px] sm:text-xs font-black text-white tracking-[0.2em] uppercase drop-shadow-sm">
-                                                    Surprise Reward Pool
-                                                </span>
-                                            </div>
+                                        <p className="text-[13px] text-zinc-400 max-w-[260px] leading-relaxed mt-1">
+                                            Prepare for an unprecedented on-chain collision.
+                                        </p>
+                                    </div>
 
-                                            <p className="text-[13px] font-medium text-zinc-400 max-w-[280px] leading-relaxed mt-2 uppercase tracking-wide">
-                                                Prepare for an unprecedented <br className="hidden sm:block" /> on-chain collision.
-                                            </p>
-                                        </div>
-
-                                        {/* Minimalist Structured Countdown */}
-                                        <div className="w-full mt-10 bg-[#050505] border border-white/5 rounded-2xl p-6 sm:p-8 flex flex-col items-center gap-8 relative overflow-hidden group-hover:border-white/10 transition-colors">
-                                            <span className="text-[10px] font-bold text-zinc-500 tracking-[0.3em] uppercase">
-                                                Decryption Sequence
-                                            </span>
-
-                                            <div className="scale-[0.8] sm:scale-100">
-                                                <CountdownTimer targetDate={new Date('2026-03-01T12:00:00Z')} />
-                                            </div>
-                                        </div>
+                                    {/* Countdown Container */}
+                                    <div className="w-full mt-6 bg-black/40 border border-white/5 rounded-xl p-4 flex flex-col items-center gap-3 relative z-10 box-border">
+                                        <span className="text-[10px] font-mono font-medium text-zinc-500 tracking-widest uppercase">
+                                            Decryption Sequence
+                                        </span>
+                                        <CountdownTimer targetDate={new Date('2026-03-01T12:00:00Z')} />
                                     </div>
                                 </div>
                             </motion.div>
