@@ -522,69 +522,76 @@ export default function Lobby({ onStart }: LobbyProps) {
                         {/* MIDDLE: Event Hero & Past Events (Flexible Grow) */}
                         <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-10 gap-4">
 
-                            {/* NEW EVENT BANNER (Striking & Hyped) */}
+                            {/* NEW EVENT BANNER (Extreme Anomaly Aesthetic) */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.5, ease: "easeOut" }}
                                 className="w-full relative group cursor-default mt-2 shrink-0"
                             >
-                                {/* Glowing backdrop */}
-                                <div className="absolute -inset-1 bg-gradient-to-r from-red-600 via-purple-600 to-[#0052FF] rounded-3xl blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-700 animate-pulse" />
+                                {/* Glowing backdrop - hyper aggressive */}
+                                <div className="absolute -inset-2 bg-gradient-to-r from-[#D900FF] via-[#0052FF] to-[#00FFFF] rounded-3xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500 animate-pulse" />
 
-                                <div className="relative bg-[#020202] border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+                                <div className="relative bg-[#020202] border border-white/20 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,82,255,0.5)]">
                                     {/* Scanline overlay */}
-                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none" />
-                                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent bg-[length:100%_4px] animate-scan pointer-events-none" />
+                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+                                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.05] to-transparent bg-[length:100%_4px] animate-scan pointer-events-none" />
+
+                                    {/* Glitch artifacts */}
+                                    <div className="absolute top-1/4 left-0 w-full h-[2px] bg-[#00FFFF]/30 animate-pulse" />
+                                    <div className="absolute bottom-1/3 left-0 w-full h-[1px] bg-[#D900FF]/30 animate-ping" />
 
                                     <div className="p-8 flex flex-col items-center text-center relative z-10">
                                         {/* Status Header */}
                                         <div className="flex items-center justify-between w-full mb-6">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
-                                                <span className="text-[10px] font-black tracking-widest text-red-500 uppercase">Classified Signal</span>
+                                                <div className="w-2 h-2 rounded-full bg-[#00FFFF] animate-ping" />
+                                                <div className="w-2 h-2 absolute rounded-full bg-[#00FFFF]" />
+                                                <span className="text-[10px] font-black tracking-[0.3em] text-[#00FFFF] uppercase">Anomaly Detected</span>
                                             </div>
-                                            <span className="text-[10px] font-mono text-zinc-500 tracking-widest border border-white/10 px-2 py-0.5 rounded backdrop-blur-md">
-                                                ID: OMEGA
+                                            <span className="text-[10px] font-bold text-[#D900FF] tracking-widest border border-[#D900FF]/30 bg-[#D900FF]/10 px-2 py-0.5 rounded shadow-[0_0_10px_rgba(217,0,255,0.4)]">
+                                                SECTOR 7
                                             </span>
                                         </div>
 
                                         {/* Main Typography */}
                                         <div className="flex flex-col gap-1 items-center justify-center">
-                                            <h1 className="text-6xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500 italic tracking-tighter leading-none drop-shadow-2xl">
-                                                NEW <span className="text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)] text-stroke-sm">ERA</span>
+                                            <h1 className="text-6xl sm:text-7xl font-black text-white italic tracking-tighter leading-none drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+                                                THE <span className="text-transparent bg-clip-text bg-gradient-to-br from-[#00FFFF] to-[#D900FF] drop-shadow-[0_0_30px_rgba(0,255,255,0.8)]">VOID</span>
                                             </h1>
+                                            <h2 className="text-4xl sm:text-5xl font-black text-zinc-500 italic tracking-tighter leading-none uppercase -mt-2">
+                                                Awakens
+                                            </h2>
 
-                                            <div className="mt-4 inline-flex relative group/badge">
-                                                <div className="absolute inset-0 bg-[#0052FF] blur-md opacity-40 group-hover/badge:opacity-70 transition-opacity animate-pulse" />
-                                                <span className="relative bg-[#0052FF]/10 border border-[#0052FF]/40 text-[#0052FF] font-bold text-xs tracking-[0.2em] uppercase px-4 py-1.5 rounded-full shadow-[0_0_20px_rgba(0,82,255,0.3)]">
-                                                    Surprise Reward Pool
+                                            <div className="mt-5 inline-flex relative group/badge">
+                                                <div className="absolute inset-0 bg-gradient-to-r from-[#00FFFF] to-[#D900FF] blur-md opacity-50 animate-pulse" />
+                                                <span className="relative bg-black border border-white/20 text-white font-black text-[11px] tracking-[0.2em] uppercase px-5 py-2 rounded-full shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                                                    Colossal Reward Pool
                                                 </span>
                                             </div>
-
-                                            <p className="mt-4 text-xs font-mono text-zinc-400 max-w-[240px] leading-relaxed opacity-80">
-                                                Prepare for an unprecedented <br />on-chain collision.
-                                            </p>
                                         </div>
 
                                         {/* Precision Countdown Vault */}
-                                        <div className="w-full mt-8 bg-black/60 border border-white/10 rounded-xl p-5 shadow-inner relative overflow-hidden">
-                                            {/* Decorative corner accents */}
-                                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-zinc-500" />
-                                            <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-zinc-500" />
-                                            <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-zinc-500" />
-                                            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-zinc-500" />
+                                        <div className="w-full mt-8 bg-black/80 border border-white/20 rounded-xl p-5 shadow-[inset_0_0_20px_rgba(0,0,0,1)] relative overflow-hidden group-hover:border-[#00FFFF]/50 transition-colors">
+                                            {/* Decorative frames */}
+                                            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#00FFFF]/50 to-transparent" />
+                                            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#D900FF]/50 to-transparent" />
 
                                             <div className="flex items-center justify-center gap-2 w-full mb-3">
-                                                <span className="text-[10px] text-zinc-500 font-mono tracking-widest uppercase flex items-center gap-2">
-                                                    <span className="w-3 h-[1px] bg-zinc-500" />
-                                                    Decryption Sequence
-                                                    <span className="w-3 h-[1px] bg-zinc-500" />
+                                                <span className="text-[10px] text-[#00FFFF] font-mono tracking-widest uppercase flex items-center gap-2 opacity-80">
+                                                    <span className="w-1.5 h-1.5 rounded-sm bg-[#00FFFF]" />
+                                                    Event Horizon In
+                                                    <span className="w-1.5 h-1.5 rounded-sm bg-[#00FFFF]" />
                                                 </span>
                                             </div>
 
-                                            <div className="scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] mt-1">
+                                            <div className="scale-110 drop-shadow-[0_0_15px_rgba(0,255,255,0.3)] mt-1">
                                                 <CountdownTimer targetDate={new Date('2026-03-01T12:00:00Z')} />
+                                                <div className="flex justify-center mt-2">
+                                                    <span className="text-[8px] text-[#D900FF]/60 font-mono uppercase tracking-[0.5em] animate-pulse">
+                                                        Prepare For Impact
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -677,6 +684,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                                 handleStartTraining();
                                             }}
                                             className="w-full py-3.5 bg-white text-black hover:bg-zinc-200 transition-colors rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                                            style={{ backgroundColor: '#ffffff', color: '#000000' }}
                                         >
                                             ENTER CAMP <span className="text-[10px] opacity-70 block mt-0.5">(FREE)</span>
                                         </button>
