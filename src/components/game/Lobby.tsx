@@ -43,14 +43,26 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
     }, [targetDate]);
 
     return (
-        <div className="flex justify-center items-center gap-1.5 font-mono">
-            <span className="text-sm font-bold text-white">{timeLeft.d.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">d</span>
-            <span className="text-zinc-700 mx-0.5">:</span>
-            <span className="text-sm font-bold text-white">{timeLeft.h.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">h</span>
-            <span className="text-zinc-700 mx-0.5">:</span>
-            <span className="text-sm font-bold text-white">{timeLeft.m.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">m</span>
-            <span className="text-zinc-700 mx-0.5">:</span>
-            <span className="text-sm font-bold text-[#0052FF]">{timeLeft.s.toString().padStart(2, '0')}</span><span className="text-[10px] text-[#0052FF]/70">s</span>
+        <div className="flex justify-center items-baseline gap-3 sm:gap-6 font-mono">
+            <div className="flex flex-col items-center">
+                <span className="text-4xl sm:text-5xl font-black text-white tracking-tighter">{timeLeft.d.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] text-zinc-500 font-bold tracking-[0.2em] uppercase mt-2">Days</span>
+            </div>
+            <span className="text-3xl font-black text-zinc-800 translate-y-[-10px]">:</span>
+            <div className="flex flex-col items-center">
+                <span className="text-4xl sm:text-5xl font-black text-white tracking-tighter">{timeLeft.h.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] text-zinc-500 font-bold tracking-[0.2em] uppercase mt-2">Hrs</span>
+            </div>
+            <span className="text-3xl font-black text-zinc-800 translate-y-[-10px]">:</span>
+            <div className="flex flex-col items-center">
+                <span className="text-4xl sm:text-5xl font-black text-white tracking-tighter">{timeLeft.m.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] text-zinc-500 font-bold tracking-[0.2em] uppercase mt-2">Min</span>
+            </div>
+            <span className="text-3xl font-black text-[#0052FF] translate-y-[-10px]">:</span>
+            <div className="flex flex-col items-center">
+                <span className="text-4xl sm:text-5xl font-black text-[#0052FF] tracking-tighter">{timeLeft.s.toString().padStart(2, '0')}</span>
+                <span className="text-[10px] text-[#0052FF]/70 font-bold tracking-[0.2em] uppercase mt-2">Sec</span>
+            </div>
         </div>
     );
 };
@@ -522,71 +534,57 @@ export default function Lobby({ onStart }: LobbyProps) {
                         {/* MIDDLE: Event Hero & Past Events (Flexible Grow) */}
                         <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-10 gap-4">
 
-                            {/* NEW EVENT BANNER (Premium Obsidian Aesthetic) */}
+                            {/* NEW EVENT BANNER (True Premium / High Contrast) */}
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                                className="w-full relative group cursor-default mt-2 shrink-0 mb-2"
+                                className="w-full relative group cursor-default mt-2 shrink-0 mb-4"
                             >
-                                {/* Subtle interaction glow */}
-                                <div className="absolute -inset-0.5 bg-gradient-to-b from-white/10 to-transparent rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-
-                                <div className="relative bg-[#020202] border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl">
+                                <div className="relative bg-[#020202] border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl">
                                     {/* Noise texture for premium feel */}
-                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
+                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay pointer-events-none" />
 
-                                    {/* Very subtle top highlight */}
-                                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                                    {/* Subtle structured highlight */}
+                                    <div className="absolute top-0 left-10 right-10 w-auto h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-                                    <div className="p-8 flex flex-col items-center text-center relative z-10">
+                                    <div className="p-8 sm:p-10 flex flex-col items-center text-center relative z-10">
                                         {/* Status Header */}
-                                        <div className="flex items-center justify-between w-full mb-8">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                                                <span className="text-[10px] font-mono font-medium tracking-[0.2em] text-zinc-400 uppercase">Incoming Signal</span>
+                                        <div className="flex items-center justify-between w-full mb-10 px-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-2 h-2 rounded-full bg-white opacity-80 animate-pulse" />
+                                                <span className="text-xs font-mono font-bold tracking-[0.25em] text-zinc-400 uppercase">Incoming</span>
                                             </div>
-                                            <span className="text-[10px] font-mono text-zinc-500 tracking-widest uppercase">
-                                                ID: OMEGA
+                                            <span className="text-xs font-mono font-bold text-zinc-600 tracking-[0.25em] uppercase">
+                                                OMEGA
                                             </span>
                                         </div>
 
-                                        {/* Main Typography */}
-                                        <div className="flex flex-col gap-2 items-center justify-center w-full">
-                                            <div className="relative">
-                                                {/* Text blur behind for depth */}
-                                                <h1 className="absolute inset-0 text-5xl sm:text-6xl font-black italic tracking-tighter text-white opacity-20 blur-xl">
-                                                    NEW ERA
-                                                </h1>
-                                                <h1 className="text-5xl sm:text-6xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-zinc-500 relative z-10">
-                                                    NEW <span className="text-zinc-600">ERA</span>
-                                                </h1>
-                                            </div>
+                                        {/* Main Typography - Extremely strong and solid */}
+                                        <div className="flex flex-col gap-6 items-center justify-center w-full">
+                                            <h1 className="text-6xl sm:text-7xl font-sans font-black tracking-tighter text-white leading-none">
+                                                NEW ERA
+                                            </h1>
 
-                                            <div className="mt-4 flex flex-col items-center gap-3">
-                                                <span className="text-[10px] sm:text-xs font-mono text-zinc-300 tracking-[0.2em] uppercase border border-white/10 px-4 py-1.5 rounded-full bg-[#050505]">
+                                            <div className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2.5 rounded-full mt-2">
+                                                <span className="text-[11px] sm:text-xs font-black text-white tracking-[0.2em] uppercase drop-shadow-sm">
                                                     Surprise Reward Pool
                                                 </span>
-                                                <p className="text-[11px] font-mono text-zinc-500 max-w-[260px] leading-relaxed">
-                                                    Prepare for an unprecedented on-chain collision.
-                                                </p>
                                             </div>
+
+                                            <p className="text-[13px] font-medium text-zinc-400 max-w-[280px] leading-relaxed mt-2 uppercase tracking-wide">
+                                                Prepare for an unprecedented <br className="hidden sm:block" /> on-chain collision.
+                                            </p>
                                         </div>
 
-                                        {/* Minimalist Countdown */}
-                                        <div className="w-full mt-10 pt-6 border-t border-white/5 flex flex-col items-center gap-4 relative">
-                                            <span className="text-[9px] text-zinc-600 font-mono tracking-[0.3em] uppercase">
+                                        {/* Minimalist Structured Countdown */}
+                                        <div className="w-full mt-10 bg-[#050505] border border-white/5 rounded-2xl p-6 sm:p-8 flex flex-col items-center gap-8 relative overflow-hidden group-hover:border-white/10 transition-colors">
+                                            <span className="text-[10px] font-bold text-zinc-500 tracking-[0.3em] uppercase">
                                                 Decryption Sequence
                                             </span>
 
-                                            <div className="scale-110 drop-shadow-lg">
+                                            <div className="scale-[0.8] sm:scale-100">
                                                 <CountdownTimer targetDate={new Date('2026-03-01T12:00:00Z')} />
-
-                                                <div className="flex justify-center mt-4">
-                                                    <span className="text-[8px] text-zinc-600 font-mono uppercase tracking-[0.4em]">
-                                                        Stand By
-                                                    </span>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
