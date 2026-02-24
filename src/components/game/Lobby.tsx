@@ -522,45 +522,70 @@ export default function Lobby({ onStart }: LobbyProps) {
                         {/* MIDDLE: Event Hero & Past Events (Flexible Grow) */}
                         <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-10 gap-4">
 
-                            {/* NEW EVENT BANNER (Base Official Aesthetic) */}
+                            {/* NEW EVENT BANNER (Striking & Hyped) */}
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5, ease: "easeOut" }}
                                 className="w-full relative group cursor-default mt-2 shrink-0"
                             >
-                                <div className="absolute -inset-1 bg-gradient-to-br from-[#0052FF] to-blue-900 rounded-3xl blur-xl opacity-40 group-hover:opacity-70 transition-opacity animate-pulse" />
-                                <div className="relative bg-[#0A0A0A] border border-white/10 rounded-2xl p-8 overflow-hidden transform transition-transform group-hover:scale-[1.02]">
+                                {/* Glowing backdrop */}
+                                <div className="absolute -inset-1 bg-gradient-to-r from-red-600 via-purple-600 to-[#0052FF] rounded-3xl blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-700 animate-pulse" />
 
-                                    {/* "Incoming" Badge */}
-                                    <div className="absolute top-4 left-4 flex items-center gap-2">
-                                        <span className="relative flex h-2 w-2">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0052FF] opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0052FF]"></span>
-                                        </span>
-                                        <span className="text-[9px] font-black text-[#0052FF] tracking-widest">TRANSMISSION</span>
-                                    </div>
+                                <div className="relative bg-[#020202] border border-white/10 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+                                    {/* Scanline overlay */}
+                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none" />
+                                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent bg-[length:100%_4px] animate-scan pointer-events-none" />
 
-                                    <div className="absolute top-0 right-0 p-6 opacity-30">
-                                        <span className="text-6xl filter grayscale opacity-50">🌐</span>
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 mt-4 text-center items-center">
-                                        <h1 className="text-5xl font-black text-white italic tracking-[-0.05em] leading-none drop-shadow-lg uppercase">
-                                            NEXT <span className="text-[#0052FF]">EVENT</span>
-                                        </h1>
-                                        <p className="text-[#0052FF] font-mono text-[10px] tracking-[0.2em] font-bold uppercase mt-2 bg-[#0052FF]/10 border border-[#0052FF]/20 px-3 py-1 rounded-full shadow-[0_0_15px_rgba(0,82,255,0.2)]">
-                                            Surprise Reward Pool
-                                        </p>
-                                    </div>
-
-                                    {/* 5-Day Countdown */}
-                                    <div className="w-full bg-[#030303] border border-white/5 rounded-xl p-5 shadow-inner mt-8 flex flex-col items-center gap-3">
-                                        <div className="flex items-center justify-center gap-2 w-full border-b border-white/5 pb-3">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse" />
-                                            <div className="text-[10px] text-zinc-400 font-mono tracking-widest uppercase">Decryption In Progress</div>
+                                    <div className="p-8 flex flex-col items-center text-center relative z-10">
+                                        {/* Status Header */}
+                                        <div className="flex items-center justify-between w-full mb-6">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
+                                                <span className="text-[10px] font-black tracking-widest text-red-500 uppercase">Classified Signal</span>
+                                            </div>
+                                            <span className="text-[10px] font-mono text-zinc-500 tracking-widest border border-white/10 px-2 py-0.5 rounded backdrop-blur-md">
+                                                ID: OMEGA
+                                            </span>
                                         </div>
-                                        <div className="scale-110 mt-1">
-                                            <CountdownTimer targetDate={new Date(Date.now() + 120 * 60 * 60 * 1000)} />
+
+                                        {/* Main Typography */}
+                                        <div className="flex flex-col gap-1 items-center justify-center">
+                                            <h1 className="text-6xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500 italic tracking-tighter leading-none drop-shadow-2xl">
+                                                NEW <span className="text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.8)] text-stroke-sm">ERA</span>
+                                            </h1>
+
+                                            <div className="mt-4 inline-flex relative group/badge">
+                                                <div className="absolute inset-0 bg-[#0052FF] blur-md opacity-40 group-hover/badge:opacity-70 transition-opacity animate-pulse" />
+                                                <span className="relative bg-[#0052FF]/10 border border-[#0052FF]/40 text-[#0052FF] font-bold text-xs tracking-[0.2em] uppercase px-4 py-1.5 rounded-full shadow-[0_0_20px_rgba(0,82,255,0.3)]">
+                                                    Surprise Reward Pool
+                                                </span>
+                                            </div>
+
+                                            <p className="mt-4 text-xs font-mono text-zinc-400 max-w-[240px] leading-relaxed opacity-80">
+                                                Prepare for an unprecedented <br />on-chain collision.
+                                            </p>
+                                        </div>
+
+                                        {/* Precision Countdown Vault */}
+                                        <div className="w-full mt-8 bg-black/60 border border-white/10 rounded-xl p-5 shadow-inner relative overflow-hidden">
+                                            {/* Decorative corner accents */}
+                                            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-zinc-500" />
+                                            <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-zinc-500" />
+                                            <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-zinc-500" />
+                                            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-zinc-500" />
+
+                                            <div className="flex items-center justify-center gap-2 w-full mb-3">
+                                                <span className="text-[10px] text-zinc-500 font-mono tracking-widest uppercase flex items-center gap-2">
+                                                    <span className="w-3 h-[1px] bg-zinc-500" />
+                                                    Decryption Sequence
+                                                    <span className="w-3 h-[1px] bg-zinc-500" />
+                                                </span>
+                                            </div>
+
+                                            <div className="scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] mt-1">
+                                                <CountdownTimer targetDate={new Date('2026-03-01T12:00:00Z')} />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
