@@ -50,7 +50,7 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
             <span className="text-zinc-700 mx-0.5">:</span>
             <span className="text-sm font-bold text-white">{timeLeft.m.toString().padStart(2, '0')}</span><span className="text-[10px] text-zinc-500">m</span>
             <span className="text-zinc-700 mx-0.5">:</span>
-            <span className="text-sm font-bold text-[#D900FF]">{timeLeft.s.toString().padStart(2, '0')}</span><span className="text-[10px] text-[#D900FF]/70">s</span>
+            <span className="text-sm font-bold text-[#0052FF]">{timeLeft.s.toString().padStart(2, '0')}</span><span className="text-[10px] text-[#0052FF]/70">s</span>
         </div>
     );
 };
@@ -205,7 +205,7 @@ export default function Lobby({ onStart }: LobbyProps) {
         }
     }, [isChecking]);
 
-    const [isTrainingExpanded, setIsTrainingExpanded] = useState(false);
+
     const [hasEventAccess, setHasEventAccess] = useState(false);
     const { setMode } = useGameStore();
 
@@ -521,43 +521,56 @@ export default function Lobby({ onStart }: LobbyProps) {
 
                         {/* MIDDLE: Event Hero & Past Events (Flexible Grow) */}
                         <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-10 gap-4">
-                            {/* NEW EVENT BANNER (48H Countdown) */}
+
+                            {/* NEW EVENT BANNER (Base Official Aesthetic) */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="w-full relative group cursor-default"
+                                className="w-full relative group cursor-default mt-2 shrink-0"
                             >
-                                <div className="absolute -inset-2 bg-gradient-to-tr from-[#D900FF] to-[#0052FF] rounded-3xl blur-2xl opacity-40 animate-pulse" />
-                                <div className="relative bg-black border border-[#D900FF]/30 rounded-2xl p-6 overflow-hidden flex flex-col items-center text-center shadow-2xl">
-                                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                                        <span className="text-6xl">🛸</span>
-                                    </div>
-                                    <span className="bg-[#D900FF]/10 text-[#D900FF] font-mono font-bold text-[10px] tracking-widest px-3 py-1 rounded-full uppercase mb-4 border border-[#D900FF]/20 shadow-[0_0_15px_rgba(217,0,255,0.2)]">
-                                        Signal Detected
-                                    </span>
-                                    <h2 className="text-4xl font-black italic text-white tracking-tighter uppercase mb-2 drop-shadow-lg">
-                                        NEXT <span className="text-[#D900FF] drop-shadow-[0_0_15px_rgba(217,0,255,0.8)]">MISSION</span>
-                                    </h2>
-                                    <p className="text-[11px] text-zinc-400 font-mono mb-6 max-w-[220px] leading-relaxed">
-                                        A new challenge approaches the Base network. Prepare your reflexes.
-                                    </p>
+                                <div className="absolute -inset-1 bg-gradient-to-br from-[#0052FF] to-blue-900 rounded-3xl blur-xl opacity-40 group-hover:opacity-70 transition-opacity animate-pulse" />
+                                <div className="relative bg-[#0A0A0A] border border-white/10 rounded-2xl p-8 overflow-hidden transform transition-transform group-hover:scale-[1.02]">
 
-                                    {/* 5-Day Countdown - Hardcoded for visual precision based on user request (e.g. 5 days from now) */}
-                                    <div className="w-full bg-[#050505] border border-white/5 rounded-xl p-4 shadow-inner">
-                                        <div className="flex items-center justify-center gap-2 mb-2">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-[#D900FF] animate-ping" />
-                                            <div className="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">Unlocks In</div>
+                                    {/* "Incoming" Badge */}
+                                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                                        <span className="relative flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0052FF] opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0052FF]"></span>
+                                        </span>
+                                        <span className="text-[9px] font-black text-[#0052FF] tracking-widest">TRANSMISSION</span>
+                                    </div>
+
+                                    <div className="absolute top-0 right-0 p-6 opacity-30">
+                                        <span className="text-6xl filter grayscale opacity-50">🌐</span>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2 mt-4 text-center items-center">
+                                        <h1 className="text-5xl font-black text-white italic tracking-[-0.05em] leading-none drop-shadow-lg uppercase">
+                                            NEXT <span className="text-[#0052FF]">EVENT</span>
+                                        </h1>
+                                        <p className="text-[#0052FF] font-mono text-[10px] tracking-[0.2em] font-bold uppercase mt-2 bg-[#0052FF]/10 border border-[#0052FF]/20 px-3 py-1 rounded-full shadow-[0_0_15px_rgba(0,82,255,0.2)]">
+                                            Surprise Reward Pool
+                                        </p>
+                                    </div>
+
+                                    {/* 5-Day Countdown */}
+                                    <div className="w-full bg-[#030303] border border-white/5 rounded-xl p-5 shadow-inner mt-8 flex flex-col items-center gap-3">
+                                        <div className="flex items-center justify-center gap-2 w-full border-b border-white/5 pb-3">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse" />
+                                            <div className="text-[10px] text-zinc-400 font-mono tracking-widest uppercase">Decryption In Progress</div>
                                         </div>
-                                        <CountdownTimer targetDate={new Date(Date.now() + 120 * 60 * 60 * 1000)} />
+                                        <div className="scale-110 mt-1">
+                                            <CountdownTimer targetDate={new Date(Date.now() + 120 * 60 * 60 * 1000)} />
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
 
                             {/* PAST EVENTS ACCORDION */}
-                            <div className="w-full flex flex-col gap-2 mt-2">
+                            <div className="w-full flex flex-col gap-2 mt-2 shrink-0">
                                 <button
                                     onClick={() => setShowPastEvents(!showPastEvents)}
-                                    className="w-full flex items-center justify-between p-3.5 bg-black hover:bg-white/5 border border-white/5 rounded-xl transition-all group"
+                                    className="w-full flex items-center justify-between p-3.5 bg-black hover:bg-white/5 border border-white/5 rounded-xl transition-all group shrink-0"
                                 >
                                     <div className="flex items-center gap-2">
                                         <span className="text-xs font-mono font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-widest transition-colors">
@@ -610,83 +623,74 @@ export default function Lobby({ onStart }: LobbyProps) {
                                     )}
                                 </AnimatePresence>
                             </div>
-                        </div>
 
-
-                        {/* BOTTOM: TRAINING EXPANDER (Fixed/Overlay) */}
-                        <motion.div
-                            initial={false}
-                            animate={{
-                                height: isTrainingExpanded ? "60%" : "80px",
-                                backgroundColor: isTrainingExpanded ? "#0A0A0A" : "transparent"
-                            }}
-                            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-                            className={`w-full max-w-md mx-auto rounded-t-3xl border-t border-white/10 overflow-hidden relative z-30 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] ${isTrainingExpanded ? "absolute bottom-0 inset-x-0" : "shrink-0 bg-[#0A0A0A]/80 backdrop-blur-md"}`}
-                        >
-                            {/* Handle / Header */}
-                            <div
-                                onClick={() => setIsTrainingExpanded(!isTrainingExpanded)}
-                                className="w-full h-[80px] flex items-center justify-between px-8 cursor-pointer group hover:bg-white/5 transition-colors absolute top-0 left-0 z-20"
-                            >
-                                <div className="flex flex-col items-start gap-1">
-                                    <h3 className="text-lg font-bold text-zinc-300 font-space uppercase tracking-widest group-hover:text-white transition-colors">
-                                        TRAINING
+                            {/* TRAINING CAMP CARD */}
+                            <div className="w-full flex mt-4 flex-col gap-3 shrink-0 mb-10">
+                                <div className="flex items-center gap-2 mb-1 px-2">
+                                    <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full" />
+                                    <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest font-mono">
+                                        Training Camp
                                     </h3>
-                                    <span className="text-[9px] font-mono text-zinc-600">
-                                        {isTrainingExpanded ? "TAP TO CLOSE" : "TAP TO EXPAND"}
-                                    </span>
                                 </div>
-                                <div className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-zinc-500 transition-transform duration-300 ${isTrainingExpanded ? "rotate-90 bg-white text-black border-transparent" : "-rotate-90"}`}>
-                                    →
-                                </div>
-                            </div>
+                                <div className="bg-[#050505] border border-white/5 rounded-2xl p-5 flex flex-col gap-5 relative overflow-hidden group">
+                                    {/* Background Accent */}
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-white/10 transition-colors" />
 
-                            {/* EXPANDED CONTENT */}
-                            <div className={`pt-[100px] pb-6 px-6 h-full flex flex-col gap-6 overflow-hidden ${isTrainingExpanded ? "opacity-100" : "opacity-0"}`}>
-
-                                <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleStartTraining();
-                                    }}
-                                    className="w-full h-14 font-space font-black uppercase tracking-widest rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.5)] flex items-center justify-center gap-2 shrink-0 relative z-50 pointer-events-auto"
-                                    style={{ backgroundColor: '#ffffff', color: '#000000' }}
-                                >
-                                    <span>START TRAINING</span>
-                                    <span className="text-xs font-bold opacity-60">(FREE)</span>
-                                </button>
-
-                                {/* Embedded Leaderboard */}
-                                <div className="flex-1 flex flex-col bg-white/5 rounded-xl border border-white/5 overflow-hidden">
-                                    <div className="px-4 py-3 border-b border-white/5 bg-black/20 flex justify-between items-center">
-                                        <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
-                                            GLOBAL STANDINGS
-                                        </span>
-                                        <span className="text-[9px] font-bold text-[#0052FF]">NO PRIZES</span>
-                                    </div>
-
-                                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                                        {isScanningList ? (
-                                            <div className="flex justify-center py-8">
-                                                <span className="text-[10px] text-zinc-600 font-mono animate-pulse">LOADING DATA...</span>
+                                    <div className="flex flex-col relative z-10 w-full gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <span className="text-xl font-black text-white italic tracking-tighter uppercase">FREE PRACTICE</span>
+                                                <span className="text-[10px] text-zinc-500 font-mono mt-0.5">Global Leaderboard. No Prizes.</span>
                                             </div>
-                                        ) : (
-                                            leaderboard.slice(0, 15).map((entry, i) => (
-                                                <div key={i} className="flex items-center justify-between p-2 rounded hover:bg-white/5 transition-colors text-xs font-mono">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className={`${i < 3 ? "text-white font-bold" : "text-zinc-600"}`}>{i + 1}</span>
-                                                        <span className="text-zinc-300 truncate max-w-[120px]">{entry.name}</span>
+                                            <span className="text-3xl grayscale opacity-30 group-hover:grayscale-0 group-hover:opacity-100 transition-all">🎯</span>
+                                        </div>
+
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                handleStartTraining();
+                                            }}
+                                            className="w-full py-3.5 bg-white text-black hover:bg-zinc-200 transition-colors rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                                        >
+                                            ENTER CAMP <span className="text-[10px] opacity-70 block mt-0.5">(FREE)</span>
+                                        </button>
+
+                                        {/* Embedded Leaderboard */}
+                                        <div className="w-full bg-[#020202] border border-white/5 rounded-xl overflow-hidden flex flex-col h-[180px]">
+                                            <div className="px-3 py-2 border-b border-white/5 bg-white/5 flex justify-between items-center shrink-0">
+                                                <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+                                                    <span className="w-1 h-1 rounded-full bg-zinc-500"></span>
+                                                    Global Standings
+                                                </span>
+                                            </div>
+
+                                            <div className="flex-1 overflow-y-auto p-2 space-y-0.5 scrollbar-hide">
+                                                {isScanningList ? (
+                                                    <div className="flex justify-center py-6">
+                                                        <span className="text-[10px] text-zinc-600 font-mono animate-pulse">LOADING DATA...</span>
                                                     </div>
-                                                    <span className="text-zinc-500">{entry.score}</span>
-                                                </div>
-                                            ))
-                                        )}
+                                                ) : leaderboard.length === 0 ? (
+                                                    <div className="flex justify-center py-6">
+                                                        <span className="text-[10px] text-zinc-600 font-mono">NO DATA</span>
+                                                    </div>
+                                                ) : (
+                                                    leaderboard.slice(0, 15).map((entry, i) => (
+                                                        <div key={i} className="flex items-center justify-between p-2 rounded hover:bg-white/5 transition-colors text-[11px] font-mono">
+                                                            <div className="flex items-center gap-3">
+                                                                <span className={`${i < 3 ? "text-white font-bold" : "text-zinc-600"}`}>{i + 1}</span>
+                                                                <span className="text-zinc-300 truncate max-w-[120px]">{entry.name}</span>
+                                                            </div>
+                                                            <span className="text-zinc-500">{entry.score}</span>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                        </motion.div>
+                        </div>
 
                     </motion.div>
                 ) : (!isReady) ? (
