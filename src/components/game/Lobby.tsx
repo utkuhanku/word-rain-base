@@ -542,13 +542,13 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         A new challenge approaches the Base network. Prepare your reflexes.
                                     </p>
 
-                                    {/* 48H Countdown - Hardcoded for visual precision based on user request (e.g. 48h from now = Feb 24) */}
+                                    {/* 5-Day Countdown - Hardcoded for visual precision based on user request (e.g. 5 days from now) */}
                                     <div className="w-full bg-[#050505] border border-white/5 rounded-xl p-4 shadow-inner">
                                         <div className="flex items-center justify-center gap-2 mb-2">
                                             <span className="w-1.5 h-1.5 rounded-full bg-[#D900FF] animate-ping" />
                                             <div className="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">Unlocks In</div>
                                         </div>
-                                        <CountdownTimer targetDate={new Date(Date.now() + 48 * 60 * 60 * 1000)} />
+                                        <CountdownTimer targetDate={new Date(Date.now() + 120 * 60 * 60 * 1000)} />
                                     </div>
                                 </div>
                             </motion.div>
