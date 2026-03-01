@@ -534,52 +534,54 @@ export default function Lobby({ onStart }: LobbyProps) {
                         {/* MIDDLE: Event Hero & Past Events (Flexible Grow) */}
                         <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-10 gap-4">
 
-                            {/* PREMIUM EVENT BANNER (Perfected Scale) */}
-                            <motion.div
+                            {/* PREMIUM EVENT BANNER (Live) */}
+                            <motion.button
+                                onClick={() => setShowEvent(true)}
                                 initial={{ opacity: 0, scale: 0.98 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4, ease: "easeOut" }}
-                                className="w-full relative group cursor-default shadow-2xl"
+                                className="w-full relative group cursor-pointer shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
                             >
-                                <div className="relative bg-[#050505] border border-white/10 rounded-2xl overflow-hidden p-6 flex flex-col items-center text-center w-full box-border">
+                                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#0052FF]/0 via-[#0052FF]/30 to-[#0052FF]/0 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                <div className="relative bg-[#020202] border border-white/10 group-hover:border-[#0052FF]/50 rounded-2xl overflow-hidden p-6 flex flex-col items-center text-center w-full box-border transition-colors duration-500">
 
-                                    {/* Noise texture for premium feel */}
+                                    {/* Noise texture and glow for premium feel */}
                                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
+                                    <div className="absolute top-0 right-[-10%] w-32 h-32 bg-[#0052FF]/10 blur-[50px] rounded-full pointer-events-none group-hover:bg-[#0052FF]/20 transition-all duration-700" />
 
                                     {/* Status Header */}
                                     <div className="flex items-center justify-between w-full mb-6 relative z-10 box-border">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-[#0052FF] shadow-[0_0_8px_rgba(0,82,255,0.8)]" />
-                                            <span className="text-[10px] font-mono font-bold tracking-widest text-zinc-400">NEXT EVENT</span>
+                                            <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,1)] animate-pulse" />
+                                            <span className="text-[10px] font-mono font-bold tracking-widest text-red-500 uppercase">LIVE EVENT</span>
                                         </div>
-                                        <span className="text-[10px] font-mono font-bold text-zinc-600 tracking-widest uppercase">
+                                        <span className="text-[10px] font-mono font-bold text-[#0052FF]/80 tracking-widest uppercase">
                                             #OMEGA
                                         </span>
                                     </div>
 
                                     {/* Main Typography */}
-                                    <div className="flex flex-col gap-3 items-center justify-center w-full relative z-10 box-border">
-                                        <h1 className="text-3xl font-bold tracking-tight text-white m-0 p-0 leading-none">
+                                    <div className="flex flex-col gap-3 items-center justify-center w-full relative z-10 box-border pointer-events-none">
+                                        <h1 className="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 m-0 p-0 leading-none group-hover:from-white group-hover:to-white transition-all duration-500">
                                             NEW ERA
                                         </h1>
-                                        <span className="text-[11px] font-bold text-[#0052FF] bg-[#0052FF]/10 px-3 py-1.5 rounded-full border border-[#0052FF]/20 mt-1">
-                                            Surprise Reward Pool
+                                        <span className="text-[10px] font-bold text-white bg-[#0052FF] px-4 py-1 rounded-full shadow-[0_0_15px_rgba(0,82,255,0.5)] mt-1 tracking-widest uppercase">
+                                            Zero-Sum Pool
                                         </span>
 
-                                        <p className="text-[13px] text-zinc-400 max-w-[260px] leading-relaxed mt-1">
-                                            Prepare for an unprecedented on-chain collision.
+                                        <p className="text-xs text-zinc-400 max-w-[260px] leading-relaxed mt-2 font-mono group-hover:text-zinc-300 transition-colors">
+                                            The void is open. Enter the arena.
                                         </p>
                                     </div>
 
-                                    {/* Countdown Container */}
-                                    <div className="w-full mt-6 bg-black/40 border border-white/5 rounded-xl p-4 flex flex-col items-center gap-3 relative z-10 box-border">
-                                        <span className="text-[10px] font-mono font-medium text-zinc-500 tracking-widest uppercase">
-                                            Decryption Sequence
+                                    {/* Action Call */}
+                                    <div className="w-full mt-6 bg-[#0052FF] rounded-xl p-4 flex flex-col items-center justify-center gap-2 relative z-10 box-border shadow-[0_0_20px_rgba(0,82,255,0.3)] group-hover:bg-white group-hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-all duration-500">
+                                        <span className="text-xs font-black text-white group-hover:text-black tracking-widest uppercase transition-colors duration-500 flex items-center gap-2">
+                                            Enter The Event <span className="group-hover:translate-x-1 transition-transform">→</span>
                                         </span>
-                                        <CountdownTimer targetDate={new Date('2026-03-01T12:00:00Z')} />
                                     </div>
                                 </div>
-                            </motion.div>
+                            </motion.button>
 
                             {/* PAST EVENTS ACCORDION */}
                             <div className="w-full flex flex-col gap-2 mt-2 shrink-0">
