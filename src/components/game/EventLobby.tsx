@@ -61,7 +61,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         const checkAccess = async () => {
             try {
                 // 1. Check Local First (Instant)
-                const payKey = `ethdenver_entry_paid_${address}`;
+                const payKey = `omega_entry_paid_${address}`;
                 if (localStorage.getItem(payKey) === 'true') {
                     setHasPaidEntry(true);
                 }
@@ -146,7 +146,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 });
 
                 // SAVE LOCAL STATE
-                const payKey = `ethdenver_entry_paid_${address}`;
+                const payKey = `omega_entry_paid_${address}`;
                 localStorage.setItem(payKey, 'true');
                 setHasPaidEntry(true);
 
@@ -178,85 +178,107 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 </button>
                 <div className="flex flex-col items-center">
                     <h1 className="text-lg font-black italic tracking-widest uppercase text-white">
-                        ETHDENVER <span className="text-[#3B82F6]">SPECIAL</span>
+                        <span className="text-[#3B82F6]">#</span>OMEGA
                     </h1>
                     <span className="text-[10px] text-zinc-500 tracking-[0.2em] uppercase">OFFICIAL EVENT</span>
                 </div>
                 <div className="w-10" /> {/* Spacer */}
             </div>
 
-            {/* Minimal Countdown Banner */}
-            <div className="w-full flex items-center justify-between px-6 py-3 border-b border-white/5 bg-[#050505] relative z-20">
-                <span className="text-[10px] text-zinc-500 tracking-widest uppercase font-mono">Status</span>
-                <span className="text-[10px] font-bold text-red-500 animate-pulse tracking-widest uppercase">EVENT CONCLUDED</span>
+            {/* Premium Countdown Banner Header */}
+            <div className="w-full flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#020202] relative z-20 shadow-xl">
+                <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#0052FF] animate-pulse shadow-[0_0_8px_rgba(0,82,255,0.8)]" />
+                    <span className="text-[10px] text-[#0052FF] font-bold tracking-widest uppercase font-mono">LIVE ZERO-SUM</span>
+                </div>
+                <div className="flex bg-[#0052FF]/10 text-[#0052FF] px-3 py-1.5 border border-[#0052FF]/20 rounded-full">
+                    <span className="text-[11px] font-bold tracking-widest uppercase font-mono">
+                        SURPRISE POOL
+                    </span>
+                </div>
             </div>
 
             {/* Main Content */}
             <div className="flex-1 overflow-y-auto p-6 relative z-10 scrollbar-hide space-y-6">
 
                 {/* Prize Pool Card */}
-                <div className="relative overflow-hidden rounded-2xl border border-[#3B82F6]/30 bg-[#3B82F6]/5 p-6 text-center">
-                    <div className="text-xs text-[#3B82F6] font-bold tracking-widest mb-1">TOTAL PRIZE POOL</div>
-                    <div className="text-6xl font-black text-white tracking-tighter drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-                        $250
+                <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#050505] p-6 text-center group shadow-2xl">
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
+                    <div className="text-[10px] text-zinc-500 font-bold tracking-[0.3em] uppercase mb-1 drop-shadow-sm">TOTAL PRIZE POOL</div>
+                    <div className="text-6xl font-black text-white tracking-tighter drop-shadow-[-2px_-2px_0px_#0052FF,2px_2px_0px_#0052FF]">
+                        ???
                     </div>
-                    <p className="text-[10px] text-zinc-400 mt-2 font-mono">
-                        Winners announced at the end of ETHDenver.<br />
-                        Highest score single entry wins.
+                    <p className="text-[10px] text-zinc-400 mt-2 font-mono uppercase tracking-widest">
+                        A dynamic pool awaits the victor.<br />
+                        No second chances.
                     </p>
                 </div>
 
-                {/* Action Button (Disabled for past event) */}
-                <div className="w-full py-5 font-black text-xl uppercase tracking-widest rounded-xl relative overflow-hidden bg-zinc-900 border border-white/10 text-zinc-500 flex items-center justify-center cursor-not-allowed">
-                    <span className="relative z-10 flex items-center justify-center gap-3 opacity-60">
-                        EVENT CLOSED
+                {/* Action Button */}
+                <button
+                    onClick={handleEntryPayment}
+                    disabled={isProcessing}
+                    className="w-full py-5 font-black text-xl bg-white text-black hover:bg-zinc-200 uppercase tracking-widest rounded-xl relative overflow-hidden transition-all shadow-xl active:scale-[0.98] disabled:opacity-50"
+                >
+                    <span className="relative z-10 flex items-center justify-center gap-3">
+                        {isProcessing ? "PROCESSING..." : (hasPaidEntry ? "ENTER THE VOID" : "DEPOSIT 1 USDC TO ENTER")}
                     </span>
-                </div>
+                </button>
 
                 {/* Leaderboard Header */}
-                <div className="flex items-center justify-between px-1 mt-4">
-                    <h2 className="text-sm font-bold text-white tracking-wider flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse"></span>
-                        LIVE STANDINGS
+                <div className="flex items-center justify-between px-1 mt-6">
+                    <h2 className="text-sm font-bold text-white tracking-widest flex items-center gap-2 font-mono uppercase">
+                        <span className="w-1 h-1 rounded-sm bg-white"></span>
+                        Decryption Board
                     </h2>
                     <button
+                        onClick={() => {
+                            // Manual Refresh Trigger
+                            setIsRefreshing(true);
+                            fetch(`/api/leaderboard/top?limit=50&partition=omega&_t=${Date.now()}`)
+                                .then(res => res.json())
+                                .then(data => { setLeaderboard(data); setIsRefreshing(false); })
+                                .catch(() => setIsRefreshing(false));
+                        }}
                         disabled={isRefreshing}
-                        className="text-[10px] text-zinc-500 hover:text-white uppercase tracking-widest"
+                        className="text-[10px] text-[#0052FF] hover:text-white uppercase tracking-widest transition-colors font-bold"
                     >
-                        {isRefreshing ? "SYNCING..." : "AUTO-UPDATE"}
+                        {isRefreshing ? "SYNCING..." : "PULL LATEST"}
                     </button>
                 </div>
 
-                {/* Rankings - PREMIUM REDESIGN (TOP 4 PODIUM) */}
+                {/* Rankings - OMEGA REDESIGN */}
                 <div className="space-y-6 pb-20">
                     {leaderboard.length === 0 ? (
-                        <div className="text-center py-20 border border-dashed border-white/5 rounded-3xl bg-white/5 mx-6">
-                            <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest animate-pulse">Waiting for Players...</p>
+                        <div className="text-center py-20 border border-white/5 rounded-3xl bg-black/50 mx-6 shadow-inner">
+                            <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-widest animate-pulse">Scanning the void for signals...</p>
                         </div>
                     ) : (
                         <>
                             {/* UNIFIED DATA TABLE */}
                             <div className="flex flex-col w-full rounded-2xl bg-[#030303] border border-white/5 overflow-hidden shadow-2xl pb-4">
                                 {leaderboard.map((entry: any, i) => {
-                                    const isTop4 = i < 4;
+                                    const isTop = i === 0;
+                                    const isTop3 = i > 0 && i < 3;
                                     return (
                                         <div
                                             key={entry.member || entry.address}
                                             onClick={() => setSelectedPlayer(entry)}
-                                            className={`flex items-center justify-between p-4 border-b border-white/5 cursor-pointer transition-all hover:bg-white/5 active:bg-white/10 ${isTop4 ? 'bg-gradient-to-r from-[#0052FF]/10 to-transparent relative overflow-hidden' : ''}`}
+                                            className={`flex items-center justify-between p-4 border-b border-white/5 cursor-pointer transition-all hover:bg-white/5 active:bg-white/10 ${isTop ? 'bg-gradient-to-r from-white/10 to-transparent relative overflow-hidden' : ''}`}
                                         >
-                                            {isTop4 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0052FF] shadow-[0_0_10px_rgba(0,82,255,0.8)]" />}
+                                            {isTop && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]" />}
+                                            {isTop3 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20" />}
 
                                             <div className="flex items-center gap-4 relative z-10 w-full px-2">
-                                                <div className={`font-mono text-sm w-6 text-center shrink-0 ${isTop4 ? 'text-[#0052FF] font-black' : 'text-zinc-600 font-bold'}`}>
+                                                <div className={`font-mono text-xs w-6 text-center shrink-0 ${isTop ? 'text-white font-black drop-shadow-[0_0_8px_rgba(255,255,255,1)]' : 'text-zinc-600 font-bold'}`}>
                                                     {i + 1}
                                                 </div>
 
                                                 <div className="relative shrink-0">
-                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border-2 ${isTop4 ? 'border-[#0052FF]/50 shadow-[0_0_15px_rgba(0,82,255,0.3)] bg-[#0052FF]/10' : 'border-white/10 bg-zinc-900 border-transparent'}`}>
-                                                        {/* FALLBACK BLUE ICON */}
-                                                        <div className="absolute inset-0 bg-gradient-to-tr from-[#0033A0] to-[#0052FF] flex items-center justify-center rounded-full">
-                                                            <svg className="w-1/2 h-1/2 text-white opacity-90 drop-shadow-md" viewBox="0 0 24 24" fill="currentColor">
+                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border ${isTop ? 'border-white/50 bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-white/10 bg-[#050505]'}`}>
+                                                        {/* FALLBACK ICON */}
+                                                        <div className={`absolute inset-0 flex items-center justify-center rounded-full ${isTop ? 'bg-gradient-to-br from-zinc-700 to-black' : 'bg-black'}`}>
+                                                            <svg className={`w-1/2 h-1/2 ${isTop ? 'text-white' : 'text-zinc-600'} opacity-80`} viewBox="0 0 24 24" fill="currentColor">
                                                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                                             </svg>
                                                         </div>
@@ -273,26 +295,26 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                                                 <div className="flex flex-col justify-center flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`font-bold text-sm truncate ${isTop4 ? 'text-white' : 'text-zinc-300'}`}>
+                                                        <span className={`font-bold text-sm truncate ${isTop3 ? 'text-white' : 'text-zinc-300'}`}>
                                                             {entry.username ? entry.username : entry.type === 'wallet' || entry.identifier?.startsWith('0x') ? <Name address={entry.identifier as `0x${string}`} /> : (entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`)}
                                                         </span>
-                                                        {isTop4 && (
+                                                        {isTop3 && (
                                                             <div className="w-3.5 h-3.5 rounded-full bg-[#0052FF] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(0,82,255,0.8)]" title="Prize Winner">
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
                                                             </div>
                                                         )}
                                                         {entry.power_badge && <span className="text-[10px] shrink-0">⚡</span>}
                                                     </div>
-                                                    {isTop4 && (
-                                                        <span className="text-[9px] text-[#0052FF] font-mono tracking-widest uppercase mt-0.5 font-bold">PRIZE WINNER</span>
+                                                    {isTop && (
+                                                        <span className="text-[9px] text-white font-mono tracking-widest uppercase mt-0.5 font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">CURRENT LEADER</span>
                                                     )}
-                                                    {!isTop4 && entry.streak > 0 && (
+                                                    {!isTop && entry.streak > 0 && (
                                                         <span className="text-[9px] text-orange-500 font-mono tracking-widest mt-0.5">🔥 {entry.streak} DAY</span>
                                                     )}
                                                 </div>
 
                                                 <div className="text-right shrink-0">
-                                                    <span className={`font-space font-bold text-xl tracking-tight ${isTop4 ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]' : 'text-zinc-500'}`}>
+                                                    <span className={`font-space font-bold text-xl tracking-tight ${isTop ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-zinc-500'}`}>
                                                         {entry.score}
                                                     </span>
                                                 </div>

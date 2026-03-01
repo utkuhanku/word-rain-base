@@ -30,9 +30,9 @@ export function useScoreBoard() {
             const currentSeason = getCurrentSeason();
 
             const isEvent = mode === 'EVENT';
-            const partition = isEvent ? 'ethdenver' : 'season';
+            const partition = isEvent ? 'omega' : 'season';
             const seasonId = currentSeason.id;
-            const localKey = isEvent ? 'event_leaderboard_final' : (seasonId === 1 ? 'event_leaderboard_final' : `event_leaderboard_s${seasonId}`);
+            const localKey = isEvent ? 'event_leaderboard_omega' : (seasonId === 1 ? 'event_leaderboard_final' : `event_leaderboard_s${seasonId}`);
 
             // 1. ALWAYS Save Locally First (Optimistic & Fail-safe)
             try {

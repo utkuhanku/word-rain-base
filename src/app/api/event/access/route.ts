@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 
-const ETHDENVER_ACCESS_KEY = 'wordrain:ethdenver:access';
+const OMEGA_ACCESS_KEY = 'wordrain:omega:access';
 
 export async function GET(request: NextRequest) {
     try {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Check KV for existence
-        const hasAccess = await kv.sismember(ETHDENVER_ACCESS_KEY, address);
+        const hasAccess = await kv.sismember(OMEGA_ACCESS_KEY, address);
         return NextResponse.json({ hasAccess: hasAccess === 1 });
 
     } catch (error) {
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
         const normalizedAddr = address.toLowerCase();
 
         // Add to Set
-        await kv.sadd(ETHDENVER_ACCESS_KEY, normalizedAddr);
+        await kv.sadd(OMEGA_ACCESS_KEY, normalizedAddr);
 
         return NextResponse.json({ success: true });
 

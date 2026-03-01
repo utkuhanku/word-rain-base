@@ -62,6 +62,8 @@ export async function POST(request: NextRequest) {
         let targetKey = process.env.LEADERBOARD_KEY || 'wordrain:lb:ethdenver';
         if (partition === 'ethdenver') {
             targetKey = 'event_leaderboard_ethdenver';
+        } else if (partition === 'omega') {
+            targetKey = 'event_leaderboard_omega';
         } else if (partition === 'season' && seasonId) {
             targetKey = seasonId === 1 ? 'event_leaderboard_final' : `event_leaderboard_s${seasonId}`;
         }

@@ -12,13 +12,14 @@ export async function POST(request: NextRequest) {
         if (!address || typeof score !== 'number') {
             return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
         }
-
+        
         const season = getCurrentSeason();
-
         let DB_KEY = season.id === 1 ? 'event_leaderboard_final' : `event_leaderboard_s${season.id}`;
 
         if (partition === 'ethdenver') {
             DB_KEY = 'event_leaderboard_ethdenver';
+        } else if (partition === 'omega') {
+            DB_KEY = 'event_leaderboard_omega';
         }
 
         const META_KEY = `${DB_KEY}:meta`;
