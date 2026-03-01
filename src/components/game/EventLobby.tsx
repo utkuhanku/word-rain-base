@@ -88,7 +88,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             setIsRefreshing(true);
             try {
                 // Fetch from new centralized API
-                const res = await fetch(`/api/leaderboard/top?limit=50&partition=ethdenver&_t=${Date.now()}`, {
+                const res = await fetch(`/api/leaderboard/top?limit=50&partition=omega&_t=${Date.now()}`, {
                     cache: 'no-store'
                 });
 
@@ -188,12 +188,12 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             {/* Premium Countdown Banner Header */}
             <div className="w-full flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#020202] relative z-20 shadow-xl">
                 <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#0052FF] animate-pulse shadow-[0_0_8px_rgba(0,82,255,0.8)]" />
-                    <span className="text-[10px] text-[#0052FF] font-bold tracking-widest uppercase font-mono">LIVE ZERO-SUM</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+                    <span className="text-[10px] text-[#3B82F6] font-bold tracking-widest uppercase font-mono">LIVE ZERO-SUM</span>
                 </div>
-                <div className="flex bg-[#0052FF]/10 text-[#0052FF] px-3 py-1.5 border border-[#0052FF]/20 rounded-full">
+                <div className="flex bg-[#3B82F6]/10 text-[#3B82F6] px-3 py-1.5 border border-[#3B82F6]/20 rounded-full">
                     <span className="text-[11px] font-bold tracking-widest uppercase font-mono">
-                        SURPRISE POOL
+                        $500 PRIZE POOL
                     </span>
                 </div>
             </div>
@@ -201,27 +201,44 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             {/* Main Content */}
             <div className="flex-1 overflow-y-auto p-6 relative z-10 scrollbar-hide space-y-6">
 
-                {/* Prize Pool Card */}
-                <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#050505] p-6 text-center group shadow-2xl">
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
-                    <div className="text-[10px] text-zinc-500 font-bold tracking-[0.3em] uppercase mb-1 drop-shadow-sm">TOTAL PRIZE POOL</div>
-                    <div className="text-6xl font-black text-white tracking-tighter drop-shadow-[-2px_-2px_0px_#0052FF,2px_2px_0px_#0052FF]">
-                        ???
+                {/* Prize Pool Card - OMEGA THEME */}
+                <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0a0a0a] to-[#000000] p-8 text-center group shadow-[0_0_50px_rgba(0,82,255,0.15)] mt-4">
+                    {/* Dynamic Ambient Background */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#0052FF] opacity-10 blur-[80px] group-hover:opacity-20 transition-opacity duration-700 pointer-events-none" />
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+
+                    <div className="relative z-10 flex flex-col items-center gap-1">
+                        <div className="inline-block px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-3">
+                            <span className="text-[9px] text-zinc-400 font-bold tracking-[0.3em] uppercase drop-shadow-sm flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse" />
+                                GUARANTEED PRIZE POOL
+                            </span>
+                        </div>
+
+                        <div className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                            $500
+                        </div>
+
+                        <div className="text-[12px] font-mono text-[#3B82F6] font-bold tracking-widest uppercase mt-4 border-t border-white/10 pt-4 w-2/3">
+                            TOP 3 DIVIDE THE SPOILS
+                        </div>
+                        <p className="text-[9px] text-zinc-500 mt-2 font-mono uppercase tracking-widest max-w-[200px] mx-auto leading-relaxed">
+                            No second chances. Only the sharpest minds survive the decrypter.
+                        </p>
                     </div>
-                    <p className="text-[10px] text-zinc-400 mt-2 font-mono uppercase tracking-widest">
-                        A dynamic pool awaits the victor.<br />
-                        No second chances.
-                    </p>
                 </div>
 
                 {/* Action Button */}
                 <button
                     onClick={handleEntryPayment}
                     disabled={isProcessing}
-                    className="w-full py-5 font-black text-xl bg-white text-black hover:bg-zinc-200 uppercase tracking-widest rounded-xl relative overflow-hidden transition-all shadow-xl active:scale-[0.98] disabled:opacity-50"
+                    className="w-full py-5 font-black text-xl bg-gradient-to-r from-[#0052FF] to-[#2563EB] text-white uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-[0_0_30px_rgba(0,82,255,0.4)] hover:shadow-[0_0_50px_rgba(0,82,255,0.6)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 group border border-[#3B82F6]"
                 >
-                    <span className="relative z-10 flex items-center justify-center gap-3">
-                        {isProcessing ? "PROCESSING..." : (hasPaidEntry ? "ENTER THE VOID" : "DEPOSIT 1 USDC TO ENTER")}
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+                    <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent opacity-50" />
+
+                    <span className="relative z-10 flex items-center justify-center gap-3 drop-shadow-md">
+                        {isProcessing ? "PROCESSING TX..." : (hasPaidEntry ? "ENTER THE VOID →" : "DEPOSIT 1 USDC TO ENTER")}
                     </span>
                 </button>
 

@@ -216,37 +216,7 @@ export default function Lobby({ onStart }: LobbyProps) {
             return () => clearTimeout(timer);
         }
     }, [isChecking]);
-
-
-    const [hasEventAccess, setHasEventAccess] = useState(false);
     const { setMode } = useGameStore();
-
-    // Check Persistent Event Access (Server + Local Fallback)
-    useEffect(() => {
-        if (!address) return;
-        const checkAccess = async () => {
-            try {
-                const payKey = `ethdenver_entry_paid_${address}`;
-                // 1. Check Local First (Instant)
-                if (localStorage.getItem(payKey) === 'true') {
-                    setHasEventAccess(true);
-                }
-
-                // 2. Check Server (Authoritative)
-                const res = await fetch(`/api/event/access?address=${address}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.hasAccess) {
-                        setHasEventAccess(true);
-                        localStorage.setItem(payKey, 'true'); // Re-sync local
-                    }
-                }
-            } catch (e) {
-                console.error("Access check failed", e);
-            }
-        };
-        checkAccess();
-    }, [address]);
 
     // ... (keep existing hooks)
 
@@ -281,79 +251,6 @@ export default function Lobby({ onStart }: LobbyProps) {
                         onStart={onStart}
                     />
                 )}
-                {showEthDenver && (
-                    // ... Keep existing ETHDenver Modal ...
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl"
-                        onClick={() => setShowEthDenver(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-full max-w-sm bg-[#0A0A0A] border border-white/10 rounded-3xl p-8 relative overflow-hidden"
-                        >
-                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
-
-                            <div className="relative z-10 flex flex-col items-center text-center gap-6">
-                                <div className="flex flex-col items-center gap-2">
-                                    <div className="w-16 h-16 bg-gradient-to-br from-[#3B82F6] to-[#1d4ed8] rounded-2xl flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(59,130,246,0.3)] mb-2">
-                                        🏔️
-                                    </div>
-                                    <h2 className="text-2xl font-black text-white italic tracking-tighter uppercase">
-                                        ETHDenver<br /><span className="text-[#3B82F6]">Special</span>
-                                    </h2>
-                                    <p className="text-xs font-mono text-zinc-400 tracking-widest max-w-[200px]">
-                                        COMPETE FOR THE HIGHEST SCORE ON THE OFFICIAL LEADERBOARD
-                                    </p>
-                                </div>
-
-                                <div className="w-full h-px bg-white/10" />
-
-                                <div className="w-full flex flex-col gap-3">
-                                    <div className="flex justify-between items-center text-sm font-bold font-mono">
-                                        <span className="text-zinc-500">1ST PLACE</span>
-                                        <span className="text-white">$100 USDC</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm font-bold font-mono">
-                                        <span className="text-zinc-500">2ND PLACE</span>
-                                        <span className="text-white">$75 USDC</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm font-bold font-mono">
-                                        <span className="text-zinc-500">3RD PLACE</span>
-                                        <span className="text-white">$50 USDC</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm font-bold font-mono">
-                                        <span className="text-zinc-500">4TH PLACE</span>
-                                        <span className="text-white">$25 USDC</span>
-                                    </div>
-                                </div>
-
-                                <div className="w-full h-px bg-white/10" />
-
-                                <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        setShowEthDenver(false);
-                                        setTimeout(() => setShowEvent(true), 50);
-                                    }}
-                                    className="w-full h-14 bg-[#3B82F6] text-white font-black font-space tracking-widest uppercase hover:bg-[#2563EB] active:scale-95 transition-all rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.5)] flex items-center justify-center gap-2 relative z-50 disabled:opacity-50"
-                                >
-                                    {hasEventAccess ? "ENTER ARENA" : "ENTER FOR $1"}
-                                </button>
-
-                                <p className="text-[9px] text-zinc-600 font-mono">
-                                    WINNERS ANNOUNCED AT THE END OF THE EVENT
-                                </p>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
                 {showHelp && (
                     <HelpModal onClose={() => setShowHelp(false)} />
                 )}
@@ -381,79 +278,6 @@ export default function Lobby({ onStart }: LobbyProps) {
                         </motion.div>
                     </motion.div>
                 )}
-                {/* Event Intro Modal (Keep or remove? Maybe remove for simplicity if user wants less complexity. Let's keep it as it adds info) */}
-                {showEventIntro && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-                        onClick={() => setShowEventIntro(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            className="w-full max-w-sm bg-[#0052FF] rounded-2xl p-1 shadow-[0_0_50px_rgba(0,82,255,0.4)] border border-white/20 overflow-hidden relative"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
-
-                            <div className="bg-black/90 rounded-xl p-6 relative z-10 flex flex-col items-center text-center gap-6">
-                                <div className="space-y-2">
-                                    <div className="inline-block bg-[#0052FF]/20 text-[#0052FF] px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border border-[#0052FF]/50">
-                                        Feb 13 - Feb 28
-                                    </div>
-                                    <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">
-                                        <span className="block text-2xl text-zinc-500">The</span>
-                                        ETHDenver
-                                        <span className="block text-[#0052FF]">Sprint</span>
-                                    </h2>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-3 w-full">
-                                    <div className="bg-white/5 rounded-lg p-3 flex flex-col items-center border border-white/5">
-                                        <span className="text-2xl mb-1">💰</span>
-                                        <span className="text-xs text-zinc-400 uppercase tracking-wider font-mono">Prize Pool</span>
-                                        <span className="text-xl font-bold text-white">$250</span>
-                                    </div>
-                                    <div className="bg-white/5 rounded-lg p-3 flex flex-col items-center border border-white/5">
-                                        <span className="text-2xl mb-1">🎟️</span>
-                                        <span className="text-xs text-zinc-400 uppercase tracking-wider font-mono">Entry Fee</span>
-                                        <span className="text-xl font-bold text-white">{hasEventAccess ? "PAID" : "1 USDC"}</span>
-                                    </div>
-                                </div>
-
-                                <div className="text-sm text-zinc-400 font-mono leading-relaxed">
-                                    Competitors have 2 weeks to set the highest score. Top 3 players share the pot.
-                                    <br />
-                                    <span className="text-white font-bold">Unlocks Exclusive Badge.</span>
-                                </div>
-
-                                <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        setShowEventIntro(false);
-                                        setTimeout(() => setShowEthDenver(true), 50);
-                                    }}
-                                    className="w-full h-14 bg-[#0052FF] text-white font-black uppercase tracking-widest hover:bg-[#2563EB] active:scale-95 transition-all rounded-xl shadow-[0_0_20px_rgba(0,82,255,0.4)] flex items-center justify-center gap-2 relative z-50"
-                                >
-                                    {hasEventAccess ? "ENTER ARENA" : "ENTER ARENA ($1)"}
-                                </button>
-
-                                <button
-                                    onClick={() => setShowEventIntro(false)}
-                                    className="text-xs text-zinc-500 hover:text-white transition-colors"
-                                >
-                                    Maybe Later
-                                </button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-
-
             </AnimatePresence>
 
 
@@ -555,8 +379,8 @@ export default function Lobby({ onStart }: LobbyProps) {
                                             <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,1)] animate-pulse" />
                                             <span className="text-[10px] font-mono font-bold tracking-widest text-red-500 uppercase">LIVE EVENT</span>
                                         </div>
-                                        <span className="text-[10px] font-mono font-bold text-[#0052FF]/80 tracking-widest uppercase">
-                                            #OMEGA
+                                        <span className="text-[10px] font-mono font-bold text-[#3B82F6] tracking-widest uppercase flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md border border-white/10">
+                                            $500 <span className="text-white">REWARD</span>
                                         </span>
                                     </div>
 
@@ -565,8 +389,8 @@ export default function Lobby({ onStart }: LobbyProps) {
                                         <h1 className="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 m-0 p-0 leading-none group-hover:from-white group-hover:to-white transition-all duration-500">
                                             NEW ERA
                                         </h1>
-                                        <span className="text-[10px] font-bold text-white bg-[#0052FF] px-4 py-1 rounded-full shadow-[0_0_15px_rgba(0,82,255,0.5)] mt-1 tracking-widest uppercase">
-                                            Zero-Sum Pool
+                                        <span className="text-[10px] font-bold text-white bg-[#3B82F6] px-4 py-1 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] mt-1 tracking-widest uppercase">
+                                            $500 Prize Pool
                                         </span>
 
                                         <p className="text-xs text-zinc-400 max-w-[260px] leading-relaxed mt-2 font-mono group-hover:text-zinc-300 transition-colors">
@@ -575,9 +399,9 @@ export default function Lobby({ onStart }: LobbyProps) {
                                     </div>
 
                                     {/* Action Call */}
-                                    <div className="w-full mt-6 bg-[#0052FF] rounded-xl p-4 flex flex-col items-center justify-center gap-2 relative z-10 box-border shadow-[0_0_20px_rgba(0,82,255,0.3)] group-hover:bg-white group-hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-all duration-500">
+                                    <div className="w-full mt-6 bg-gradient-to-r from-[#0052FF] to-[#2563EB] rounded-2xl p-4 flex flex-col items-center justify-center gap-2 relative z-10 box-border shadow-[0_0_30px_rgba(0,82,255,0.4)] group-hover:from-white group-hover:to-zinc-200 group-hover:shadow-[0_0_50px_rgba(255,255,255,0.6)] transition-all duration-500 border border-[#3B82F6] group-hover:border-white">
                                         <span className="text-xs font-black text-white group-hover:text-black tracking-widest uppercase transition-colors duration-500 flex items-center gap-2">
-                                            Enter The Event <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                            Enter the Void <span className="group-hover:translate-x-1 transition-transform">→</span>
                                         </span>
                                     </div>
                                 </div>
@@ -627,8 +451,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             e.stopPropagation();
-                                                            setShowEthDenver(false);
-                                                            setShowEvent(true);
+                                                            setShowLeaderboard(true);
                                                         }}
                                                         className="mt-4 w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-zinc-400 hover:text-white font-mono text-xs font-bold uppercase tracking-widest rounded-lg transition-all"
                                                     >
