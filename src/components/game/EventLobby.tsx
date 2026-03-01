@@ -1,10 +1,10 @@
 "use client";
 
-import { useAccount, useWriteContract, usePublicClient } from "wagmi";
+import { useAccount, useSendTransaction, usePublicClient } from "wagmi";
 import { useState, useEffect } from "react";
 import { useGameStore } from "@/lib/store/gameStore";
 import { motion } from "framer-motion";
-import { parseAbiItem } from "viem";
+import { encodeFunctionData, parseAbiItem } from "viem";
 import { Identity, Avatar, Name, Address } from '@coinbase/onchainkit/identity';
 import PlayerDetailModal from './PlayerDetailModal';
 
@@ -46,7 +46,7 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
 export default function EventLobby({ onBack, onStart }: { onBack: () => void, onStart: () => void }) {
     const { address } = useAccount();
     const { setMode } = useGameStore();
-    const { writeContractAsync } = useWriteContract();
+    const { sendTransactionAsync } = useSendTransaction();
     const publicClient = usePublicClient();
 
     const [isProcessing, setIsProcessing] = useState(false);
@@ -126,11 +126,16 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             const ENTRY_FEE = BigInt(1000000); // 1.00 USDC
             const TREASURY = "0x6edd22E9792132614dD487aC6434dec3709b79A8";
 
-            const hash = await writeContractAsync({
-                address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base USDC
+            const data = encodeFunctionData({
                 abi: [parseAbiItem('function transfer(address to, uint256 value)')],
                 functionName: 'transfer',
                 args: [TREASURY, ENTRY_FEE]
+            });
+
+            const hash = await sendTransactionAsync({
+                to: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base USDC
+                data: data,
+                value: BigInt(0),
             });
 
             if (publicClient) {
