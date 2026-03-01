@@ -399,8 +399,8 @@ export default function Lobby({ onStart }: LobbyProps) {
                                     </div>
 
                                     {/* Action Call */}
-                                    <div className="w-full mt-6 bg-gradient-to-r from-[#0052FF] to-[#2563EB] rounded-2xl p-4 flex flex-col items-center justify-center gap-2 relative z-10 box-border shadow-[0_0_30px_rgba(0,82,255,0.4)] group-hover:from-white group-hover:to-zinc-200 group-hover:shadow-[0_0_50px_rgba(255,255,255,0.6)] transition-all duration-500 border border-[#3B82F6] group-hover:border-white">
-                                        <span className="text-xs font-black text-white group-hover:text-black tracking-widest uppercase transition-colors duration-500 flex items-center gap-2">
+                                    <div className="w-full mt-6 bg-gradient-to-r from-[#0052FF] to-[#2563EB] rounded-2xl p-4 flex flex-col items-center justify-center gap-2 relative z-10 box-border shadow-[0_0_30px_rgba(0,82,255,0.4)] group-hover:shadow-[0_0_50px_rgba(0,82,255,0.8)] group-hover:scale-[1.02] transition-all duration-300 border border-[#3B82F6] group-hover:border-white">
+                                        <span className="text-xs font-black text-white tracking-widest uppercase flex items-center gap-2">
                                             Enter the Void <span className="group-hover:translate-x-1 transition-transform">→</span>
                                         </span>
                                     </div>
