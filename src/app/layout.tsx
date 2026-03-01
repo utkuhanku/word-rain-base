@@ -27,23 +27,6 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "Word Rain | Base",
   description: "Reflex typing game for the Base ecosystem.",
-  other: {
-    // "fc:frame": JSON.stringify({
-    //   version: "next",
-    //   imageUrl: "https://word-rain-base.vercel.app/splash.png",
-    //   button: {
-    //     title: "Play Word Rain",
-    //     action: {
-    //       type: "launch_frame",
-    //       name: "Word Rain",
-    //       url: "https://word-rain-base.vercel.app",
-    //       splashImageUrl: "https://word-rain-base.vercel.app/splash.png",
-    //       splashBackgroundColor: "#050505",
-    //     },
-    //   },
-    // }),
-    "base:app_id": "6958cb544d3a403912ed8b3a", // Base App Verification
-  },
   icons: {
     icon: '/icon.png',
     apple: '/apple-icon.png',
@@ -57,6 +40,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Base Mini App Embed & Verification */}
+        <meta name="base:app_id" content="6958cb544d3a403912ed8b3a" />
+        <meta name="fc:miniapp" content='{"version":"next","imageUrl":"https://word-rain-base.vercel.app/splash.png","button":{"title":"Play Word Rain","action":{"type":"launch_frame","name":"Word Rain","url":"https://word-rain-base.vercel.app","splashImageUrl":"https://word-rain-base.vercel.app/splash.png","splashBackgroundColor":"#050505"}}}' />
+      </head>
       <body
         className={`${spaceGrotesk.variable} ${mono.variable} antialiased bg-[#050505] text-white`}
       >
