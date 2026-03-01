@@ -6,6 +6,7 @@ import { useGameStore } from "@/lib/store/gameStore";
 import { motion } from "framer-motion";
 import { encodeFunctionData, parseAbiItem } from "viem";
 import { Identity, Avatar, Name, Address } from '@coinbase/onchainkit/identity';
+import { Wallet, ConnectWallet } from '@coinbase/onchainkit/wallet';
 import PlayerDetailModal from './PlayerDetailModal';
 
 // --- Countdown Component ---
@@ -233,19 +234,30 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     </div>
                 </div>
 
-                {/* Action Button */}
-                <button
-                    onClick={handleEntryPayment}
-                    disabled={isProcessing}
-                    className="w-full py-5 font-black text-xl bg-gradient-to-r from-[#0052FF] to-[#2563EB] text-white uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-[0_0_30px_rgba(0,82,255,0.4)] hover:shadow-[0_0_50px_rgba(0,82,255,0.6)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 group border border-[#3B82F6]"
-                >
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
-                    <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent opacity-50" />
+                {/* Action Button / Wallet Connect */}
+                <div className="w-full">
+                    {!address ? (
+                        <Wallet>
+                            <ConnectWallet
+                                className="w-full py-5 font-black text-xl bg-gradient-to-r from-[#0052FF] to-[#2563EB] text-white uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-[0_0_30px_rgba(0,82,255,0.4)] hover:shadow-[0_0_50px_rgba(0,82,255,0.6)] hover:scale-[1.02] active:scale-[0.98] border border-[#3B82F6] flex justify-center items-center"
+                                text="CONNECT TO DEPOSIT"
+                            />
+                        </Wallet>
+                    ) : (
+                        <button
+                            onClick={handleEntryPayment}
+                            disabled={isProcessing}
+                            className="w-full py-5 font-black text-xl bg-gradient-to-r from-[#0052FF] to-[#2563EB] text-white uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-[0_0_30px_rgba(0,82,255,0.4)] hover:shadow-[0_0_50px_rgba(0,82,255,0.6)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 group border border-[#3B82F6]"
+                        >
+                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+                            <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent opacity-50" />
 
-                    <span className="relative z-10 flex items-center justify-center gap-3 drop-shadow-md">
-                        {isProcessing ? "PROCESSING TX..." : (hasPaidEntry ? "ENTER THE VOID →" : "DEPOSIT 1 USDC TO ENTER")}
-                    </span>
-                </button>
+                            <span className="relative z-10 flex items-center justify-center gap-3 drop-shadow-md">
+                                {isProcessing ? "PROCESSING TX..." : (hasPaidEntry ? "ENTER THE VOID →" : "DEPOSIT 1 USDC TO ENTER")}
+                            </span>
+                        </button>
+                    )}
+                </div>
 
                 {/* Leaderboard Header */}
                 <div className="flex items-center justify-between px-1 mt-6">
