@@ -226,7 +226,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         </div>
 
                         <div className="text-[12px] font-mono text-[#3B82F6] font-bold tracking-widest uppercase mt-4 border-t border-white/10 pt-4 w-2/3">
-                            TOP 3 DIVIDE THE SPOILS
+                            TOP 5 DIVIDE THE SPOILS
                         </div>
                         <p className="text-[9px] text-zinc-500 mt-2 font-mono uppercase tracking-widest max-w-[200px] mx-auto leading-relaxed">
                             No second chances. Only the sharpest minds survive the decrypter.
@@ -293,7 +293,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                             <div className="flex flex-col w-full rounded-2xl bg-[#030303] border border-white/5 overflow-hidden shadow-2xl pb-4">
                                 {leaderboard.map((entry: any, i) => {
                                     const isTop = i === 0;
-                                    const isTop3 = i > 0 && i < 3;
+                                    const isTop5 = i > 0 && i < 5;
                                     return (
                                         <div
                                             key={entry.member || entry.address}
@@ -301,7 +301,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             className={`flex items-center justify-between p-4 border-b border-white/5 cursor-pointer transition-all hover:bg-white/5 active:bg-white/10 ${isTop ? 'bg-gradient-to-r from-white/10 to-transparent relative overflow-hidden' : ''}`}
                                         >
                                             {isTop && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]" />}
-                                            {isTop3 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20" />}
+                                            {isTop5 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20" />}
 
                                             <div className="flex items-center gap-4 relative z-10 w-full px-2">
                                                 <div className={`font-mono text-xs w-6 text-center shrink-0 ${isTop ? 'text-white font-black drop-shadow-[0_0_8px_rgba(255,255,255,1)]' : 'text-zinc-600 font-bold'}`}>
@@ -329,10 +329,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                                                 <div className="flex flex-col justify-center flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`font-bold text-sm truncate ${isTop3 ? 'text-white' : 'text-zinc-300'}`}>
+                                                        <span className={`font-bold text-sm truncate ${isTop5 ? 'text-white' : 'text-zinc-300'}`}>
                                                             {entry.username ? entry.username : entry.type === 'wallet' || entry.identifier?.startsWith('0x') ? <Name address={entry.identifier as `0x${string}`} /> : (entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`)}
                                                         </span>
-                                                        {isTop3 && (
+                                                        {isTop5 && (
                                                             <div className="w-3.5 h-3.5 rounded-full bg-[#0052FF] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(0,82,255,0.8)]" title="Prize Winner">
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
                                                             </div>

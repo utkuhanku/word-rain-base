@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
         if (!address || typeof score !== 'number') {
             return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
         }
-        
+
         const season = getCurrentSeason();
         let DB_KEY = season.id === 1 ? 'event_leaderboard_final' : `event_leaderboard_s${season.id}`;
 
@@ -20,6 +20,14 @@ export async function POST(request: NextRequest) {
             DB_KEY = 'event_leaderboard_ethdenver';
         } else if (partition === 'omega') {
             DB_KEY = 'event_leaderboard_omega';
+
+            // Server-Side Payment Verification for Omega Event
+            const normalizedAddr = address.toLowerCase();
+            const hasAccess = await kv.sismember('wordrain:omega:access', normalizedAddr);
+            if (hasAccess !== 1) {
+                console.warn(`[SECURITY] Attempted Omega submission without payment from: ${address}`);
+                return NextResponse.json({ error: 'Payment required for OMEGA event' }, { status: 403 });
+            }
         }
 
         const META_KEY = `${DB_KEY}:meta`;
