@@ -369,19 +369,19 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     {[
                                         {
                                             address: '0x982C4c6E24D08D5871b075c0c7A1dC79393868Da',
-                                            reason: 'Bu oyuncu 2 oyunda da disq oldugu icin artık hep disq.'
+                                            reason: 'Permanent ban. Flagged for systematic exploitation across multiple events.'
                                         },
                                         {
                                             address: '0x552B03253B49d208417DDD5A1561b9eD888Cf5a8',
-                                            reason: 'Sadece giriş ödemesi yapılmış, skor ve no resurrect gercekci degil.'
+                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
                                         },
                                         {
                                             address: '0xF1B0568A4bEdE00950a47bB537b627ED6c88DFFD',
-                                            reason: 'Sadece giriş ödemesi yapılmış, skor ve no resurrect gercekci degil.'
+                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
                                         },
                                         {
                                             address: '0xFaa9a44859828cc06b15A57310e3403a8CC7B7de',
-                                            reason: 'Sadece giriş ödemesi yapılmış, skor ve no resurrect gercekci degil.'
+                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
                                         }
                                     ].map(blocked => (
                                         <div key={blocked.address} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
