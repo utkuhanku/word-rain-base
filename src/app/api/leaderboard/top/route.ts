@@ -84,7 +84,11 @@ export async function GET(request: NextRequest) {
             '0xe555eBCa692D41300773F488FDb92244AAf81Fa7'.toLowerCase(),
             '0xB27F239610e47cACDfF082A79bE829384d46b976'.toLowerCase(),
             '0x53481a207B5dd683a7C018157709A5092774b09A'.toLowerCase(),
-            '0x0Ea03d210e1E3743A0815204FbCFcD36e07Ec230'.toLowerCase()
+            '0x0Ea03d210e1E3743A0815204FbCFcD36e07Ec230'.toLowerCase(),
+            '0x982C4c6E24D08D5871b075c0c7A1dC79393868Da'.toLowerCase(),
+            '0x552B03253B49d208417DDD5A1561b9eD888Cf5a8'.toLowerCase(),
+            '0xF1B0568A4bEdE00950a47bB537b627ED6c88DFFD'.toLowerCase(),
+            '0xFaa9a44859828cc06b15A57310e3403a8CC7B7de'.toLowerCase()
         ];
 
         // Convert Map to array, sort descending, filter blocked, and slice to limit

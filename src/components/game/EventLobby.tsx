@@ -357,6 +357,64 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     );
                                 })}
                             </div>
+
+                            {/* OMEGA DISQUALIFIED SECTION */}
+                            <div className="mt-8 pt-6 border-t border-red-500/20 px-4 mb-8">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                    <h3 className="text-xs font-bold text-red-500 tracking-widest uppercase">Disqualified Players</h3>
+                                </div>
+
+                                <div className="flex flex-col gap-3">
+                                    {[
+                                        {
+                                            address: '0x982C4c6E24D08D5871b075c0c7A1dC79393868Da',
+                                            reason: 'Bu oyuncu 2 oyunda da disq oldugu icin artık hep disq.'
+                                        },
+                                        {
+                                            address: '0x552B03253B49d208417DDD5A1561b9eD888Cf5a8',
+                                            reason: 'Sadece giriş ödemesi yapılmış, skor ve no resurrect gercekci degil.'
+                                        },
+                                        {
+                                            address: '0xF1B0568A4bEdE00950a47bB537b627ED6c88DFFD',
+                                            reason: 'Sadece giriş ödemesi yapılmış, skor ve no resurrect gercekci degil.'
+                                        },
+                                        {
+                                            address: '0xFaa9a44859828cc06b15A57310e3403a8CC7B7de',
+                                            reason: 'Sadece giriş ödemesi yapılmış, skor ve no resurrect gercekci degil.'
+                                        }
+                                    ].map(blocked => (
+                                        <div key={blocked.address} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
+                                            <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ef4444_10px,#ef4444_20px)] pointer-events-none"></div>
+
+                                            <div className="flex items-center justify-between relative z-10 w-full mb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-mono text-red-500/50 text-[10px] w-4 text-center">X</span>
+                                                    <div className="relative">
+                                                        <img
+                                                            src={`/base-logo.svg`}
+                                                            className="w-8 h-8 rounded-full bg-black/50 object-cover border border-red-500/30 p-1 opacity-50 grayscale"
+                                                            alt="Disqualified Player"
+                                                        />
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-red-400 font-mono text-xl max-w-[200px] whitespace-nowrap overflow-hidden line-through decoration-red-500/50" title={blocked.address}>
+                                                            {blocked.address.slice(0, 6)}...{blocked.address.slice(-4)}
+                                                        </span>
+                                                        <span className="text-[10px] text-red-500/70 font-mono uppercase tracking-wider mt-0.5">
+                                                            DISQUALIFIED FROM OMEGA
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="relative z-10 w-full py-2 px-3 bg-red-500/10 text-red-400 text-[10px] font-mono tracking-wide rounded border border-red-500/20 text-center leading-relaxed">
+                                                <span className="font-bold">REASON:</span> {blocked.reason}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </>
                     )}
                 </div>
