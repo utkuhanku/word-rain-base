@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 
 interface PlayerDetailModalProps {
     isOpen: boolean;
@@ -7,7 +8,21 @@ interface PlayerDetailModalProps {
 }
 
 export default function PlayerDetailModal({ isOpen, onClose, player }: PlayerDetailModalProps) {
+    const [copied, setCopied] = useState(false);
+
     if (!player) return null;
+
+    const handleCopy = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!player?.identifier) return;
+        try {
+            await navigator.clipboard.writeText(player.identifier);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy', err);
+        }
+    };
 
     // Resolve Address: Remove 'wallet:' prefix if present
     const rawAddress = player.member?.startsWith('wallet:')
@@ -95,11 +110,28 @@ export default function PlayerDetailModal({ isOpen, onClose, player }: PlayerDet
                                                 <h2 className="text-xl font-bold text-white tracking-tight truncate w-full px-2" title={player.displayName || player.username || "PLAYER ONE"}>
                                                     {player.displayName || player.username || "PLAYER ONE"}
                                                 </h2>
-                                                <span className="text-xs text-zinc-500 font-mono mt-1">
-                                                    {player.type === 'wallet' && player.identifier.length > 10
-                                                        ? `${player.identifier.slice(0, 6)}...${player.identifier.slice(-4)}`
-                                                        : player.identifier}
-                                                </span>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-xs text-zinc-500 font-mono">
+                                                        {player.type === 'wallet' && player.identifier.length > 10
+                                                            ? `${player.identifier.slice(0, 6)}...${player.identifier.slice(-4)}`
+                                                            : player.identifier}
+                                                    </span>
+                                                    <button
+                                                        onClick={handleCopy}
+                                                        className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-all active:scale-95"
+                                                        title="Copy Address"
+                                                    >
+                                                        {copied ? (
+                                                            <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        ) : (
+                                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                            </svg>
+                                                        )}
+                                                    </button>
+                                                </div>
                                             </div>
                                         ) : (
                                             <h2 className="text-xl font-bold text-white w-full truncate">Unknown Agent</h2>
