@@ -392,12 +392,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                             <div className="flex flex-col w-full rounded-2xl bg-[#030303] border border-white/5 overflow-hidden shadow-2xl pb-4">
                                 {(() => {
                                     const isVerified = (entry: any): boolean => {
-                                        const u = (entry.username || '').trim();
-                                        const d = (entry.displayName || '').trim();
-                                        // True basename: must be non-empty, not start with 0x, and contain a dot
-                                        const looksLikeBasename = (s: string) =>
-                                            s.length > 0 && !s.startsWith('0x') && s.includes('.');
-                                        return looksLikeBasename(u) || looksLikeBasename(d);
+                                        const u = (entry.username || '').trim().toLowerCase();
+                                        // Raw 0x wallet address ise verified değil
+                                        if (!u || u.startsWith('0x')) return false;
+                                        // @ ile başlayan Farcaster handle, .base.eth, .eth, veya herhangi bir isim → verified
+                                        return true;
                                     };
 
                                     const verifiedPilots = leaderboard.filter(isVerified);
@@ -475,12 +474,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                     <div className="flex flex-col justify-center flex-1 min-w-0">
                                                         <div className="flex items-center gap-2">
                                                             <span className={`text-sm truncate ${rankStyle.name}`}>
-                                                            {entry.identifier && entry.identifier.startsWith('0x') ? (
-                                                                <Name address={entry.identifier as `0x${string}`} chain={base} />
-                                                            ) : (
-                                                                entry.username || entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`
-                                                            )}
-                                                        </span>
+                                                                {(() => {
+                                                                    const displayName = entry.display_name || entry.username || entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`;
+                                                                    return displayName.startsWith('@') ? displayName.slice(1) : displayName;
+                                                                })()}
+                                                            </span>
                                                         {rank >= 2 && rank <= 5 && (
                                                             <div className="w-3.5 h-3.5 rounded-full bg-[#0052FF] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(0,82,255,0.8)]" title="Prize Winner">
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
