@@ -44,7 +44,6 @@ export default function EventDetailPage({ eventId, onBack }: EventDetailPageProp
     };
 
     const verifiedPilots = leaderboard.filter(isVerified);
-    const anonymousPilots = leaderboard.filter((entry: any) => !isVerified(entry));
 
     return (
         <motion.div
@@ -182,47 +181,6 @@ export default function EventDetailPage({ eventId, onBack }: EventDetailPageProp
                                 );
                             })}
                         </div>
-
-                        {/* ANONYMOUS PILOTS */}
-                        {anonymousPilots.length > 0 && (
-                            <div className="pt-2">
-                                <div className="flex items-center gap-2 mb-4 px-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
-                                    <h3 className="text-[10px] font-bold text-zinc-500 tracking-widest uppercase">Anonymous Pilots</h3>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    {anonymousPilots.map((entry: any, i: number) => {
-                                        const rank = leaderboard.findIndex((e: any) => e.member === entry.member) + 1;
-                                        let anonAddress = entry.identifier || entry.address;
-                                        if (anonAddress && anonAddress.length > 15) {
-                                            anonAddress = `${anonAddress.slice(0, 6)}...${anonAddress.slice(-4)}`;
-                                        }
-
-                                        return (
-                                            <div
-                                                key={entry.member || entry.address}
-                                                onClick={() => setSelectedPlayer(entry)}
-                                                className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className="font-mono text-xs w-6 text-center shrink-0 text-zinc-600">
-                                                        {rank}
-                                                    </div>
-                                                    <span className="font-mono text-sm text-zinc-400 truncate">
-                                                        {anonAddress}
-                                                    </span>
-                                                </div>
-                                                <div className="text-right shrink-0">
-                                                    <span className="font-space font-bold text-sm text-zinc-500">
-                                                        {entry.score}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
                         
                         {/* Disqualified Callout */}
                         <div className="mt-4 p-4 border border-zinc-900 rounded-xl bg-[#020202] flex items-center justify-center opacity-50 grayscale transition-all hover:grayscale-0 hover:opacity-100">

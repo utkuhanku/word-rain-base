@@ -145,16 +145,20 @@ export default function ProfilePage({ onBack }: ProfilePageProps) {
                             <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold mb-2 z-10">GM Streak</span>
                             <div className="flex items-center gap-2 z-10">
                                 <span className="text-2xl">🔥</span>
-                                <span className="text-3xl font-black text-white font-space">{profile.streak}</span>
+                                <span className={`text-3xl font-black font-space ${profile.streak === 0 ? 'text-zinc-600' : 'text-white'}`}>
+                                    {profile.streak === 0 ? '—' : profile.streak}
+                                </span>
                             </div>
                             <div className="absolute right-0 bottom-0 text-7xl opacity-[0.02] grayscale group-hover:opacity-5 transition-opacity pointer-events-none">🔥</div>
                         </div>
 
                         <div className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-4 flex flex-col justify-between hover:bg-white/[0.02] transition-colors relative overflow-hidden group">
-                            <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold mb-2 z-10">Lives Used</span>
+                            <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-bold mb-2 z-10">Lives Bought</span>
                             <div className="flex items-center gap-2 z-10">
                                 <span className="text-2xl">❤️</span>
-                                <span className="text-3xl font-black text-white font-space">{profile.revivesUsed}</span>
+                                <span className={`text-3xl font-black font-space ${profile.revivesUsed === 0 ? 'text-zinc-600' : 'text-white'}`}>
+                                    {profile.revivesUsed === 0 ? '—' : profile.revivesUsed}
+                                </span>
                             </div>
                             <div className="absolute right-0 bottom-0 text-7xl opacity-[0.02] grayscale group-hover:opacity-5 transition-opacity pointer-events-none">❤️</div>
                         </div>

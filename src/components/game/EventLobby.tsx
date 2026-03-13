@@ -400,8 +400,6 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                     };
 
                                     const verifiedPilots = leaderboard.filter(isVerified);
-                                    const anonymousPilots = leaderboard.filter((entry: any) => !isVerified(entry));
-
                                     return (
                                         <>
                                             {/* VERIFIED PILOTS SECTION --------------------------------------- */}
@@ -504,60 +502,6 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                         );
                                     })}
 
-                                    {/* ANONYMOUS PILOTS SECTION --------------------------------------- */}
-                                    {anonymousPilots.length > 0 && (
-                                        <div className="mt-8 pt-4 border-t border-amber-500/20 px-2 lg:px-4 mb-2">
-                                            <div className="flex flex-col mb-4">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                                                    <h3 className="text-xs font-bold text-amber-400 tracking-widest uppercase">Anonymous Pilots</h3>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-col bg-amber-950/30 border border-amber-500/20 rounded-xl p-3 mb-4 cursor-pointer hover:bg-amber-950/50 transition-colors" onClick={() => window.open('https://base.org/names', '_blank')}>
-                                                <span className="text-amber-400 font-bold text-[10px] tracking-widest">⚠ NO BASENAME DETECTED</span>
-                                                <span className="text-amber-400/60 text-[9px] mt-1 leading-relaxed">Players without a registered Basename are ineligible for prize distribution. Scores are tracked but rewards cannot be assigned to an anonymous wallet.</span>
-                                                <span className="text-amber-500 text-[9px] font-bold mt-2 hover:text-amber-400">→ GET YOUR BASENAME AT BASE.ORG</span>
-                                            </div>
-                                            
-                                            <div className="flex flex-col gap-2">
-                                                {anonymousPilots.map((entry: any, i: number) => {
-                                                    // Map the index to the real rank across the entire leaderboard by looking up the full list
-                                                    const rank = leaderboard.findIndex((e: any) => e.member === entry.member) + 1;
-                                                    
-                                                    // Ensure we display truncated address if OnchainKit doesn't work out
-                                                    let anonAddress = entry.identifier || entry.address;
-                                                    if (anonAddress && anonAddress.length > 15) {
-                                                        anonAddress = `${anonAddress.slice(0, 6)}...${anonAddress.slice(-4)}`;
-                                                    }
-
-                                                    return (
-                                                        <div
-                                                            key={entry.member || entry.address}
-                                                            onClick={() => setSelectedPlayer(entry)}
-                                                            className="flex items-center justify-between p-3 rounded-xl bg-amber-950/20 border border-amber-500/20 cursor-pointer transition-all hover:bg-amber-900/30 group w-full"
-                                                        >
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="font-mono text-xs w-6 text-center shrink-0 text-amber-600/50">
-                                                                    {rank}
-                                                                </div>
-                                                                <div className="flex flex-col">
-                                                                    <span className="font-mono text-sm text-amber-400/60 truncate">
-                                                                        {anonAddress}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="text-right shrink-0">
-                                                                <span className="font-space font-bold text-sm text-amber-400/60">
-                                                                    {entry.score}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
                                 </>
                             );
                         })()}

@@ -7,16 +7,18 @@ export async function GET(request: NextRequest) {
 
   const normalizedAddress = address.toLowerCase();
 
-  // Her iki partition'dan meta çek
-  const [omegaMeta, ethdenverMeta, omegaScore, ethdenverScore] = await Promise.all([
+  // Dört partition + key kombinastonundan meta çek
+  const [m1, m2, m3, m4, omegaScore, ethdenverScore] = await Promise.all([
+    kv.hgetall(`wordrain:lb:ethdenver:meta:wallet:${address}`),
+    kv.hgetall(`wordrain:lb:ethdenver:meta:${address}`),
     kv.hgetall(`wordrain:lb:omega:meta:wallet:${address}`),
-    kv.hgetall(`wordrain:lb:ethdenver:meta:${address}`), // legacy key
+    kv.hgetall(`wordrain:lb:omega:meta:${address}`),
     kv.zscore('event_leaderboard_omega', `wallet:${address}`),
     kv.zscore('event_leaderboard_ethdenver', `wallet:${address}`),
   ]);
 
-  // Metadata birleştir (omega öncelikli)
-  const meta = { ...(ethdenverMeta || {}), ...(omegaMeta || {}) };
+  // Metadata birleştir (en sonuncunun önceliği var)
+  const meta = { ...(m4 || {}), ...(m3 || {}), ...(m2 || {}), ...(m1 || {}) };
 
   // Kaç event'e katılmış
   const eventsEntered = [omegaScore, ethdenverScore].filter(s => s !== null).length;
