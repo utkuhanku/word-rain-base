@@ -391,54 +391,69 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                             {/* UNIFIED DATA TABLE - VERIFIED PILOTS */}
                             <div className="flex flex-col w-full rounded-2xl bg-[#030303] border border-white/5 overflow-hidden shadow-2xl pb-4">
                                 {(() => {
-                                    const verifiedPilots = leaderboard.filter((entry: any) => {
-                                        const name = entry.username || entry.displayName || "";
-                                        return name && !name.startsWith("0x");
-                                    });
+                                    const isVerified = (entry: any): boolean => {
+                                        const u = (entry.username || '').trim();
+                                        const d = (entry.displayName || '').trim();
+                                        // True basename: must be non-empty, not start with 0x, and contain a dot
+                                        const looksLikeBasename = (s: string) =>
+                                            s.length > 0 && !s.startsWith('0x') && s.includes('.');
+                                        return looksLikeBasename(u) || looksLikeBasename(d);
+                                    };
 
-                                    const anonymousPilots = leaderboard.filter((entry: any) => {
-                                        const name = entry.username || entry.displayName || "";
-                                        return !name || name.startsWith("0x");
-                                    });
+                                    const verifiedPilots = leaderboard.filter(isVerified);
+                                    const anonymousPilots = leaderboard.filter((entry: any) => !isVerified(entry));
 
                                     return (
                                         <>
                                             {/* VERIFIED PILOTS SECTION --------------------------------------- */}
                                             {verifiedPilots.map((entry: any, i: number) => {
                                                 const rank = i + 1;
-                                                const isTop = rank === 1;
-                                                const isTop5 = rank >= 2 && rank <= 5;
-                                                
-                                                // Fixed Color Logic
-                                                let textColor = 'text-zinc-400';
-                                                let scoreColor = 'text-zinc-500';
-                                                if (isTop) {
-                                                    textColor = 'text-white font-black';
-                                                    scoreColor = 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]';
-                                                } else if (isTop5) {
-                                                    textColor = 'text-white font-bold';
-                                                    scoreColor = 'text-[#0052FF]';
-                                                }
+
+                                                const rankStyle = (() => {
+                                                    if (rank === 1) return {
+                                                        row: 'bg-gradient-to-r from-white/[0.07] to-transparent border-b border-white/10 relative overflow-hidden',
+                                                        bar: 'bg-white/80 shadow-[0_0_15px_rgba(255,255,255,0.8)]',
+                                                        rankNum: 'text-white font-black drop-shadow-[0_0_8px_rgba(255,255,255,1)]',
+                                                        name: 'text-white font-bold',
+                                                        score: 'text-white font-black text-xl drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]',
+                                                        label: 'CURRENT LEADER',
+                                                    };
+                                                    if (rank <= 5) return {
+                                                        row: 'bg-transparent border-b border-white/5 relative',
+                                                        bar: 'bg-[#0052FF]/60',
+                                                        rankNum: 'text-zinc-500 font-bold',
+                                                        name: 'text-zinc-200 font-semibold',
+                                                        score: 'text-[#0052FF] font-bold text-lg',
+                                                        label: null,
+                                                    };
+                                                    return {
+                                                        row: 'bg-transparent border-b border-white/5 relative',
+                                                        bar: null,
+                                                        rankNum: 'text-zinc-600',
+                                                        name: 'text-zinc-400',
+                                                        score: 'text-zinc-500 font-bold',
+                                                        label: null,
+                                                    };
+                                                })();
 
                                                 return (
                                                     <div
                                                         key={entry.member || entry.address}
                                                         onClick={() => setSelectedPlayer(entry)}
-                                                        className={`flex items-center justify-between p-4 border-b border-white/5 cursor-pointer transition-all hover:bg-white/5 active:bg-white/10 ${isTop ? 'bg-gradient-to-r from-white/10 to-transparent relative overflow-hidden' : ''}`}
+                                                        className={`group flex items-center justify-between p-4 cursor-pointer transition-all hover:bg-white/5 active:bg-white/10 ${rankStyle.row}`}
                                                     >
-                                                        {isTop && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]" />}
-                                                        {isTop5 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20" />}
+                                                        {rankStyle.bar && <div className={`absolute left-0 top-0 bottom-0 w-1 ${rankStyle.bar}`} />}
 
                                                         <div className="flex items-center gap-4 relative z-10 w-full px-2">
-                                                            <div className={`font-mono text-xs w-6 text-center shrink-0 ${isTop ? 'text-white font-black drop-shadow-[0_0_8px_rgba(255,255,255,1)]' : 'text-zinc-600 font-bold'}`}>
+                                                            <div className={`font-mono text-xs w-6 text-center shrink-0 ${rankStyle.rankNum}`}>
                                                                 {rank}
                                                             </div>
 
                                                 <div className="relative shrink-0">
-                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border ${isTop ? 'border-white/50 bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-white/10 bg-[#050505]'}`}>
+                                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border ${rank === 1 ? 'border-white/50 bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-white/10 bg-[#050505]'}`}>
                                                         {/* FALLBACK ICON */}
-                                                        <div className={`absolute inset-0 flex items-center justify-center rounded-full ${isTop ? 'bg-gradient-to-br from-zinc-700 to-black' : 'bg-black'}`}>
-                                                            <svg className={`w-1/2 h-1/2 ${isTop ? 'text-white' : 'text-zinc-600'} opacity-80`} viewBox="0 0 24 24" fill="currentColor">
+                                                        <div className={`absolute inset-0 flex items-center justify-center rounded-full ${rank === 1 ? 'bg-gradient-to-br from-zinc-700 to-black' : 'bg-black'}`}>
+                                                            <svg className={`w-1/2 h-1/2 ${rank === 1 ? 'text-white' : 'text-zinc-600'} opacity-80`} viewBox="0 0 24 24" fill="currentColor">
                                                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                                             </svg>
                                                         </div>
@@ -459,30 +474,30 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
                                                     <div className="flex flex-col justify-center flex-1 min-w-0">
                                                         <div className="flex items-center gap-2">
-                                                            <span className={`text-sm truncate ${textColor}`}>
+                                                            <span className={`text-sm truncate ${rankStyle.name}`}>
                                                             {entry.identifier && entry.identifier.startsWith('0x') ? (
                                                                 <Name address={entry.identifier as `0x${string}`} chain={base} />
                                                             ) : (
                                                                 entry.username || entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`
                                                             )}
                                                         </span>
-                                                        {isTop5 && (
+                                                        {rank >= 2 && rank <= 5 && (
                                                             <div className="w-3.5 h-3.5 rounded-full bg-[#0052FF] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(0,82,255,0.8)]" title="Prize Winner">
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
                                                             </div>
                                                         )}
                                                         {entry.power_badge && <span className="text-[10px] shrink-0">⚡</span>}
                                                     </div>
-                                                    {isTop && (
-                                                        <span className="text-[9px] text-white font-mono tracking-widest uppercase mt-0.5 font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">CURRENT LEADER</span>
+                                                    {rankStyle.label && (
+                                                        <span className="text-[9px] text-white font-mono tracking-widest uppercase mt-0.5 font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">{rankStyle.label}</span>
                                                     )}
-                                                    {!isTop && entry.streak > 0 && (
+                                                    {rank !== 1 && entry.streak > 0 && (
                                                         <span className="text-[9px] text-orange-500 font-mono tracking-widest mt-0.5">🔥 {entry.streak} DAY</span>
                                                     )}
                                                 </div>
 
                                                     <div className="text-right shrink-0">
-                                                        <span className={`font-space font-bold text-xl tracking-tight ${scoreColor}`}>
+                                                        <span className={`font-space font-bold tracking-tight ${rankStyle.score}`}>
                                                             {entry.score}
                                                         </span>
                                                     </div>
@@ -499,7 +514,12 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                     <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                                                     <h3 className="text-xs font-bold text-amber-400 tracking-widest uppercase">Anonymous Pilots</h3>
                                                 </div>
-                                                <span className="text-[9px] text-amber-500/40 uppercase tracking-widest ml-4 mt-1">Register a Basename to join the main board</span>
+                                            </div>
+
+                                            <div className="flex flex-col bg-amber-950/30 border border-amber-500/20 rounded-xl p-3 mb-4 cursor-pointer hover:bg-amber-950/50 transition-colors" onClick={() => window.open('https://base.org/names', '_blank')}>
+                                                <span className="text-amber-400 font-bold text-[10px] tracking-widest">⚠ NO BASENAME DETECTED</span>
+                                                <span className="text-amber-400/60 text-[9px] mt-1 leading-relaxed">Players without a registered Basename are ineligible for prize distribution. Scores are tracked but rewards cannot be assigned to an anonymous wallet.</span>
+                                                <span className="text-amber-500 text-[9px] font-bold mt-2 hover:text-amber-400">→ GET YOUR BASENAME AT BASE.ORG</span>
                                             </div>
                                             
                                             <div className="flex flex-col gap-2">
