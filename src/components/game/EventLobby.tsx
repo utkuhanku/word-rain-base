@@ -4,6 +4,7 @@ import { useAccount, useSendTransaction, usePublicClient } from "wagmi";
 import { useState, useEffect } from "react";
 import { useGameStore } from "@/lib/store/gameStore";
 import { motion, AnimatePresence } from "framer-motion";
+import { base } from 'wagmi/chains';
 import { encodeFunctionData, parseAbiItem } from "viem";
 import { Identity, Avatar, Name, Address } from '@coinbase/onchainkit/identity';
 import { Wallet, ConnectWallet } from '@coinbase/onchainkit/wallet';
@@ -414,7 +415,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                                             </svg>
                                                         </div>
-                                                        {entry.pfp_url && (
+                                                        {entry.identifier && entry.identifier.startsWith('0x') ? (
+                                                            <div className="absolute inset-0 w-full h-full z-20 rounded-full overflow-hidden flex items-center justify-center">
+                                                                <Avatar address={entry.identifier as `0x${string}`} chain={base} className="w-full h-full object-cover" />
+                                                            </div>
+                                                        ) : entry.pfp_url && (
                                                             <img
                                                                 src={entry.pfp_url}
                                                                 alt="Profile"
@@ -428,7 +433,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                 <div className="flex flex-col justify-center flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
                                                         <span className={`font-bold text-sm truncate ${isTop5 ? 'text-white' : 'text-zinc-300'}`}>
-                                                            {entry.username ? entry.username : entry.type === 'wallet' || entry.identifier?.startsWith('0x') ? <Name address={entry.identifier as `0x${string}`} /> : (entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`)}
+                                                            {entry.identifier && entry.identifier.startsWith('0x') ? (
+                                                                <Name address={entry.identifier as `0x${string}`} chain={base} />
+                                                            ) : (
+                                                                entry.username || entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`
+                                                            )}
                                                         </span>
                                                         {isTop5 && (
                                                             <div className="w-3.5 h-3.5 rounded-full bg-[#0052FF] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(0,82,255,0.8)]" title="Prize Winner">

@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
 import { motion } from 'framer-motion';
+import { Name, Avatar } from '@coinbase/onchainkit/identity';
+import { base } from 'wagmi/chains';
 
 interface GlobalLeaderboardProps {
     onClose: () => void;
@@ -137,8 +139,10 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                                         </div>
                                         <div className="flex items-center gap-3">
                                             {/* Avatar */}
-                                            <div className={`w-8 h-8 rounded-full overflow-hidden shrink-0 ${ringColor}`}>
-                                                {entry.avatar ? (
+                                            <div className={`w-8 h-8 rounded-full overflow-hidden shrink-0 ${ringColor} flex items-center justify-center`}>
+                                                {entry.address ? (
+                                                    <Avatar address={entry.address as `0x${string}`} chain={base} className="w-full h-full object-cover" />
+                                                ) : entry.avatar ? (
                                                     <img src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className={`w-full h-full flex items-center justify-center text-[10px] font-mono ${rank === 1 ? "bg-[#FFD700] text-black" : "bg-gradient-to-br from-zinc-800 to-black text-zinc-500"}`}>
@@ -149,7 +153,11 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`text-sm font-mono tracking-wide transition-all ${nameColor}`}>
-                                                        {entry.name}
+                                                        {entry.address ? (
+                                                            <Name address={entry.address as `0x${string}`} chain={base} />
+                                                        ) : (
+                                                            entry.name
+                                                        )}
                                                     </span>
                                                     {rank === 1 && (
                                                         <span className="bg-[#FFD700] text-black text-[8px] font-bold px-1.5 py-0.5 rounded animate-pulse">
