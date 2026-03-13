@@ -16,6 +16,7 @@ import { useGameStore } from '@/lib/store/gameStore';
 import CompetitionLobby from './CompetitionLobby';
 import EventLobby from './EventLobby';
 import EventDetailPage from './EventDetailPage';
+import ProfilePage from './ProfilePage';
 import HelpModal from './HelpModal';
 
 interface LobbyProps {
@@ -83,7 +84,8 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [showEthDenver, setShowEthDenver] = useState(false);
     
     // NEW EVENTS HUB STATE
-    const [activeNavTab, setActiveNavTab] = useState<'EVENTS' | 'LEADERBOARD'>('EVENTS');
+    type NavTab = 'EVENTS' | 'PROFILE';
+    const [activeNavTab, setActiveNavTab] = useState<NavTab>('EVENTS');
     const [showEventDetail, setShowEventDetail] = useState<string | null>(null);
     
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu State
@@ -295,14 +297,17 @@ export default function Lobby({ onStart }: LobbyProps) {
             {/* Main Content */}
             <AnimatePresence mode="wait">
                 {isReady && !showEvent ? (
-                    <motion.div
-                        key="main-interface"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                        transition={{ duration: 0.5 }}
-                        className="flex flex-col w-full h-full max-w-md mx-auto relative z-10 pb-20 overflow-y-auto custom-scrollbar"
-                    >
+                    activeNavTab === 'PROFILE' ? (
+                        <ProfilePage key="profile-page" onBack={() => setActiveNavTab('EVENTS')} />
+                    ) : (
+                        <motion.div
+                            key="main-interface"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                            transition={{ duration: 0.5 }}
+                            className="flex flex-col w-full h-full max-w-md mx-auto relative z-10 pb-20 overflow-y-auto custom-scrollbar"
+                        >
                         {/* TOP: Identity & Hero Streak */}
                         <div className="flex flex-col gap-4 p-6 shrink-0 relative z-20">
                             {/* Pilot Info */}
@@ -542,6 +547,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                         </div>
 
                     </motion.div>
+                    )
                 ) : (!isReady) ? (
                     <motion.div
                         key="loading-screen"
@@ -562,21 +568,41 @@ export default function Lobby({ onStart }: LobbyProps) {
                         initial={{ y: 100 }}
                         animate={{ y: 0 }}
                         exit={{ y: 100 }}
-                        className="fixed bottom-0 inset-x-0 z-30 max-w-md mx-auto h-16 bg-black/95 backdrop-blur-xl border-t border-white/10 flex justify-center items-end pb-2"
+                        className="fixed bottom-0 inset-x-0 z-30 max-w-md mx-auto h-16 bg-black/95 backdrop-blur-xl border-t border-white/10 flex justify-center pb-2 px-6"
                     >
-                        <button
-                            onClick={() => setActiveNavTab('EVENTS')}
-                            className="flex flex-col items-center justify-center gap-1.5 px-8 h-full relative"
-                        >
-                            <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#0052FF] shadow-[0_0_10px_rgba(0,82,255,0.8)]" />
-                            <svg className="w-5 h-5 text-[#0052FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="3" y="3" width="7" height="7" rx="1" />
-                                <rect x="14" y="3" width="7" height="7" rx="1" />
-                                <rect x="14" y="14" width="7" height="7" rx="1" />
-                                <rect x="3" y="14" width="7" height="7" rx="1" />
-                            </svg>
-                            <span className="font-mono text-[9px] tracking-widest font-black text-[#0052FF]">EVENTS</span>
-                        </button>
+                        <div className="flex items-end h-full w-full justify-center">
+                            {/* EVENTS TAB */}
+                            <button
+                                onClick={() => setActiveNavTab('EVENTS')}
+                                className="flex flex-col items-center justify-center gap-1.5 w-1/2 h-full relative"
+                            >
+                                {activeNavTab === 'EVENTS' && (
+                                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#0052FF] shadow-[0_0_10px_rgba(0,82,255,0.8)]" />
+                                )}
+                                <svg className={`w-5 h-5 ${activeNavTab === 'EVENTS' ? 'text-[#0052FF]' : 'text-zinc-600'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                                </svg>
+                                <span className={`font-mono text-[9px] tracking-widest font-black ${activeNavTab === 'EVENTS' ? 'text-[#0052FF]' : 'text-zinc-600'}`}>EVENTS</span>
+                            </button>
+
+                            {/* PROFILE TAB */}
+                            <button
+                                onClick={() => setActiveNavTab('PROFILE')}
+                                className="flex flex-col items-center justify-center gap-1.5 w-1/2 h-full relative"
+                            >
+                                {activeNavTab === 'PROFILE' && (
+                                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#0052FF] shadow-[0_0_10px_rgba(0,82,255,0.8)]" />
+                                )}
+                                <svg className={`w-5 h-5 ${activeNavTab === 'PROFILE' ? 'text-[#0052FF]' : 'text-zinc-600'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <span className={`font-mono text-[9px] tracking-widest font-black ${activeNavTab === 'PROFILE' ? 'text-[#0052FF]' : 'text-zinc-600'}`}>PROFILE</span>
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

@@ -24,7 +24,7 @@ export default function EventDetailPage({ eventId, onBack }: EventDetailPageProp
                 const res = await fetch(`/api/leaderboard/top?limit=50&partition=${eventId}`);
                 if (res.ok) {
                     const data = await res.json();
-                    setLeaderboard(data.leaderboard || []);
+                    setLeaderboard(Array.isArray(data.leaderboard) ? data.leaderboard : []);
                 }
             } catch (error) {
                 console.error("Failed to fetch event leaderboard:", error);
