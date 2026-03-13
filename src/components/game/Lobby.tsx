@@ -15,6 +15,7 @@ import { useGameStore } from '@/lib/store/gameStore';
 
 import CompetitionLobby from './CompetitionLobby';
 import EventLobby from './EventLobby';
+import EventDetailPage from './EventDetailPage';
 import HelpModal from './HelpModal';
 
 interface LobbyProps {
@@ -80,7 +81,11 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [showCompetition, setShowCompetition] = useState(false);
     const [showEvent, setShowEvent] = useState(false);
     const [showEthDenver, setShowEthDenver] = useState(false);
-    const [showPastEvents, setShowPastEvents] = useState(false);
+    
+    // NEW EVENTS HUB STATE
+    const [activeNavTab, setActiveNavTab] = useState<'EVENTS' | 'LEADERBOARD'>('EVENTS');
+    const [showEventDetail, setShowEventDetail] = useState<string | null>(null);
+    
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu State
     const [isLeaderboardOpening, setIsLeaderboardOpening] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
@@ -254,6 +259,12 @@ export default function Lobby({ onStart }: LobbyProps) {
                 {showHelp && (
                     <HelpModal onClose={() => setShowHelp(false)} />
                 )}
+                {showEventDetail && (
+                    <EventDetailPage
+                        eventId={showEventDetail}
+                        onBack={() => setShowEventDetail(null)}
+                    />
+                )}
                 {showStreakSuccess && (
                     <motion.div
                         key="streak-success"
@@ -290,7 +301,7 @@ export default function Lobby({ onStart }: LobbyProps) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
                         transition={{ duration: 0.5 }}
-                        className="flex flex-col w-full h-full max-w-md mx-auto relative z-10"
+                        className="flex flex-col w-full h-full max-w-md mx-auto relative z-10 pb-20 overflow-y-auto custom-scrollbar"
                     >
                         {/* TOP: Identity & Hero Streak */}
                         <div className="flex flex-col gap-4 p-6 shrink-0 relative z-20">
@@ -407,61 +418,58 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 </div>
                             </motion.button>
 
-                            {/* PAST EVENTS ACCORDION */}
-                            <div className="w-full flex flex-col gap-2 mt-2 shrink-0">
+                            {/* TOTAL DISTRIBUTED BANNER */}
+                            <div className="w-full flex items-center justify-between px-4 py-3 bg-[#0052FF]/5 border border-[#0052FF]/20 rounded-xl mt-4 shrink-0">
+                                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Total Distributed</span>
+                                <span className="text-sm font-black text-[#0052FF] font-mono">$1,000+</span>
+                            </div>
+
+                            {/* PAST EVENTS: ETHDENVER 2026 */}
+                            <div className="w-full flex flex-col mt-2 shrink-0">
+                                <div className="flex items-center gap-2 mb-2 px-2">
+                                    <div className="w-1.5 h-1.5 bg-zinc-600 rounded-full" />
+                                    <h3 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest font-mono">
+                                        Past Events
+                                    </h3>
+                                </div>
+                                
                                 <button
-                                    onClick={() => setShowPastEvents(!showPastEvents)}
-                                    className="w-full flex items-center justify-between p-3.5 bg-black hover:bg-white/5 border border-white/5 rounded-xl transition-all group shrink-0"
+                                    onClick={() => setShowEventDetail('ethdenver')}
+                                    className="w-full bg-[#050505] border border-white/5 hover:border-white/10 rounded-2xl p-5 flex flex-col text-left transition-all active:scale-[0.98] group relative overflow-hidden"
                                 >
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs font-mono font-bold text-zinc-500 group-hover:text-zinc-300 uppercase tracking-widest transition-colors">
-                                            Vault: Past Events
+                                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity grayscale pointer-events-none">
+                                        <span className="text-6xl">🏔️</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2 mb-3 relative z-10">
+                                        <span className="text-[9px] font-black w-1.5 h-1.5 rounded-full bg-red-500/50" />
+                                        <span className="text-[9px] font-black text-red-500/80 tracking-widest uppercase">CONCLUDED</span>
+                                    </div>
+                                    
+                                    <h3 className="text-xl font-black text-white italic tracking-tight uppercase mb-1 relative z-10">
+                                        ETH<span className="text-zinc-500">DENVER</span> 2026
+                                    </h3>
+                                    <p className="text-[10px] text-zinc-500 font-mono mb-4 relative z-10">
+                                        Official sprint event · Feb 2026
+                                    </p>
+                                    
+                                    <div className="w-full bg-black/40 border border-white/5 rounded-xl p-3 mb-4 flex divide-x divide-white/5 relative z-10">
+                                        <div className="flex flex-col flex-1 px-2">
+                                            <span className="text-[9px] text-zinc-600 font-mono tracking-widest uppercase mb-1">Prize Pool</span>
+                                            <span className="text-xs font-bold text-white font-space">$500 USDC <span className="text-zinc-500 font-normal">distributed</span></span>
+                                        </div>
+                                        <div className="flex flex-col flex-1 px-3">
+                                            <span className="text-[9px] text-zinc-600 font-mono tracking-widest uppercase mb-1">Participants</span>
+                                            <span className="text-xs font-bold text-white font-space">17 <span className="text-zinc-500 font-normal">pilots</span></span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-end w-full relative z-10">
+                                        <span className="text-[10px] font-mono font-bold text-zinc-400 group-hover:text-white transition-colors uppercase tracking-[0.2em] flex items-center gap-2">
+                                            VIEW STANDINGS <span className="group-hover:translate-x-1 transition-transform">→</span>
                                         </span>
                                     </div>
-                                    <span className={`text-zinc-500 text-xs font-mono transition-transform duration-300 ${showPastEvents ? 'rotate-180' : ''}`}>
-                                        ▼
-                                    </span>
                                 </button>
-
-                                <AnimatePresence>
-                                    {showPastEvents && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: "auto", opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                                            className="overflow-hidden"
-                                        >
-                                            <div className="w-full relative bg-[#050505] border border-white/5 rounded-xl p-5 overflow-hidden group mt-1">
-                                                <div className="absolute top-0 right-0 p-4 opacity-10 grayscale">
-                                                    <span className="text-5xl">🏔️</span>
-                                                </div>
-                                                <div className="flex flex-col gap-1 items-start relative z-10 w-full">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500/80" />
-                                                        <span className="text-[9px] font-black text-red-500/80 tracking-widest uppercase">CONCLUDED</span>
-                                                    </div>
-                                                    <h3 className="text-xl font-black text-zinc-400 italic tracking-tight uppercase">
-                                                        ETH<span className="text-zinc-600">DENVER</span>
-                                                    </h3>
-                                                    <p className="text-[10px] text-zinc-600 font-mono mt-1">
-                                                        The official 2026 sprint has ended.
-                                                    </p>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            e.stopPropagation();
-                                                            setShowLeaderboard(true);
-                                                        }}
-                                                        className="mt-4 w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-zinc-400 hover:text-white font-mono text-xs font-bold uppercase tracking-widest rounded-lg transition-all"
-                                                    >
-                                                        View Final Standings
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
                             </div>
 
                             {/* TRAINING CAMP CARD */}
@@ -545,6 +553,32 @@ export default function Lobby({ onStart }: LobbyProps) {
                         <span className="animate-pulse">LOADING RESOURCES...</span>
                     </motion.div>
                 ) : null}
+            </AnimatePresence>
+
+            {/* BOTTOM NAVIGATION BAR */}
+            <AnimatePresence>
+                {isReady && !showEvent && !showEventDetail && (
+                    <motion.div
+                        initial={{ y: 100 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: 100 }}
+                        className="fixed bottom-0 inset-x-0 z-30 max-w-md mx-auto h-16 bg-black/95 backdrop-blur-xl border-t border-white/10 flex justify-center items-end pb-2"
+                    >
+                        <button
+                            onClick={() => setActiveNavTab('EVENTS')}
+                            className="flex flex-col items-center justify-center gap-1.5 px-8 h-full relative"
+                        >
+                            <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#0052FF] shadow-[0_0_10px_rgba(0,82,255,0.8)]" />
+                            <svg className="w-5 h-5 text-[#0052FF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1" />
+                                <rect x="14" y="3" width="7" height="7" rx="1" />
+                                <rect x="14" y="14" width="7" height="7" rx="1" />
+                                <rect x="3" y="14" width="7" height="7" rx="1" />
+                            </svg>
+                            <span className="font-mono text-[9px] tracking-widest font-black text-[#0052FF]">EVENTS</span>
+                        </button>
+                    </motion.div>
+                )}
             </AnimatePresence>
         </div>
     );
