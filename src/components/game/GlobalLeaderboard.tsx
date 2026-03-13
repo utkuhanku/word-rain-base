@@ -140,7 +140,7 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                                         <div className="flex items-center gap-3">
                                             {/* Avatar */}
                                             <div className={`w-8 h-8 rounded-full overflow-hidden shrink-0 ${ringColor} flex items-center justify-center`}>
-                                                {entry.address ? (
+                                                {entry.address && entry.address.startsWith("0x") ? (
                                                     <Avatar address={entry.address as `0x${string}`} chain={base} className="w-full h-full object-cover" />
                                                 ) : entry.avatar ? (
                                                     <img src={entry.avatar} alt={entry.name} className="w-full h-full object-cover" />
@@ -153,7 +153,7 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                                             <div className="flex flex-col">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`text-sm font-mono tracking-wide transition-all ${nameColor}`}>
-                                                        {entry.address ? (
+                                                        {entry.address && entry.address.startsWith("0x") ? (
                                                             <Name address={entry.address as `0x${string}`} chain={base} />
                                                         ) : (
                                                             entry.name

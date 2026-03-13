@@ -27,14 +27,26 @@ export function useLeaderboard() {
             const data: { address: string; score: number; streak?: number }[] = await res.json();
 
             // 1. Map to basic entries
-            const basicEntries = data.map(item => ({
-                address: item.address,
-                score: item.score,
-                streak: item.streak || 0,
-                name: `${item.address.slice(0, 6)}...${item.address.slice(-4)}`,
-                avatar: null as string | null,
-                isLegacy: seasonId === 1 // Helper for UI filtering if needed, though API handles filtering
-            }));
+            const basicEntries = data.map(item => {
+                let cleanAddress = item.address;
+                if (cleanAddress.startsWith('wallet:')) {
+                    cleanAddress = cleanAddress.substring(7);
+                }
+
+                let fallbackName = cleanAddress;
+                if (cleanAddress.startsWith('0x')) {
+                    fallbackName = `${cleanAddress.slice(0, 6)}...${cleanAddress.slice(-4)}`;
+                }
+
+                return {
+                    address: cleanAddress,
+                    score: item.score,
+                    streak: item.streak || 0,
+                    name: fallbackName,
+                    avatar: null as string | null,
+                    isLegacy: seasonId === 1 // Helper for UI filtering if needed, though API handles filtering
+                };
+            });
 
             // 2. Resolve Identities (Parallel)
             const resolvedEntries = await Promise.all(basicEntries.map(async (entry) => {
