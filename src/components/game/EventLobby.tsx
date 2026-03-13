@@ -388,24 +388,51 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         </div>
                     ) : (
                         <>
-                            {/* UNIFIED DATA TABLE */}
+                            {/* UNIFIED DATA TABLE - VERIFIED PILOTS */}
                             <div className="flex flex-col w-full rounded-2xl bg-[#030303] border border-white/5 overflow-hidden shadow-2xl pb-4">
-                                {leaderboard.map((entry: any, i) => {
-                                    const isTop = i === 0;
-                                    const isTop5 = i > 0 && i < 5;
-                                    return (
-                                        <div
-                                            key={entry.member || entry.address}
-                                            onClick={() => setSelectedPlayer(entry)}
-                                            className={`flex items-center justify-between p-4 border-b border-white/5 cursor-pointer transition-all hover:bg-white/5 active:bg-white/10 ${isTop ? 'bg-gradient-to-r from-white/10 to-transparent relative overflow-hidden' : ''}`}
-                                        >
-                                            {isTop && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]" />}
-                                            {isTop5 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20" />}
+                                {(() => {
+                                    const verifiedPilots = leaderboard.filter((entry: any) => {
+                                        const name = entry.username || entry.displayName || "";
+                                        return name && !name.startsWith("0x");
+                                    });
 
-                                            <div className="flex items-center gap-4 relative z-10 w-full px-2">
-                                                <div className={`font-mono text-xs w-6 text-center shrink-0 ${isTop ? 'text-white font-black drop-shadow-[0_0_8px_rgba(255,255,255,1)]' : 'text-zinc-600 font-bold'}`}>
-                                                    {i + 1}
-                                                </div>
+                                    const anonymousPilots = leaderboard.filter((entry: any) => {
+                                        const name = entry.username || entry.displayName || "";
+                                        return !name || name.startsWith("0x");
+                                    });
+
+                                    return (
+                                        <>
+                                            {/* VERIFIED PILOTS SECTION --------------------------------------- */}
+                                            {verifiedPilots.map((entry: any, i: number) => {
+                                                const rank = i + 1;
+                                                const isTop = rank === 1;
+                                                const isTop5 = rank >= 2 && rank <= 5;
+                                                
+                                                // Fixed Color Logic
+                                                let textColor = 'text-zinc-400';
+                                                let scoreColor = 'text-zinc-500';
+                                                if (isTop) {
+                                                    textColor = 'text-white font-black';
+                                                    scoreColor = 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]';
+                                                } else if (isTop5) {
+                                                    textColor = 'text-white font-bold';
+                                                    scoreColor = 'text-[#0052FF]';
+                                                }
+
+                                                return (
+                                                    <div
+                                                        key={entry.member || entry.address}
+                                                        onClick={() => setSelectedPlayer(entry)}
+                                                        className={`flex items-center justify-between p-4 border-b border-white/5 cursor-pointer transition-all hover:bg-white/5 active:bg-white/10 ${isTop ? 'bg-gradient-to-r from-white/10 to-transparent relative overflow-hidden' : ''}`}
+                                                    >
+                                                        {isTop && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]" />}
+                                                        {isTop5 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20" />}
+
+                                                        <div className="flex items-center gap-4 relative z-10 w-full px-2">
+                                                            <div className={`font-mono text-xs w-6 text-center shrink-0 ${isTop ? 'text-white font-black drop-shadow-[0_0_8px_rgba(255,255,255,1)]' : 'text-zinc-600 font-bold'}`}>
+                                                                {rank}
+                                                            </div>
 
                                                 <div className="relative shrink-0">
                                                     <div className={`w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border ${isTop ? 'border-white/50 bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-white/10 bg-[#050505]'}`}>
@@ -430,9 +457,9 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                     </div>
                                                 </div>
 
-                                                <div className="flex flex-col justify-center flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className={`font-bold text-sm truncate ${isTop5 ? 'text-white' : 'text-zinc-300'}`}>
+                                                    <div className="flex flex-col justify-center flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`text-sm truncate ${textColor}`}>
                                                             {entry.identifier && entry.identifier.startsWith('0x') ? (
                                                                 <Name address={entry.identifier as `0x${string}`} chain={base} />
                                                             ) : (
@@ -454,16 +481,69 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                     )}
                                                 </div>
 
-                                                <div className="text-right shrink-0">
-                                                    <span className={`font-space font-bold text-xl tracking-tight ${isTop ? 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' : 'text-zinc-500'}`}>
-                                                        {entry.score}
-                                                    </span>
+                                                    <div className="text-right shrink-0">
+                                                        <span className={`font-space font-bold text-xl tracking-tight ${scoreColor}`}>
+                                                            {entry.score}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
+                                        );
+                                    })}
+
+                                    {/* ANONYMOUS PILOTS SECTION --------------------------------------- */}
+                                    {anonymousPilots.length > 0 && (
+                                        <div className="mt-8 pt-4 border-t border-amber-500/20 px-2 lg:px-4 mb-2">
+                                            <div className="flex flex-col mb-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                                    <h3 className="text-xs font-bold text-amber-400 tracking-widest uppercase">Anonymous Pilots</h3>
+                                                </div>
+                                                <span className="text-[9px] text-amber-500/40 uppercase tracking-widest ml-4 mt-1">Register a Basename to join the main board</span>
+                                            </div>
+                                            
+                                            <div className="flex flex-col gap-2">
+                                                {anonymousPilots.map((entry: any, i: number) => {
+                                                    // Map the index to the real rank across the entire leaderboard by looking up the full list
+                                                    const rank = leaderboard.findIndex((e: any) => e.member === entry.member) + 1;
+                                                    
+                                                    // Ensure we display truncated address if OnchainKit doesn't work out
+                                                    let anonAddress = entry.identifier || entry.address;
+                                                    if (anonAddress && anonAddress.length > 15) {
+                                                        anonAddress = `${anonAddress.slice(0, 6)}...${anonAddress.slice(-4)}`;
+                                                    }
+
+                                                    return (
+                                                        <div
+                                                            key={entry.member || entry.address}
+                                                            onClick={() => setSelectedPlayer(entry)}
+                                                            className="flex items-center justify-between p-3 rounded-xl bg-amber-950/20 border border-amber-500/20 cursor-pointer transition-all hover:bg-amber-900/30 group w-full"
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="font-mono text-xs w-6 text-center shrink-0 text-amber-600/50">
+                                                                    {rank}
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-mono text-sm text-amber-400/60 truncate">
+                                                                        {anonAddress}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right shrink-0">
+                                                                <span className="font-space font-bold text-sm text-amber-400/60">
+                                                                    {entry.score}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
+                                    )}
+                                </>
+                            );
+                        })()}
+                    </div>
 
                             {/* OMEGA DISQUALIFIED SECTION */}
                             <div className="mt-8 pt-6 border-t border-red-500/20 px-4 mb-8">
