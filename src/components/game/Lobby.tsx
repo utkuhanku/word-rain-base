@@ -308,10 +308,8 @@ export default function Lobby({ onStart }: LobbyProps) {
                             transition={{ duration: 0.5 }}
                             className="flex flex-col w-full h-full max-w-md mx-auto relative z-10 pb-20 overflow-y-auto custom-scrollbar"
                         >
-                        {/* TOP: Identity & Hero Streak */}
-                        <div className="flex flex-col gap-4 p-6 shrink-0 relative z-20">
-                            {/* Pilot Info */}
-                            <div className="flex justify-between items-center">
+                            {/* 1. TOP BAR */}
+                            <div className="shrink-0 px-5 pt-5 pb-3 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-1.5 h-1.5 bg-[#0052FF] rotate-45 shadow-[0_0_10px_#0052FF]" />
                                     {displayName ? (
@@ -334,217 +332,166 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 )}
                             </div>
 
-                            {/* HERO STREAK WIDGET */}
-                            <button
-                                onClick={handleGMaction}
-                                disabled={isSending}
-                                className={`w-full relative overflow-hidden rounded-xl border ${canGM ? "border-orange-500/50 bg-orange-500/10" : "border-white/10 bg-white/5"} p-4 group transition-all hover:scale-[1.01]`}
-                            >
-                                <div className="flex items-center justify-between relative z-10">
-                                    <div className="flex flex-col items-start gap-1">
-                                        <span className="text-[9px] font-black text-zinc-500 tracking-[0.2em] group-hover:text-white transition-colors">
-                                            {canGM ? "MISSION AVAILABLE" : "MISSION COMPLETE"}
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <span className={`text-2xl font-black italic tracking-widest ${canGM ? "text-orange-500 animate-pulse" : "text-white"}`}>
-                                                {canGM ? "CLAIM GM" : `STREAK: ${streak}`}
-                                            </span>
-                                            <span className="text-2xl">🔥</span>
-                                        </div>
-                                    </div>
-                                    {canGM && (
-                                        <div className="w-10 h-10 rounded-full bg-orange-500 text-black flex items-center justify-center font-bold text-xl shadow-[0_0_20px_rgba(249,115,22,0.5)] animate-bounce">
-                                            !
-                                        </div>
-                                    )}
-                                </div>
-                                {/* Mystery Text */}
-                                <div className="mt-2 w-full h-px bg-white/5" />
-                                <div className="mt-2 flex items-center gap-2 opacity-50">
-                                    <span className="text-[8px] font-mono tracking-widest text-[#0052FF]">
-                                        CLASSIFIED //
-                                    </span>
-                                    <span className="text-[8px] font-mono text-zinc-400">
-                                        KEEP THE FLAME ALIVE. UNLOCK HIDDEN REWARDS.
-                                    </span>
-                                </div>
-                            </button>
-                        </div>
-
-                        {/* MIDDLE: Event Hero & Past Events (Flexible Grow) */}
-                        <div className="flex-1 flex flex-col items-center justify-center p-6 -mt-10 gap-4">
-
-                            {/* PREMIUM EVENT BANNER (Live) */}
-                            <motion.button
-                                onClick={() => setShowEvent(true)}
-                                initial={{ opacity: 0, scale: 0.98 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.4, ease: "easeOut" }}
-                                className="w-full relative group cursor-pointer shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            >
-                                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#0052FF]/0 via-[#0052FF]/30 to-[#0052FF]/0 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                <div className="relative bg-[#020202] border border-white/10 group-hover:border-[#0052FF]/50 rounded-2xl overflow-hidden p-6 flex flex-col items-center text-center w-full box-border transition-colors duration-500">
-
-                                    {/* Noise texture and glow for premium feel */}
-                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
-                                    <div className="absolute top-0 right-[-10%] w-32 h-32 bg-[#0052FF]/10 blur-[50px] rounded-full pointer-events-none group-hover:bg-[#0052FF]/20 transition-all duration-700" />
-
-                                    {/* Status Header */}
-                                    <div className="flex items-center justify-between w-full mb-6 relative z-10 box-border">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,1)] animate-pulse" />
-                                            <span className="text-[10px] font-mono font-bold tracking-widest text-red-500 uppercase">LIVE EVENT</span>
-                                        </div>
-                                        <span className="text-[10px] font-mono font-bold text-[#3B82F6] tracking-widest uppercase flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md border border-white/10">
-                                            $500 <span className="text-white">REWARD</span>
-                                        </span>
-                                    </div>
-
-                                    {/* Main Typography */}
-                                    <div className="flex flex-col gap-3 items-center justify-center w-full relative z-10 box-border pointer-events-none">
-                                        <h1 className="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 m-0 p-0 leading-none group-hover:from-white group-hover:to-white transition-all duration-500">
-                                            NEW ERA
-                                        </h1>
-                                        <span className="text-[10px] font-bold text-white bg-[#3B82F6] px-4 py-1 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] mt-1 tracking-widest uppercase">
-                                            $500 Prize Pool
-                                        </span>
-
-                                        <p className="text-xs text-zinc-400 max-w-[260px] leading-relaxed mt-2 font-mono group-hover:text-zinc-300 transition-colors">
-                                            The void is open. Enter the arena.
-                                        </p>
-                                    </div>
-
-                                    {/* Action Call */}
-                                    <div className="w-full mt-6 bg-gradient-to-r from-[#0052FF] to-[#2563EB] rounded-2xl p-4 flex flex-col items-center justify-center gap-2 relative z-10 box-border shadow-[0_0_30px_rgba(0,82,255,0.4)] group-hover:shadow-[0_0_50px_rgba(0,82,255,0.8)] group-hover:scale-[1.02] transition-all duration-300 border border-[#3B82F6] group-hover:border-white">
-                                        <span className="text-xs font-black text-white tracking-widest uppercase flex items-center gap-2">
-                                            Enter the Void <span className="group-hover:translate-x-1 transition-transform">→</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </motion.button>
-
-                            {/* TOTAL DISTRIBUTED BANNER */}
-                            <div className="w-full flex items-center justify-between px-4 py-3 bg-[#0052FF]/5 border border-[#0052FF]/20 rounded-xl mt-4 shrink-0">
-                                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Total Distributed</span>
-                                <span className="text-sm font-black text-[#0052FF] font-mono">$1,000+</span>
-                            </div>
-
-                            {/* PAST EVENTS: ETHDENVER 2026 */}
-                            <div className="w-full flex flex-col mt-2 shrink-0">
-                                <div className="flex items-center gap-2 mb-2 px-2">
-                                    <div className="w-1.5 h-1.5 bg-zinc-600 rounded-full" />
-                                    <h3 className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest font-mono">
-                                        Past Events
-                                    </h3>
-                                </div>
-                                
+                            {/* 2. GM STREAK WIDGET */}
+                            <div className="mx-5 mb-4">
                                 <button
-                                    onClick={() => setShowEventDetail('ethdenver')}
-                                    className="w-full bg-[#050505] border border-white/5 hover:border-white/10 rounded-2xl p-5 flex flex-col text-left transition-all active:scale-[0.98] group relative overflow-hidden"
+                                    onClick={handleGMaction}
+                                    disabled={isSending}
+                                    className={`w-full relative overflow-hidden rounded-xl border ${canGM ? "border-orange-500/50 bg-orange-500/10" : "border-white/10 bg-white/5"} py-3 px-4 group transition-all hover:scale-[1.01]`}
                                 >
-                                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity grayscale pointer-events-none">
-                                        <span className="text-6xl">🏔️</span>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 mb-3 relative z-10">
-                                        <span className="text-[9px] font-black w-1.5 h-1.5 rounded-full bg-red-500/50" />
-                                        <span className="text-[9px] font-black text-red-500/80 tracking-widest uppercase">CONCLUDED</span>
-                                    </div>
-                                    
-                                    <h3 className="text-xl font-black text-white italic tracking-tight uppercase mb-1 relative z-10">
-                                        ETH<span className="text-zinc-500">DENVER</span> 2026
-                                    </h3>
-                                    <p className="text-[10px] text-zinc-500 font-mono mb-4 relative z-10">
-                                        Official sprint event · Feb 2026
-                                    </p>
-                                    
-                                    <div className="w-full bg-black/40 border border-white/5 rounded-xl p-3 mb-4 flex divide-x divide-white/5 relative z-10">
-                                        <div className="flex flex-col flex-1 px-2">
-                                            <span className="text-[9px] text-zinc-600 font-mono tracking-widest uppercase mb-1">Prize Pool</span>
-                                            <span className="text-xs font-bold text-white font-space">$500 USDC <span className="text-zinc-500 font-normal">distributed</span></span>
+                                    <div className="flex items-center justify-between relative z-10">
+                                        <div className="flex flex-col items-start gap-1">
+                                            <span className="text-[9px] font-black text-zinc-500 tracking-[0.2em] group-hover:text-white transition-colors">
+                                                {canGM ? "MISSION AVAILABLE" : "MISSION COMPLETE"}
+                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className={`text-2xl font-black italic tracking-widest ${canGM ? "text-orange-500 animate-pulse" : "text-white"}`}>
+                                                    {canGM ? "CLAIM GM" : `STREAK: ${streak}`}
+                                                </span>
+                                                <span className="text-2xl">🔥</span>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col flex-1 px-3">
-                                            <span className="text-[9px] text-zinc-600 font-mono tracking-widest uppercase mb-1">Participants</span>
-                                            <span className="text-xs font-bold text-white font-space">17 <span className="text-zinc-500 font-normal">pilots</span></span>
-                                        </div>
+                                        {canGM && (
+                                            <div className="w-8 h-8 rounded-full bg-orange-500 text-black flex items-center justify-center font-bold text-lg shadow-[0_0_20px_rgba(249,115,22,0.5)] animate-bounce">
+                                                !
+                                            </div>
+                                        )}
                                     </div>
-
-                                    <div className="flex justify-end w-full relative z-10">
-                                        <span className="text-[10px] font-mono font-bold text-zinc-400 group-hover:text-white transition-colors uppercase tracking-[0.2em] flex items-center gap-2">
-                                            VIEW STANDINGS <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                    <div className="mt-2 w-full h-px bg-white/5" />
+                                    <div className="mt-2 flex items-center gap-2 opacity-50">
+                                        <span className="text-[8px] font-mono tracking-widest text-[#0052FF]">
+                                            CLASSIFIED //
+                                        </span>
+                                        <span className="text-[8px] font-mono text-zinc-400">
+                                            KEEP THE FLAME ALIVE. UNLOCK HIDDEN REWARDS.
                                         </span>
                                     </div>
                                 </button>
                             </div>
 
-                            {/* TRAINING CAMP CARD */}
-                            <div className="w-full flex mt-4 flex-col gap-3 shrink-0 mb-10">
-                                <div className="flex items-center gap-2 mb-1 px-2">
-                                    <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full" />
-                                    <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest font-mono">
-                                        Training Camp
-                                    </h3>
-                                </div>
-                                <div className="bg-[#050505] border border-white/5 rounded-2xl p-5 flex flex-col gap-5 relative overflow-hidden group">
-                                    {/* Background Accent */}
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-white/10 transition-colors" />
+                            {/* 3. LIVE EVENT CARD */}
+                            <motion.button
+                                onClick={() => setShowEvent(true)}
+                                className="mx-5 mb-3 w-[calc(100%-40px)] relative group cursor-pointer"
+                            >
+                                <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-emerald-500/40 via-emerald-400/20 to-emerald-500/40 animate-pulse" />
 
-                                    <div className="flex flex-col relative z-10 w-full gap-4">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex flex-col">
-                                                <span className="text-xl font-black text-white italic tracking-tighter uppercase">FREE PRACTICE</span>
-                                                <span className="text-[10px] text-zinc-500 font-mono mt-0.5">Global Leaderboard. No Prizes.</span>
-                                            </div>
-                                            <span className="text-3xl grayscale opacity-30 group-hover:grayscale-0 group-hover:opacity-100 transition-all">🎯</span>
+                                <div className="relative bg-[#020202] rounded-2xl overflow-hidden p-5 text-left flex flex-col items-start w-full transition-colors duration-500">
+                                    <div className="flex items-center justify-between w-full mb-4">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,1)] animate-pulse" />
+                                            <span className="text-[10px] font-black tracking-widest text-emerald-400 uppercase font-mono">LIVE NOW</span>
+                                        </div>
+                                        <span className="text-[10px] font-black text-white bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 rounded-full font-mono tracking-widest">
+                                            $500 POOL
+                                        </span>
+                                    </div>
+
+                                    <div className="flex flex-col gap-1 mb-5 text-left w-full">
+                                        <span className="text-[9px] font-mono text-zinc-500 tracking-[0.3em] uppercase">#OMEGA</span>
+                                        <h2 className="text-3xl font-black text-white tracking-tight italic leading-none m-0">NEW ERA</h2>
+                                        <p className="text-[11px] text-zinc-400 font-mono mt-1 w-full m-0">Zero-sum · Top 5 divide the spoils</p>
+                                    </div>
+
+                                    <div className="w-full bg-emerald-500 hover:bg-emerald-400 transition-colors rounded-xl py-3.5 flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(52,211,153,0.3)] group-hover:shadow-[0_0_40px_rgba(52,211,153,0.5)]">
+                                        <span className="text-sm font-black text-black tracking-widest uppercase">ENTER THE VOID</span>
+                                        <span className="text-black group-hover:translate-x-1 transition-transform font-bold">→</span>
+                                    </div>
+                                </div>
+                            </motion.button>
+
+                            {/* 4. STATS ROW */}
+                            <div className="mx-5 mb-4 grid grid-cols-2 gap-2">
+                                <div className="bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 flex flex-col gap-1">
+                                    <span className="text-[9px] text-zinc-600 font-mono tracking-widest uppercase">Total Distributed</span>
+                                    <span className="text-lg font-black text-white font-mono">$1,000+</span>
+                                </div>
+                                <div className="bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 flex flex-col gap-1">
+                                    <span className="text-[9px] text-zinc-600 font-mono tracking-widest uppercase">Active Pilots</span>
+                                    <span className="text-lg font-black text-white font-mono">21</span>
+                                </div>
+                            </div>
+
+                            {/* 5. PAST EVENTS SECTION */}
+                            <div className="mx-5 mb-2 flex items-center gap-2">
+                                <span className="text-[9px] text-zinc-600 font-mono uppercase tracking-widest">◦ PAST EVENTS</span>
+                            </div>
+                            
+                            <button
+                                onClick={() => setShowEventDetail('ethdenver')}
+                                className="mx-5 mb-4 w-[calc(100%-40px)] bg-[#080808] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between group hover:border-white/10 transition-all active:scale-[0.98]"
+                            >
+                                <div className="flex flex-col gap-1 items-start text-left">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                                        <span className="text-[9px] text-zinc-600 font-mono uppercase tracking-widest">CONCLUDED</span>
+                                    </div>
+                                    <span className="text-base font-black text-zinc-300 italic tracking-tight">
+                                        ETH<span className="text-zinc-600">DENVER</span> 2026
+                                    </span>
+                                    <span className="text-[10px] text-zinc-600 font-mono m-0">17 pilots · $500 USDC distributed</span>
+                                </div>
+                                <div className="flex flex-col items-end gap-2 shrink-0">
+                                    <span className="text-[9px] font-mono text-zinc-500 group-hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest">
+                                        STANDINGS <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                                    </span>
+                                </div>
+                            </button>
+
+                            {/* 6. TRAINING CAMP */}
+                            <div className="mx-5 mb-6 flex flex-col gap-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full" />
+                                    <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">Training Camp</span>
+                                </div>
+                                <div className="bg-[#050505] border border-white/5 rounded-2xl p-4 flex flex-col gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex flex-col items-start gap-1">
+                                            <span className="text-lg font-black text-white italic tracking-tight uppercase">FREE PRACTICE</span>
+                                            <p className="text-[10px] text-zinc-500 font-mono m-0">Global Leaderboard · No Prizes</p>
+                                        </div>
+                                        <span className="text-2xl grayscale opacity-30 group-hover:grayscale-0 group-hover:opacity-100 transition-all">🎯</span>
+                                    </div>
+                                    <button
+                                        onClick={handleStartTraining}
+                                        className="w-full py-3 bg-white text-black rounded-xl font-black text-sm tracking-widest uppercase hover:bg-zinc-200 transition-colors"
+                                    >
+                                        ENTER CAMP <span className="text-[10px] opacity-50 font-normal ml-1">(FREE)</span>
+                                    </button>
+                                    
+                                    {/* Embedded Leaderboard */}
+                                    <div className="w-full bg-[#020202] border border-white/5 rounded-xl overflow-hidden flex flex-col h-[180px]">
+                                        <div className="px-3 py-2 border-b border-white/5 bg-white/5 flex justify-between items-center shrink-0">
+                                            <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+                                                <span className="w-1 h-1 rounded-full bg-zinc-500"></span>
+                                                Global Standings
+                                            </span>
                                         </div>
 
-                                        <button
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                handleStartTraining();
-                                            }}
-                                            className="w-full py-3.5 bg-white text-black hover:bg-zinc-200 transition-colors rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                                            style={{ backgroundColor: '#ffffff', color: '#000000' }}
-                                        >
-                                            ENTER CAMP <span className="text-[10px] opacity-70 block mt-0.5">(FREE)</span>
-                                        </button>
-
-                                        {/* Embedded Leaderboard */}
-                                        <div className="w-full bg-[#020202] border border-white/5 rounded-xl overflow-hidden flex flex-col h-[180px]">
-                                            <div className="px-3 py-2 border-b border-white/5 bg-white/5 flex justify-between items-center shrink-0">
-                                                <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
-                                                    <span className="w-1 h-1 rounded-full bg-zinc-500"></span>
-                                                    Global Standings
-                                                </span>
-                                            </div>
-
-                                            <div className="flex-1 overflow-y-auto p-2 space-y-0.5 scrollbar-hide">
-                                                {isScanningList ? (
-                                                    <div className="flex justify-center py-6">
-                                                        <span className="text-[10px] text-zinc-600 font-mono animate-pulse">LOADING DATA...</span>
-                                                    </div>
-                                                ) : leaderboard.length === 0 ? (
-                                                    <div className="flex justify-center py-6">
-                                                        <span className="text-[10px] text-zinc-600 font-mono">NO DATA</span>
-                                                    </div>
-                                                ) : (
-                                                    leaderboard.slice(0, 15).map((entry, i) => (
-                                                        <div key={i} className="flex items-center justify-between p-2 rounded hover:bg-white/5 transition-colors text-[11px] font-mono">
-                                                            <div className="flex items-center gap-3">
-                                                                <span className={`${i < 3 ? "text-white font-bold" : "text-zinc-600"}`}>{i + 1}</span>
-                                                                <span className="text-zinc-300 truncate max-w-[120px]">{entry.name}</span>
-                                                            </div>
-                                                            <span className="text-zinc-500">{entry.score}</span>
+                                        <div className="flex-1 overflow-y-auto p-2 space-y-0.5 scrollbar-hide">
+                                            {isScanningList ? (
+                                                <div className="flex justify-center py-6">
+                                                    <span className="text-[10px] text-zinc-600 font-mono animate-pulse">LOADING DATA...</span>
+                                                </div>
+                                            ) : leaderboard.length === 0 ? (
+                                                <div className="flex justify-center py-6">
+                                                    <span className="text-[10px] text-zinc-600 font-mono">NO DATA</span>
+                                                </div>
+                                            ) : (
+                                                leaderboard.slice(0, 15).map((entry, i) => (
+                                                    <div key={i} className="flex items-center justify-between p-2 rounded hover:bg-white/5 transition-colors text-[11px] font-mono">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className={`${i < 3 ? "text-white font-bold" : "text-zinc-600"}`}>{i + 1}</span>
+                                                            <span className="text-zinc-300 truncate max-w-[120px]">{entry.name}</span>
                                                         </div>
-                                                    ))
-                                                )}
-                                            </div>
+                                                        <span className="text-zinc-500">{entry.score}</span>
+                                                    </div>
+                                                ))
+                                            )}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
                     </motion.div>
                     )
