@@ -3,7 +3,7 @@
 import { useAccount, useSendTransaction, usePublicClient } from "wagmi";
 import { useState, useEffect } from "react";
 import { useGameStore } from "@/lib/store/gameStore";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { encodeFunctionData, parseAbiItem } from "viem";
 import { Identity, Avatar, Name, Address } from '@coinbase/onchainkit/identity';
 import { Wallet, ConnectWallet } from '@coinbase/onchainkit/wallet';
@@ -42,6 +42,86 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
         </div>
     );
 };
+
+// --- Onboarding Component ---
+const OnboardingOverlay = ({ onClose }: { onClose: () => void }) => {
+    const [step, setStep] = useState(1);
+
+    const steps = [
+        {
+            title: "WHAT IS WORD RAIN?",
+            desc: "Words fall from above. Type them before they reach the death line. Each correct word = points. Miss too many = game over."
+        },
+        {
+            title: "THE OMEGA EVENT",
+            desc: "Entry fee: 1 USDC. Prize pool: $500 guaranteed. Top 5 players split the spoils. One life — resurrect for 0.5 USDC."
+        },
+        {
+            title: "READY TO ENTER?",
+            desc: "Connect your wallet, pay 1 USDC entry, and compete for your share of $500. Only the sharpest minds survive."
+        }
+    ];
+
+    const nextStep = () => {
+        if (step < 3) setStep(step + 1);
+        else onClose();
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+        >
+            <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="relative w-full max-w-sm bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden"
+            >
+                {/* Background effects */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#0052FF]/20 blur-[50px] rounded-full pointer-events-none"></div>
+
+                {/* Close Button */}
+                <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-white transition-colors hover:bg-white/5 rounded-full">✕</button>
+
+                {/* Progress Indicators */}
+                <div className="flex gap-2 mb-8 mt-2">
+                    {[1, 2, 3].map(s => (
+                        <div key={s} className={`h-1 flex-1 rounded-full transition-all duration-300 ${s <= step ? 'bg-[#0052FF]' : 'bg-white/10'}`} />
+                    ))}
+                </div>
+
+                {/* Content */}
+                <div className="min-h-[120px] mb-8">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={step}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <h2 className="font-space font-bold text-xl text-white mb-3 tracking-widest">{steps[step - 1].title}</h2>
+                            <p className="font-mono text-sm text-zinc-400 leading-relaxed tracking-wide">
+                                {steps[step - 1].desc}
+                            </p>
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
+
+                {/* Action */}
+                <button
+                    onClick={nextStep}
+                    className="w-full py-4 bg-gradient-to-r from-[#0052FF]/20 to-[#0052FF]/10 hover:from-[#0052FF] hover:to-[#2563EB] border border-[#0052FF]/30 hover:border-[#0052FF] text-[#0052FF] hover:text-white font-mono font-bold tracking-widest text-sm rounded-xl transition-all active:scale-[0.98]"
+                >
+                    {step === 3 ? "ENTER THE VOID →" : "NEXT →"}
+                </button>
+            </motion.div>
+        </motion.div>
+    );
+};
 // ----------------------------
 
 export default function EventLobby({ onBack, onStart }: { onBack: () => void, onStart: () => void }) {
@@ -55,6 +135,20 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
+    const [showOnboarding, setShowOnboarding] = useState(false);
+
+    // Initial Onboarding Check
+    useEffect(() => {
+        const hasSeen = localStorage.getItem('wordrain_onboarding_seen');
+        if (!hasSeen) {
+            setShowOnboarding(true);
+        }
+    }, []);
+
+    const closeOnboarding = () => {
+        localStorage.setItem('wordrain_onboarding_seen', 'true');
+        setShowOnboarding(false);
+    };
 
     // Check Persistent Payment Flag (Server + Local Fallback)
     useEffect(() => {
@@ -168,6 +262,10 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
     return (
         <div className="w-full max-w-md mx-auto h-[100dvh] bg-black text-white font-mono flex flex-col relative overflow-hidden">
+            <AnimatePresence>
+                {showOnboarding && <OnboardingOverlay onClose={closeOnboarding} />}
+            </AnimatePresence>
+
             {/* Background Effects */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-[-20%] right-[-20%] w-[60%] h-[60%] bg-[#3B82F6]/20 blur-[120px] rounded-full animate-pulse"></div>
