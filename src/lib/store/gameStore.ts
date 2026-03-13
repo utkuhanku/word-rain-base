@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type GameStatus = 'idle' | 'playing' | 'game_over';
+export type GameStatus = 'idle' | 'playing' | 'game_over' | 'paused';
 
 interface GameState {
     status: GameStatus;
@@ -22,6 +22,8 @@ interface GameState {
     addCrystal: (amount: number) => void;
     setMode: (mode: 'CLASSIC' | 'PVP' | 'EVENT') => void;
     resetGame: () => void;
+    pauseGame: () => void;
+    resumeGame: () => void;
     reviveGame: () => void;
     useRevive: () => void;
     setBestScore: (score: number) => void;
@@ -52,6 +54,9 @@ export const useGameStore = create<GameState>((set) => ({
     })),
 
     endGame: () => set({ status: 'game_over' }),
+
+    pauseGame: () => set((state) => (state.status === 'playing' ? { status: 'paused' } : {})),
+    resumeGame: () => set((state) => (state.status === 'paused' ? { status: 'playing' } : {})),
 
     addScore: (points) => set((state) => ({ score: state.score + points })),
 

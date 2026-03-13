@@ -102,6 +102,13 @@ export class GameEngine {
         this.loop(performance.now());
     }
 
+    resume() {
+        if (this.isRunning) return;
+        this.isRunning = true;
+        this.lastTime = performance.now();
+        this.loop(performance.now());
+    }
+
     stop() {
         this.isRunning = false;
         this.activeTypedChain = "";

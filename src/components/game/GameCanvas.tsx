@@ -12,6 +12,11 @@ export default function GameCanvas() {
     const status = useGameStore((state) => state.status);
     const resetGame = useGameStore((state) => state.resetGame);
 
+    // Zoom Exploit Prevention State
+    const [zoomWarning, setZoomWarning] = useState(false);
+    const initialDpr = useRef(1);
+    const initialScale = useRef(1);
+
     // Initialize Engine
     useEffect(() => {
         if (!canvasRef.current) return;
@@ -29,12 +34,20 @@ export default function GameCanvas() {
         const engine = engineRef.current;
         if (!engine) return;
 
-        if (status === 'playing' && !engine.isRunning) {
-            engine.start();
-        } else if (status !== 'playing' && engine.isRunning) {
+        if (status === 'playing') {
+            // Capture baselines at the exact moment the game starts
+            if (typeof window !== 'undefined') {
+                initialDpr.current = window.devicePixelRatio || 1;
+                initialScale.current = window.visualViewport?.scale || 1;
+            }
+
+            if (!engine.isRunning && !zoomWarning) {
+                engine.start();
+            }
+        } else if (engine.isRunning) {
             engine.stop();
         }
-    }, [status]);
+    }, [status, zoomWarning]);
 
     // Handle Input
     useEffect(() => {
@@ -87,14 +100,35 @@ export default function GameCanvas() {
         }
     }, [status]);
 
-    // Handle Resize (Mobile Keyboard reliability)
+    // Handle Resize (Mobile Keyboard reliability and Zoom Exploit)
     useEffect(() => {
         const handleResize = () => {
+            if (typeof window === 'undefined') return;
+
+            // --- ANTI-CHEAT ZOOM DETECTION ---
+            const currentDpr = window.devicePixelRatio || 1;
+            const currentScale = window.visualViewport?.scale || 1;
+
+            // If DPR drops or visual scale drops, the user is zooming out to see more of the canvas.
+            // On desktop, Cmd/Ctrl + '-' directly reduces devicePixelRatio.
+            const isZoomedOut = currentDpr < initialDpr.current || currentScale < initialScale.current;
+
+            if (isZoomedOut) {
+                setZoomWarning(true);
+                if (engineRef.current?.isRunning) {
+                    engineRef.current.stop();
+                }
+            } else {
+                setZoomWarning(false);
+                // Safe to resume securely without cheating
+                if (useGameStore.getState().status === 'playing' && engineRef.current && !engineRef.current.isRunning) {
+                    engineRef.current.resume();
+                }
+            }
+
+            // --- ENGINE RESIZE ---
             // Use visualViewport if available for accurate keyboard height
             if (window.visualViewport && canvasRef.current && engineRef.current) {
-                const vv = window.visualViewport;
-                // Force canvas to match visual viewport height (minus header offset if needed)
-                // However, since we rely on CSS flex-1 container, simple triggering resize() on engine might trigger re-measure of container
                 engineRef.current.resize();
             } else {
                 engineRef.current?.resize();
@@ -125,10 +159,23 @@ export default function GameCanvas() {
 
     return (
         <div
-            className={`w-full h-full relative ${isHit ? 'animate-shake' : ''}`}
+            className={`w-full h-full relative overflow-hidden bg-black ${isHit ? 'animate-shake' : ''}`}
             onClick={refocusInput} // Tap anywhere to bring up keyboard
         >
             <div className={`absolute inset-0 bg-red-500/20 pointer-events-none transition-opacity duration-100 z-10 ${isHit ? 'opacity-100' : 'opacity-0'}`} />
+
+            {/* ANTI-CHEAT OVERLAY */}
+            <div className={`absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300 ${zoomWarning ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-6">
+                    <span className="text-3xl animate-pulse">⚙️</span>
+                </div>
+                <h2 className="text-2xl font-bold font-space text-white mb-2 uppercase tracking-widest text-red-500">System Override</h2>
+                <p className="text-zinc-400 max-w-sm mb-6 font-mono text-sm leading-relaxed">
+                    Viewport manipulation detected. Zooming out dynamically expands the terminal, giving an unfair tactical advantage.
+                    <br /><br />
+                    Return your browser zoom to <strong className="text-white">100%</strong> to resume operations.
+                </p>
+            </div>
 
             {/* Hidden Input Proxy for Mobile Keyboard */}
             <input
