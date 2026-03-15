@@ -89,7 +89,6 @@ export async function GET(request: NextRequest) {
             '0xd154d0a276434afd53b1cd866ccdf22a57b60e36'.toLowerCase(), // kevinxware
             '0xf2d9b69621f516e0bb463e57f2c1dea26cc904ab'.toLowerCase(),  // lancersrs
             '0x146Bf2540FaAa4A2312CEc038a92C9AdC7653D4c'.toLowerCase(),  // lancers.base.eth
-            '0x67446b29DF9BF01C8717BF48ff3B3a8E664f8023'.toLowerCase(),
             '0xD04DF7B1AD7890A1939c724644109b3612F2D549'.toLowerCase()
         ];
 

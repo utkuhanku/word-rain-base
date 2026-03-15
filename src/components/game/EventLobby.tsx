@@ -547,10 +547,6 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                             reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
                                         },
                                         {
-                                            address: '0x67446b29DF9BF01C8717BF48ff3B3a8E664f8023',
-                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
-                                        },
-                                        {
                                             address: '0xD04DF7B1AD7890A1939c724644109b3612F2D549',
                                             reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
                                         }
