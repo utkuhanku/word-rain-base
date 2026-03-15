@@ -221,7 +221,12 @@ export default function GlobalLeaderboard({ onClose }: GlobalLeaderboardProps) {
                                 '0xe555eBCa692D41300773F488FDb92244AAf81Fa7',
                                 '0xB27F239610e47cACDfF082A79bE829384d46b976',
                                 '0x53481a207B5dd683a7C018157709A5092774b09A',
-                                '0x0Ea03d210e1E3743A0815204FbCFcD36e07Ec230'
+                                '0x0Ea03d210e1E3743A0815204FbCFcD36e07Ec230',
+                                '0xd154d0a276434afd53b1cd866ccdf22a57b60e36',
+                                '0xf2d9b69621f516e0bb463e57f2c1dea26cc904ab',
+                                '0x146Bf2540FaAa4A2312CEc038a92C9AdC7653D4c',
+                                '0x67446b29DF9BF01C8717BF48ff3B3a8E664f8023',
+                                '0xD04DF7B1AD7890A1939c724644109b3612F2D549'
                             ].map(blockedAddr => (
                                 <div key={blockedAddr} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
                                     <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ef4444_10px,#ef4444_20px)] pointer-events-none"></div>

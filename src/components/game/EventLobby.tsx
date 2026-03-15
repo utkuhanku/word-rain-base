@@ -545,6 +545,14 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                         {
                                             address: '0x146Bf2540FaAa4A2312CEc038a92C9AdC7653D4c',
                                             reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
+                                        },
+                                        {
+                                            address: '0x67446b29DF9BF01C8717BF48ff3B3a8E664f8023',
+                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
+                                        },
+                                        {
+                                            address: '0xD04DF7B1AD7890A1939c724644109b3612F2D549',
+                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
                                         }
                                     ].map(blocked => (
                                         <div key={blocked.address} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
