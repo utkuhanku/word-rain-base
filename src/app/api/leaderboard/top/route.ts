@@ -341,11 +341,19 @@ export async function GET(request: NextRequest) {
                 ...enrichment, // Adds original username, pfp_url if found
                 username: forcedUsername || enrichment.username,
                 display_name: forcedDisplayName || enrichment.display_name,
-                displayName: forcedDisplayName || forcedUsername || enrichment.display_name || enrichment.username || display
             };
         });
 
-        return NextResponse.json(normalized);
+        // Final Deduplication: Remove any organic unluckyberlin entries leaving only our injected 702 score
+        const deduplicated = normalized.filter(e => {
+            const isUnlucky = (e.username || '').toLowerCase().includes('unluckyberlin') || (e.displayName || '').toLowerCase().includes('unluckyberlin');
+            if (isUnlucky && e.score < 700) {
+                return false;
+            }
+            return true;
+        });
+
+        return NextResponse.json(deduplicated);
 
     } catch (error) {
         console.error("Leaderboard Fetch Error:", error);
