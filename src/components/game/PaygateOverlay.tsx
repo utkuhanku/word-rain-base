@@ -35,14 +35,14 @@ export default function PaygateOverlay() {
     const hasUsedRetry = useGameStore((state) => state.hasUsedRetry);
     const setHasUsedRetry = useGameStore((state) => state.setHasUsedRetry);
 
-    // Auto-Save for Event Mode
+    // Auto-Save for Non-Event Modes (Event mode saves manually upon exit to preserve competitive tension during resurrect decision)
     useEffect(() => {
-        if (status === 'game_over' && mode === 'EVENT' && !isPaid && !isSubmitting) {
-            submitScore(score, 'EVENT').then((success) => {
-                if (success) setIsPaid(true);
-            });
+        if (status === 'game_over' && mode !== 'EVENT' && !isPaid && !isSubmitting && !pvpGameId) {
+             submitScore(score, mode).then((success) => {
+                 if (success) setIsPaid(true);
+             });
         }
-    }, [status, mode, isPaid, score, submitScore, isSubmitting]);
+    }, [status, mode, isPaid, score, submitScore, isSubmitting, pvpGameId]);
 
     // Countdown Logic
     useEffect(() => {
@@ -286,8 +286,8 @@ export default function PaygateOverlay() {
                         <h2 className="text-4xl font-black italic tracking-tighter text-[#D900FF] drop-shadow-[0_0_10px_rgba(217,0,255,0.5)]">EVENT OVER</h2>
                         <div className="text-6xl font-mono font-bold text-white text-glow">{score}</div>
                         <div className="flex items-center justify-center gap-2">
-                            <span className="w-2 h-2 bg-[#00FF9D] rounded-full animate-pulse"></span>
-                            <p className="text-[#00FF9D] font-mono text-xs tracking-widest uppercase">Score Auto-Saved</p>
+                            <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+                            <p className="text-amber-500 font-mono text-xs tracking-widest uppercase">Score Pending Save</p>
                         </div>
                     </div>
 
@@ -313,10 +313,17 @@ export default function PaygateOverlay() {
                         </button>
 
                         <button
-                            onClick={() => { resetGame(); setIsPaid(false); }}
-                            className="w-full py-4 border border-zinc-800 bg-black hover:bg-zinc-900 text-zinc-500 font-mono text-xs uppercase tracking-widest transition-all rounded-xl"
+                            onClick={async () => { 
+                                if (!isPaid) {
+                                    await submitScore(score, 'EVENT');
+                                }
+                                resetGame(); 
+                                setIsPaid(false); 
+                            }}
+                            disabled={isSubmitting}
+                            className={`w-full py-4 border border-zinc-800 bg-black hover:bg-zinc-900 text-zinc-500 font-mono text-xs uppercase tracking-widest transition-all rounded-xl flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            Return to Event Lobby
+                            {isSubmitting ? "Saving Score..." : "Save & Return to Lobby"}
                         </button>
                     </div>
                 </div>
