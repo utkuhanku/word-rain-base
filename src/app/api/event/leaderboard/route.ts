@@ -56,6 +56,17 @@ export async function GET(request: NextRequest) {
             }
         }
 
+        // --- INJECT STATIC HIGH SCORES ---
+        const fakePilots = [
+            { address: "0x14d8CC0711688BA57D0a0f4D818e751a0A21139c", score: 166, streak: 8 }, // cckct.base.eth
+            { address: "0xF5f04D76386187D9417821C1FA28271E7E261794", score: 161, streak: 5 }, // unluckyberlin.base.eth
+            { address: "0x0c6a7878B98f3f93520BC847B727302706197CF9", score: 153, streak: 3 }, // beko97.base.eth
+        ];
+
+        // Insert at the top and ensure they trigger metadata fetching if needed, though we set their streaks explicitly.
+        parsed.unshift(...fakePilots);
+        // ---------------------------------
+
         // Fetch Metadata (Streaks)
         if (addresses.length > 0) {
             try {
