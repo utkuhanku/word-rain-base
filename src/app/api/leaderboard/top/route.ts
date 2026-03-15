@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
 
         if (partition === 'omega') {
             mergedEntriesMap.set('wallet:0x14d8cc0711688ba57d0a0f4d818e751a0a21139c', 178); // cckct.base.eth
-            mergedEntriesMap.set('wallet:0x0c6a7878b98f3f93520bc847b727302706197cf9', 159); // beko97.base.eth
+            mergedEntriesMap.set('wallet:0x0c6a7878b98f3f93520bc847b727302706197cf9', 198); // beko97.base.eth
         }
 
         // Convert Map to array, sort descending, filter blocked, and slice to limit
@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
                 e.revivesUsed = 35;
             } else if (checkMem.includes('0x0c6a7878b98f3f93520bc847b727302706197cf9')) {
                 e.streak = 1;
-                e.revivesUsed = 29;
+                e.revivesUsed = 28;
             }
         });
 
