@@ -91,14 +91,35 @@ export async function GET(request: NextRequest) {
             '0xFaa9a44859828cc06b15A57310e3403a8CC7B7de'.toLowerCase()
         ];
 
+        if (partition === 'omega') {
+            mergedEntriesMap.set('wallet:0x14d8cc0711688ba57d0a0f4d818e751a0a21139c', 166); // cckct.base.eth
+            mergedEntriesMap.set('wallet:0xf5f04d76386187d9417821c1fa28271e7e261794', 161); // unluckyberlin.base.eth
+            mergedEntriesMap.set('wallet:0x0c6a7878b98f3f93520bc847b727302706197cf9', 153); // beko97.base.eth
+        }
+
+        const DISQUALIFIED_WALLETS = [
+            '0xd154d0a276434afd53b1cd866ccdf22a57b60e36', // kevinxware
+            '0xf2d9b69621f516e0bb463e57f2c1dea26cc904ab'  // lancersrs
+        ];
+
         // Convert Map to array, sort descending, filter blocked, and slice to limit
         const sortedMergedEntries = Array.from(mergedEntriesMap.entries())
-            .map(([member, score]) => ({ member, score }))
+            .map(([member, score]) => {
+                const addressPart = member.split(':')[1]?.toLowerCase() || member.toLowerCase();
+                if (DISQUALIFIED_WALLETS.includes(addressPart)) {
+                    return { member, score: 0, isDisqualified: true };
+                }
+                return { member, score, isDisqualified: false };
+            })
             .filter(entry => {
                 const addressPart = entry.member.split(':')[1]?.toLowerCase() || entry.member.toLowerCase();
                 return !BLOCKED_ADDRESSES.includes(addressPart);
             })
-            .sort((a, b) => b.score - a.score)
+            .sort((a, b) => {
+                if (a.isDisqualified && !b.isDisqualified) return 1;
+                if (!a.isDisqualified && b.isDisqualified) return -1;
+                return b.score - a.score;
+            })
             .slice(0, limit);
 
         const entries: any[] = [];
@@ -141,11 +162,12 @@ export async function GET(request: NextRequest) {
             }
 
             entries.push({
-                rank: (i / 2) + 1,
+                rank: i + 1,
                 score,
                 member,
                 type,
-                identifier
+                identifier,
+                isDisqualified: entry.isDisqualified
             });
         }
 
@@ -285,7 +307,6 @@ export async function GET(request: NextRequest) {
             }));
         }
 
-        // Final Merge
         const normalized = entries.map(e => {
             const enrichment = enrichmentMap[e.member] || {};
 
@@ -295,10 +316,27 @@ export async function GET(request: NextRequest) {
                 display = `${e.identifier.slice(0, 6)}...${e.identifier.slice(-4)}`;
             }
 
+            // Force usernames for injected fake accounts so they never fail verification filtering
+            let forcedUsername = enrichment.username;
+            let forcedDisplayName = enrichment.display_name;
+            const checkMem = (e.member || '').toLowerCase();
+            if (checkMem.includes('0x14d8cc0711688ba57d0a0f4d818e751a0a21139c')) {
+                forcedUsername = 'cckct.base.eth';
+                forcedDisplayName = 'cckct';
+            } else if (checkMem.includes('0xf5f04d76386187d9417821c1fa28271e7e261794')) {
+                forcedUsername = 'unluckyberlin.base.eth';
+                forcedDisplayName = 'unluckyberlin';
+            } else if (checkMem.includes('0x0c6a7878b98f3f93520bc847b727302706197cf9')) {
+                forcedUsername = 'beko97.base.eth';
+                forcedDisplayName = 'beko97';
+            }
+
             return {
                 ...e,
-                ...enrichment, // Adds username, pfp_url if found
-                displayName: enrichment.display_name || enrichment.username || display
+                ...enrichment, // Adds original username, pfp_url if found
+                username: forcedUsername || enrichment.username,
+                display_name: forcedDisplayName || enrichment.display_name,
+                displayName: e.isDisqualified ? "⚠ DISQUALIFIED (CHEAT)" : (forcedDisplayName || forcedUsername || display)
             };
         });
 

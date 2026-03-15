@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import '@coinbase/onchainkit/styles.css';
+@import "tailwindcss";
 @theme {
   --font-sans: var(--font-space), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
