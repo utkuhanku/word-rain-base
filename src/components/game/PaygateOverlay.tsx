@@ -42,7 +42,8 @@ export default function PaygateOverlay() {
                  if (success) setIsPaid(true);
              });
         }
-    }, [status, mode, isPaid, score, submitScore, isSubmitting, pvpGameId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [status, mode, isPaid, score, pvpGameId]);
 
     // Countdown Logic
     useEffect(() => {
