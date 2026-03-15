@@ -174,6 +174,9 @@ export async function GET(request: NextRequest) {
             if (checkMem.includes('0x14d8cc0711688ba57d0a0f4d818e751a0a21139c')) {
                 e.streak = 0;
                 e.revivesUsed = 42;
+            } else if (checkMem.includes('0xf5f04d76386187d9417821c1fa28271e7e261794')) {
+                e.streak = 0;
+                e.revivesUsed = 35;
             } else if (checkMem.includes('0x0c6a7878b98f3f93520bc847b727302706197cf9')) {
                 e.streak = 1;
                 e.revivesUsed = 29;
@@ -318,6 +321,9 @@ export async function GET(request: NextRequest) {
             if (checkMem.includes('0x14d8cc0711688ba57d0a0f4d818e751a0a21139c')) {
                 forcedUsername = 'cckct.base.eth';
                 forcedDisplayName = 'cckct';
+            } else if (checkMem.includes('0xf5f04d76386187d9417821c1fa28271e7e261794')) {
+                forcedUsername = 'unluckyberlin.base.eth';
+                forcedDisplayName = 'unluckyberlin';
             } else if (checkMem.includes('0x0c6a7878b98f3f93520bc847b727302706197cf9')) {
                 forcedUsername = 'beko97.base.eth';
                 forcedDisplayName = 'beko97';
