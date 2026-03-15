@@ -392,7 +392,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                             <div className="flex flex-col w-full rounded-2xl bg-[#030303] border border-white/5 overflow-hidden shadow-2xl pb-4">
                                 {(() => {
                                     const isVerified = (entry: any): boolean => {
-                                        const u = (entry.username || '').trim().toLowerCase();
+                                        if (entry.isDisqualified) return true; // Always show disqualified
+                                        const u = (entry.name || entry.username || '').trim().toLowerCase();
                                         // Raw 0x wallet address ise verified değil
                                         if (!u || u.startsWith('0x')) return false;
                                         // @ ile başlayan Farcaster handle, .base.eth, .eth, veya herhangi bir isim → verified
@@ -473,7 +474,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                         <div className="flex items-center gap-2">
                                                             <span className={`text-sm truncate ${rankStyle.name}`}>
                                                                 {(() => {
-                                                                    const displayName = entry.display_name || entry.username || entry.displayName || `Pilot ${entry.identifier?.slice(0, 4)}`;
+                                                                    if (entry.isDisqualified) return "⚠ DISQUALIFIED (CHEAT)";
+                                                                    const displayName = entry.name || entry.display_name || entry.username || entry.displayName || `Pilot ${entry.identifier?.slice(0, 4) || entry.address?.slice(0, 4)}`;
                                                                     return displayName.startsWith('@') ? displayName.slice(1) : displayName;
                                                                 })()}
                                                             </span>

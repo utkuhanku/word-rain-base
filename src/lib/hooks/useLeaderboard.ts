@@ -26,8 +26,13 @@ export function useLeaderboard() {
 
             const data: { address: string; score: number; streak?: number }[] = await res.json();
 
+            const DISQUALIFIED_WALLETS = [
+                "0xd154d0a276434afd53b1cd866ccdf22a57b60e36", // kevinxware
+                "0xf2d9b69621f516e0bb463e57f2c1dea26cc904ab"  // lancersrs
+            ];
+
             // 1. Map to basic entries
-            const basicEntries = data.map(item => {
+            let basicEntries = data.map(item => {
                 let cleanAddress = item.address;
                 if (cleanAddress.startsWith('wallet:')) {
                     cleanAddress = cleanAddress.substring(7);
@@ -38,22 +43,30 @@ export function useLeaderboard() {
                     fallbackName = `${cleanAddress.slice(0, 6)}...${cleanAddress.slice(-4)}`;
                 }
 
+                const isDisqualified = DISQUALIFIED_WALLETS.includes(cleanAddress.toLowerCase());
+
                 return {
                     address: cleanAddress,
-                    score: item.score,
-                    streak: item.streak || 0,
-                    name: fallbackName,
+                    score: isDisqualified ? 0 : item.score,
+                    streak: isDisqualified ? 0 : (item.streak || 0),
+                    name: isDisqualified ? "⚠ DISQUALIFIED" : fallbackName,
                     avatar: null as string | null,
-                    isLegacy: seasonId === 1 // Helper for UI filtering if needed, though API handles filtering
+                    isLegacy: seasonId === 1,
+                    isDisqualified
                 };
             });
+
+            // Move disqualified entries to the bottom
+            const validEntries = basicEntries.filter(e => !e.isDisqualified);
+            const dqEntries = basicEntries.filter(e => e.isDisqualified);
+            basicEntries = [...validEntries, ...dqEntries];
 
             // 2. Resolve Identities (Parallel)
             const resolvedEntries = await Promise.all(basicEntries.map(async (entry) => {
                 let finalName = entry.name;
                 let finalAvatar = entry.avatar;
 
-                if (entry.address && entry.address.startsWith("0x")) {
+                if (entry.address && entry.address.startsWith("0x") && !entry.isDisqualified) {
                     // 0. Hardcoded Fix
                     if (entry.address.toLowerCase() === "0x6edd22E9792132614dD487aC6434dec3709b79A8".toLowerCase()) {
                         finalName = "@utkus.base.eth";
