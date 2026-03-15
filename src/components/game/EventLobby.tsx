@@ -10,6 +10,41 @@ import { Identity, Avatar, Name, Address } from '@coinbase/onchainkit/identity';
 import { Wallet, ConnectWallet } from '@coinbase/onchainkit/wallet';
 import PlayerDetailModal from './PlayerDetailModal';
 
+// --- Confetti Component ---
+const Confetti = () => {
+    const pieces = Array.from({ length: 100 });
+    const colors = ['#3B82F6', '#60A5FA', '#93C5FD', '#FFFFFF', '#0052FF'];
+    
+    return (
+        <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+            {pieces.map((_, i) => (
+                <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 rounded-sm"
+                    initial={{
+                        x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+                        y: -50,
+                        rotate: Math.random() * 360,
+                        backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+                        scale: Math.random() * 0.8 + 0.4
+                    }}
+                    animate={{
+                        y: (typeof window !== 'undefined' ? window.innerHeight : 1000) + 50,
+                        rotate: Math.random() * 720,
+                        x: `calc(${Math.random() * 100}vw + ${Math.random() * 200 - 100}px)`
+                    }}
+                    transition={{
+                        duration: Math.random() * 3 + 2,
+                        ease: "linear",
+                        repeat: Infinity,
+                        delay: Math.random() * -5 // Start scattered
+                    }}
+                />
+            ))}
+        </div>
+    );
+};
+
 // --- Countdown Component ---
 const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
     const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
@@ -263,6 +298,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
     return (
         <div className="w-full max-w-md mx-auto h-[100dvh] bg-black text-white font-mono flex flex-col relative overflow-hidden">
+            <Confetti />
             <AnimatePresence>
                 {showOnboarding && <OnboardingOverlay onClose={closeOnboarding} />}
             </AnimatePresence>
@@ -293,8 +329,8 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             {/* Premium Countdown Banner Header */}
             <div className="w-full flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#020202] relative z-20 shadow-xl">
                 <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
-                    <span className="text-[10px] text-[#3B82F6] font-bold tracking-widest uppercase font-mono">LIVE ZERO-SUM</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.8)]" />
+                    <span className="text-[10px] text-yellow-500 font-bold tracking-widest uppercase font-mono">EVENT CONCLUDED</span>
                 </div>
                 <div className="flex bg-[#3B82F6]/10 text-[#3B82F6] px-3 py-1.5 border border-[#3B82F6]/20 rounded-full">
                     <span className="text-[11px] font-bold tracking-widest uppercase font-mono">
@@ -333,29 +369,15 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     </div>
                 </div>
 
-                {/* Action Button / Wallet Connect */}
+                {/* Action Button / Wallet Connect (DISABLED FOR EVENT CLOSE) */}
                 <div className="w-full">
-                    {!address ? (
-                        <Wallet>
-                            <ConnectWallet
-                                className="w-full py-5 font-black text-xl bg-gradient-to-r from-[#0052FF] to-[#2563EB] text-white uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-[0_0_30px_rgba(0,82,255,0.4)] hover:shadow-[0_0_50px_rgba(0,82,255,0.6)] hover:scale-[1.02] active:scale-[0.98] border border-[#3B82F6] flex justify-center items-center"
-                                text="CONNECT TO DEPOSIT"
-                            />
-                        </Wallet>
-                    ) : (
-                        <button
-                            onClick={handleEntryPayment}
-                            disabled={isProcessing}
-                            className="w-full py-5 font-black text-xl bg-gradient-to-r from-[#0052FF] to-[#2563EB] text-white uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-[0_0_30px_rgba(0,82,255,0.4)] hover:shadow-[0_0_50px_rgba(0,82,255,0.6)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 group border border-[#3B82F6]"
-                        >
-                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
-                            <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/20 to-transparent opacity-50" />
-
-                            <span className="relative z-10 flex items-center justify-center gap-3 drop-shadow-md">
-                                {isProcessing ? "PROCESSING TX..." : (hasPaidEntry ? "ENTER THE VOID →" : "DEPOSIT 1 USDC TO ENTER")}
-                            </span>
-                        </button>
-                    )}
+                    <div
+                        className="w-full py-5 font-black text-xl bg-black/50 text-yellow-500 uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-inner border border-yellow-500/30 flex justify-center items-center backdrop-blur-sm"
+                    >
+                        <span className="relative z-10 flex items-center justify-center gap-3 drop-shadow-md">
+                            🏆 STANDINGS FINALIZED
+                        </span>
+                    </div>
                 </div>
 
                 {/* Leaderboard Header */}
