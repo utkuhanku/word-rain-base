@@ -88,7 +88,9 @@ export async function GET(request: NextRequest) {
             '0x982C4c6E24D08D5871b075c0c7A1dC79393868Da'.toLowerCase(),
             '0x552B03253B49d208417DDD5A1561b9eD888Cf5a8'.toLowerCase(),
             '0xF1B0568A4bEdE00950a47bB537b627ED6c88DFFD'.toLowerCase(),
-            '0xFaa9a44859828cc06b15A57310e3403a8CC7B7de'.toLowerCase()
+            '0xFaa9a44859828cc06b15A57310e3403a8CC7B7de'.toLowerCase(),
+            '0xd154d0a276434afd53b1cd866ccdf22a57b60e36'.toLowerCase(), // kevinxware
+            '0xf2d9b69621f516e0bb463e57f2c1dea26cc904ab'.toLowerCase()  // lancersrs
         ];
 
         if (partition === 'omega') {
@@ -97,29 +99,14 @@ export async function GET(request: NextRequest) {
             mergedEntriesMap.set('wallet:0x0c6a7878b98f3f93520bc847b727302706197cf9', 153); // beko97.base.eth
         }
 
-        const DISQUALIFIED_WALLETS = [
-            '0xd154d0a276434afd53b1cd866ccdf22a57b60e36', // kevinxware
-            '0xf2d9b69621f516e0bb463e57f2c1dea26cc904ab'  // lancersrs
-        ];
-
         // Convert Map to array, sort descending, filter blocked, and slice to limit
         const sortedMergedEntries = Array.from(mergedEntriesMap.entries())
-            .map(([member, score]) => {
-                const addressPart = member.split(':')[1]?.toLowerCase() || member.toLowerCase();
-                if (DISQUALIFIED_WALLETS.includes(addressPart)) {
-                    return { member, score: 0, isDisqualified: true };
-                }
-                return { member, score, isDisqualified: false };
-            })
+            .map(([member, score]) => ({ member, score }))
             .filter(entry => {
                 const addressPart = entry.member.split(':')[1]?.toLowerCase() || entry.member.toLowerCase();
                 return !BLOCKED_ADDRESSES.includes(addressPart);
             })
-            .sort((a, b) => {
-                if (a.isDisqualified && !b.isDisqualified) return 1;
-                if (!a.isDisqualified && b.isDisqualified) return -1;
-                return b.score - a.score;
-            })
+            .sort((a, b) => b.score - a.score)
             .slice(0, limit);
 
         const entries: any[] = [];
@@ -166,8 +153,7 @@ export async function GET(request: NextRequest) {
                 score,
                 member,
                 type,
-                identifier,
-                isDisqualified: entry.isDisqualified
+                identifier
             });
         }
 
@@ -336,7 +322,7 @@ export async function GET(request: NextRequest) {
                 ...enrichment, // Adds original username, pfp_url if found
                 username: forcedUsername || enrichment.username,
                 display_name: forcedDisplayName || enrichment.display_name,
-                displayName: e.isDisqualified ? "⚠ DISQUALIFIED (CHEAT)" : (forcedDisplayName || forcedUsername || display)
+                displayName: forcedDisplayName || forcedUsername || enrichment.display_name || enrichment.username || display
             };
         });
 
