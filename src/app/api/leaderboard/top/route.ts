@@ -85,18 +85,16 @@ export async function GET(request: NextRequest) {
             '0xB27F239610e47cACDfF082A79bE829384d46b976'.toLowerCase(),
             '0x53481a207B5dd683a7C018157709A5092774b09A'.toLowerCase(),
             '0x0Ea03d210e1E3743A0815204FbCFcD36e07Ec230'.toLowerCase(),
-            '0x982C4c6E24D08D5871b075c0c7A1dC79393868Da'.toLowerCase(),
-            '0x552B03253B49d208417DDD5A1561b9eD888Cf5a8'.toLowerCase(),
-            '0xF1B0568A4bEdE00950a47bB537b627ED6c88DFFD'.toLowerCase(),
             '0xFaa9a44859828cc06b15A57310e3403a8CC7B7de'.toLowerCase(),
             '0xd154d0a276434afd53b1cd866ccdf22a57b60e36'.toLowerCase(), // kevinxware
-            '0xf2d9b69621f516e0bb463e57f2c1dea26cc904ab'.toLowerCase()  // lancersrs
+            '0xf2d9b69621f516e0bb463e57f2c1dea26cc904ab'.toLowerCase(),  // lancersrs
+            '0x146Bf2540FaAa4A2312CEc038a92C9AdC7653D4c'.toLowerCase()  // lancers.base.eth
         ];
 
         if (partition === 'omega') {
-            mergedEntriesMap.set('wallet:0x14d8cc0711688ba57d0a0f4d818e751a0a21139c', 166); // cckct.base.eth
-            mergedEntriesMap.set('wallet:0xf5f04d76386187d9417821c1fa28271e7e261794', 161); // unluckyberlin.base.eth
-            mergedEntriesMap.set('wallet:0x0c6a7878b98f3f93520bc847b727302706197cf9', 153); // beko97.base.eth
+            mergedEntriesMap.set('wallet:0x14d8cc0711688ba57d0a0f4d818e751a0a21139c', 176); // cckct.base.eth
+            mergedEntriesMap.set('wallet:0xf5f04d76386187d9417821c1fa28271e7e261794', 168); // unluckyberlin.base.eth
+            mergedEntriesMap.set('wallet:0x0c6a7878b98f3f93520bc847b727302706197cf9', 159); // beko97.base.eth
         }
 
         // Convert Map to array, sort descending, filter blocked, and slice to limit
@@ -168,6 +166,19 @@ export async function GET(request: NextRequest) {
                 e.revivesUsed = meta.revivesUsed ? parseInt(meta.revivesUsed) : 0;
                 e.lastActive = meta.lastActive;
                 e.platform = meta.platform;
+            }
+
+            // Fake stats for statically injected test accounts
+            const checkMem = (e.member || '').toLowerCase();
+            if (checkMem.includes('0x14d8cc0711688ba57d0a0f4d818e751a0a21139c')) {
+                e.streak = 10;
+                e.revivesUsed = 2;
+            } else if (checkMem.includes('0xf5f04d76386187d9417821c1fa28271e7e261794')) {
+                e.streak = 7;
+                e.revivesUsed = 1;
+            } else if (checkMem.includes('0x0c6a7878b98f3f93520bc847b727302706197cf9')) {
+                e.streak = 6;
+                e.revivesUsed = 1;
             }
         });
 

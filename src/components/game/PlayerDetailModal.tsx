@@ -116,21 +116,27 @@ export default function PlayerDetailModal({ isOpen, onClose, player }: PlayerDet
                                                             ? `${player.identifier.slice(0, 6)}...${player.identifier.slice(-4)}`
                                                             : player.identifier}
                                                     </span>
-                                                    <button
-                                                        onClick={handleCopy}
-                                                        className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-all active:scale-95"
-                                                        title="Copy Address"
-                                                    >
-                                                        {copied ? (
-                                                            <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                            </svg>
-                                                        ) : (
-                                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                                            </svg>
-                                                        )}
-                                                    </button>
+                                                    {![
+                                                        '0x14d8cc0711688ba57d0a0f4d818e751a0a21139c',
+                                                        '0xf5f04d76386187d9417821c1fa28271e7e261794',
+                                                        '0x0c6a7878b98f3f93520bc847b727302706197cf9'
+                                                    ].includes(player.identifier?.toLowerCase()) && (
+                                                        <button
+                                                            onClick={handleCopy}
+                                                            className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-all active:scale-95"
+                                                            title="Copy Address"
+                                                        >
+                                                            {copied ? (
+                                                                <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                            ) : (
+                                                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                                </svg>
+                                                            )}
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         ) : (
