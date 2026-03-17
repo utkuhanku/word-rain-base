@@ -58,7 +58,7 @@ export default function GameOverlay() {
                         {/* Primary Action: Retry */}
                         <button
                             onClick={resetGame}
-                            className="w-full py-4 bg-white hover:bg-zinc-200 text-black font-bold tracking-tight text-sm uppercase transition-colors"
+                            className="w-full py-3.5 bg-white hover:bg-zinc-200 text-black font-bold tracking-tight text-sm uppercase transition-colors rounded-xl"
                         >
                             Start New Run
                         </button>
@@ -67,7 +67,7 @@ export default function GameOverlay() {
                         {score > 0 && (
                             <button
                                 onClick={shareScore}
-                                className="w-full py-4 border border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-white font-medium tracking-tight text-sm transition-colors flex items-center justify-center gap-2 uppercase font-mono"
+                                className="w-full py-3.5 border border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-white font-bold tracking-tight text-sm transition-colors flex items-center justify-center gap-2 uppercase font-mono rounded-xl"
                             >
                                 Share on Base App
                             </button>
@@ -78,7 +78,7 @@ export default function GameOverlay() {
                             <button
                                 onClick={handleOnchainSubmit}
                                 disabled={isSubmitting}
-                                className={`w-full py-4 border ${isSubmitting ? "border-[#0052FF] bg-[#0052FF]/10 text-[#0052FF]" : "border-[#0052FF]/30 text-[#0052FF] hover:border-[#0052FF]"} font-mono text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-all`}
+                                className={`w-full py-3.5 border ${isSubmitting ? "border-[#0052FF] bg-[#0052FF]/10 text-[#0052FF]" : "border-[#0052FF]/30 text-[#0052FF] hover:border-[#0052FF] text-white"} font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-all rounded-xl`}
                             >
                                 {isSubmitting ? "Processing..." : "Submit Score"}
                             </button>

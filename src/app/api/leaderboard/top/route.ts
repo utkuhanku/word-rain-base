@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
             targetKey = 'event_leaderboard_ethdenver';
         } else if (partition === 'omega') {
             targetKey = 'event_leaderboard_omega';
+        } else if (partition === 'cre8core') {
+            targetKey = 'event_leaderboard_cre8core';
         } else if (partition === 'season' && seasonId) {
             targetKey = seasonId === 1 ? 'event_leaderboard_final' : `event_leaderboard_s${seasonId}`;
         }

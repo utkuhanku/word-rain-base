@@ -92,6 +92,7 @@ export default function Lobby({ onStart }: LobbyProps) {
     const [isLeaderboardOpening, setIsLeaderboardOpening] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
     const [showEventIntro, setShowEventIntro] = useState(false);
+    const [activePilots, setActivePilots] = useState<number>(21);
 
     // Leaderboard Hook
     const { leaderboard, fetchLeaderboard, isLoading: isScanningList } = useLeaderboard();
@@ -140,6 +141,22 @@ export default function Lobby({ onStart }: LobbyProps) {
             setTimeout(() => sdk.actions.ready(), 200);
         };
         signalReady();
+
+        // Fetch Dynamic Stats
+        const fetchStats = async () => {
+            try {
+                const res = await fetch('/api/event/access?partition=cre8core&mode=count');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (typeof data.count === 'number') {
+                        setActivePilots(data.count);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch active pilots:", err);
+            }
+        };
+        fetchStats();
     }, []);
 
     // 1. Initial Identity Check (Passive)
@@ -374,28 +391,27 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 onClick={() => setShowEvent(true)}
                                 className="mx-5 mb-3 w-[calc(100%-40px)] relative group cursor-pointer"
                             >
-                                <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-emerald-500/40 via-emerald-400/20 to-emerald-500/40 animate-pulse" />
+                                <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-blue-500/40 via-blue-400/20 to-blue-500/40 animate-pulse" />
 
                                 <div className="relative bg-[#020202] rounded-2xl overflow-hidden p-5 text-left flex flex-col items-start w-full transition-colors duration-500">
                                     <div className="flex items-center justify-between w-full mb-4">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,1)] animate-pulse" />
-                                            <span className="text-[10px] font-black tracking-widest text-emerald-400 uppercase font-mono">LIVE NOW</span>
+                                            <div className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,1)] animate-pulse" />
+                                            <span className="text-[10px] font-black tracking-widest text-blue-400 uppercase font-mono">LIVE NOW</span>
                                         </div>
-                                        <span className="text-[10px] font-black text-white bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 rounded-full font-mono tracking-widest">
-                                            $500 POOL
+                                        <span className="text-[10px] font-black text-white bg-blue-500/20 border border-blue-500/40 px-3 py-1 rounded-full font-mono tracking-widest">
+                                            $200 GIVEAWAY
                                         </span>
                                     </div>
 
-                                    <div className="flex flex-col gap-1 mb-5 text-left w-full">
-                                        <span className="text-[9px] font-mono text-zinc-500 tracking-[0.3em] uppercase">#OMEGA</span>
-                                        <h2 className="text-3xl font-black text-white tracking-tight italic leading-none m-0">NEW ERA</h2>
-                                        <p className="text-[11px] text-zinc-400 font-mono mt-1 w-full m-0">Zero-sum · Top 5 divide the spoils</p>
+                                    <div className="flex flex-col gap-1 mb-5 text-left w-full text-white">
+                                        <h2 className="text-3xl font-black tracking-tight italic leading-none m-0 shadow-white/10 uppercase">#CRE8CORE EVENT</h2>
+                                        <p className="text-[10px] text-zinc-500 font-bold font-mono mt-1 w-full m-0 tracking-[0.2em] uppercase">GKASH 🤝 UTKUS COLLAB</p>
                                     </div>
 
-                                    <div className="w-full bg-emerald-500 hover:bg-emerald-400 transition-colors rounded-xl py-3.5 flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(52,211,153,0.3)] group-hover:shadow-[0_0_40px_rgba(52,211,153,0.5)]">
-                                        <span className="text-sm font-black text-black tracking-widest uppercase">ENTER THE VOID</span>
-                                        <span className="text-black group-hover:translate-x-1 transition-transform font-bold">→</span>
+                                    <div className="w-full bg-blue-600 hover:bg-blue-500 transition-colors rounded-xl py-3.5 flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(59,130,246,0.3)] group-hover:shadow-[0_0_40px_rgba(59,130,246,0.5)]">
+                                        <span className="text-sm font-black text-white tracking-widest uppercase">ENTER ARENA</span>
+                                        <span className="text-white group-hover:translate-x-1 transition-transform font-bold">→</span>
                                     </div>
                                 </div>
                             </motion.button>
@@ -403,12 +419,12 @@ export default function Lobby({ onStart }: LobbyProps) {
                             {/* 4. STATS ROW */}
                             <div className="mx-5 mb-4 grid grid-cols-2 gap-2">
                                 <div className="bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 flex flex-col gap-1">
-                                    <span className="text-[9px] text-zinc-600 font-mono tracking-widest uppercase">Total Distributed</span>
-                                    <span className="text-lg font-black text-white font-mono">$1,000+</span>
+                                    <span className="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">Total Distributed</span>
+                                    <span className="text-lg font-black text-white font-mono">$1,500+</span>
                                 </div>
                                 <div className="bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 flex flex-col gap-1">
-                                    <span className="text-[9px] text-zinc-600 font-mono tracking-widest uppercase">Active Pilots</span>
-                                    <span className="text-lg font-black text-white font-mono">21</span>
+                                    <span className="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">Active Pilots</span>
+                                    <span className="text-lg font-black text-white font-mono">{activePilots}</span>
                                 </div>
                             </div>
 
@@ -417,6 +433,27 @@ export default function Lobby({ onStart }: LobbyProps) {
                                 <span className="text-[9px] text-zinc-600 font-mono uppercase tracking-widest">◦ PAST EVENTS</span>
                             </div>
                             
+                            <button
+                                onClick={() => setShowEventDetail('omega')}
+                                className="mx-5 mb-3 w-[calc(100%-40px)] bg-[#080808] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between group hover:border-white/10 transition-all active:scale-[0.98]"
+                            >
+                                <div className="flex flex-col gap-1 items-start text-left">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                                        <span className="text-[9px] text-zinc-600 font-mono uppercase tracking-widest">CONCLUDED</span>
+                                    </div>
+                                    <span className="text-base font-black text-zinc-300 italic tracking-tight uppercase">
+                                        #OMEGA EVENT
+                                    </span>
+                                    <span className="text-[10px] text-zinc-600 font-mono m-0">65 pilots · $500 USDC distributed</span>
+                                </div>
+                                <div className="flex flex-col items-end gap-2 shrink-0">
+                                    <span className="text-[9px] font-mono text-zinc-500 group-hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest">
+                                        STANDINGS <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                                    </span>
+                                </div>
+                            </button>
+
                             <button
                                 onClick={() => setShowEventDetail('ethdenver')}
                                 className="mx-5 mb-4 w-[calc(100%-40px)] bg-[#080808] border border-white/[0.06] rounded-2xl p-4 flex items-center justify-between group hover:border-white/10 transition-all active:scale-[0.98]"

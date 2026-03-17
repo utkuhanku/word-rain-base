@@ -28,6 +28,16 @@ export async function POST(request: NextRequest) {
                 console.warn(`[SECURITY] Attempted Omega submission without payment from: ${address}`);
                 return NextResponse.json({ error: 'Payment required for OMEGA event' }, { status: 403 });
             }
+        } else if (partition === 'cre8core') {
+            DB_KEY = 'event_leaderboard_cre8core';
+
+            // Server-Side Payment Verification for Cre8Core Event
+            const normalizedAddr = address.toLowerCase();
+            const hasAccess = await kv.sismember('wordrain:cre8core:access', normalizedAddr);
+            if (hasAccess !== 1) {
+                console.warn(`[SECURITY] Attempted Cre8Core submission without payment from: ${address}`);
+                return NextResponse.json({ error: 'Payment required for CRE8CORE event' }, { status: 403 });
+            }
         }
 
         const META_KEY = `${DB_KEY}:meta`;

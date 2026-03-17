@@ -89,12 +89,12 @@ const OnboardingOverlay = ({ onClose }: { onClose: () => void }) => {
             desc: "Words fall from above. Type them before they reach the death line. Each correct word = points. Miss too many = game over."
         },
         {
-            title: "THE OMEGA EVENT",
-            desc: "Entry fee: 1 USDC. Prize pool: $500 guaranteed. Top 5 players split the spoils. One life — resurrect for 0.5 USDC."
+            title: "CRE8CORE EVENT",
+            desc: "GKASH 🤝 UTKUS. $200 Giveaway on Cre8CoreLabs. Entry: 1 USDC. NO RESURRECTIONS. Highest score wins."
         },
         {
             title: "READY TO ENTER?",
-            desc: "Connect your wallet, pay 1 USDC entry, and compete for your share of $500. Only the sharpest minds survive."
+            desc: "Connect your wallet, pay 1 USDC entry for Cre8Core, and compete for your share of $200. Only the sharpest minds survive."
         }
     ];
 
@@ -192,13 +192,13 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
         const checkAccess = async () => {
             try {
                 // 1. Check Local First (Instant)
-                const payKey = `omega_entry_paid_${address}`;
+                const payKey = `cre8core_entry_paid_${address}`;
                 if (localStorage.getItem(payKey) === 'true') {
                     setHasPaidEntry(true);
                 }
 
                 // 2. Check Server (Authoritative)
-                const res = await fetch(`/api/event/access?address=${address}`);
+                const res = await fetch(`/api/event/access?address=${address}&partition=cre8core`);
                 if (res.ok) {
                     const { hasAccess } = await res.json();
                     if (hasAccess) {
@@ -219,7 +219,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             setIsRefreshing(true);
             try {
                 // Fetch from new centralized API
-                const res = await fetch(`/api/leaderboard/top?limit=50&partition=omega&_t=${Date.now()}`, {
+                const res = await fetch(`/api/leaderboard/top?limit=50&partition=cre8core&_t=${Date.now()}`, {
                     cache: 'no-store'
                 });
 
@@ -246,7 +246,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
 
         // SKIP PAYMENT IF ALREADY PAID
         if (hasPaidEntry) {
-            setMode('EVENT'); // Using EVENT mode for now, logic in GameEngine will handle scoring
+            setMode('EVENT'); 
             onStart();
             return;
         }
@@ -278,11 +278,11 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ address }),
+                    body: JSON.stringify({ address, partition: 'cre8core' }),
                 });
 
                 // SAVE LOCAL STATE
-                const payKey = `omega_entry_paid_${address}`;
+                const payKey = `cre8core_entry_paid_${address}`;
                 localStorage.setItem(payKey, 'true');
                 setHasPaidEntry(true);
 
@@ -319,22 +319,22 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 </button>
                 <div className="flex flex-col items-center">
                     <h1 className="text-lg font-black italic tracking-widest uppercase text-white">
-                        <span className="text-[#3B82F6]">#</span>OMEGA
+                        <span className="text-[#3B82F6]">#</span>CRE8CORE
                     </h1>
                     <span className="text-[10px] text-zinc-500 tracking-[0.2em] uppercase">OFFICIAL EVENT</span>
                 </div>
                 <div className="w-10" /> {/* Spacer */}
             </div>
 
-            {/* Premium Countdown Banner Header */}
+            {/* Premium Header Banner */}
             <div className="w-full flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#020202] relative z-20 shadow-xl">
                 <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.8)]" />
-                    <span className="text-[10px] text-yellow-500 font-bold tracking-widest uppercase font-mono">EVENT CONCLUDED</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)] animate-pulse" />
+                    <span className="text-[10px] text-blue-500 font-bold tracking-widest uppercase font-mono">LIVE NOW</span>
                 </div>
                 <div className="flex bg-[#3B82F6]/10 text-[#3B82F6] px-3 py-1.5 border border-[#3B82F6]/20 rounded-full">
                     <span className="text-[11px] font-bold tracking-widest uppercase font-mono">
-                        $500 PRIZE POOL
+                        $200 GIVEAWAY
                     </span>
                 </div>
             </div>
@@ -342,7 +342,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
             {/* Main Content */}
             <div className="flex-1 overflow-y-auto p-6 relative z-10 scrollbar-hide space-y-6">
 
-                {/* Prize Pool Card - OMEGA THEME */}
+                {/* Prize Pool Card - CRE8CORE THEME */}
                 <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0a0a0a] to-[#000000] p-8 text-center group shadow-[0_0_50px_rgba(0,82,255,0.15)] mt-4">
                     {/* Dynamic Ambient Background */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#0052FF] opacity-10 blur-[80px] group-hover:opacity-20 transition-opacity duration-700 pointer-events-none" />
@@ -352,32 +352,55 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         <div className="inline-block px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-3">
                             <span className="text-[9px] text-zinc-400 font-bold tracking-[0.3em] uppercase drop-shadow-sm flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse" />
-                                GUARANTEED PRIZE POOL
+                                GKASH 🤝 UTKUS COLLAB
                             </span>
                         </div>
 
                         <div className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                            $500
+                            $200
                         </div>
 
                         <div className="text-[12px] font-mono text-[#3B82F6] font-bold tracking-widest uppercase mt-4 border-t border-white/10 pt-4 w-2/3">
-                            TOP 5 DIVIDE THE SPOILS
+                            TOP 6 DIVIDE THE SPOILS
                         </div>
-                        <p className="text-[9px] text-zinc-500 mt-2 font-mono uppercase tracking-widest max-w-[200px] mx-auto leading-relaxed">
-                            No second chances. Only the sharpest minds survive the decrypter.
-                        </p>
+                        <a 
+                            href="https://cre8core.fun/" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-[9px] text-zinc-500 mt-2 font-mono uppercase tracking-widest max-w-[200px] mx-auto leading-relaxed hover:text-white transition-colors underline underline-offset-4"
+                        >
+                            CRE8CORE.FUN
+                        </a>
                     </div>
                 </div>
 
-                {/* Action Button / Wallet Connect (DISABLED FOR EVENT CLOSE) */}
+                {/* Action Button / Wallet Connect */}
                 <div className="w-full">
-                    <div
-                        className="w-full py-5 font-black text-xl bg-black/50 text-yellow-500 uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-inner border border-yellow-500/30 flex justify-center items-center backdrop-blur-sm"
-                    >
-                        <span className="relative z-10 flex items-center justify-center gap-3 drop-shadow-md">
-                            🏆 STANDINGS FINALIZED
-                        </span>
-                    </div>
+                    {!hasPaidEntry ? (
+                        <div className="flex flex-col gap-3">
+                            <ConnectWallet className="w-full h-16 bg-[#0052FF] hover:bg-[#0042CC] text-white font-black text-lg tracking-widest uppercase rounded-2xl transition-all shadow-xl border border-[#0052FF]/50" />
+                            {address && (
+                                <button
+                                    onClick={handleEntryPayment}
+                                    disabled={isProcessing}
+                                    className="w-full py-4 font-black text-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-lg active:scale-[0.98] border border-blue-400/30"
+                                >
+                                    <span className="relative z-10 flex items-center justify-center gap-3">
+                                        {isProcessing ? "PROCESSING..." : "PAY 1 USDC ENTRY"}
+                                    </span>
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => { setMode('EVENT'); onStart(); }}
+                            className="w-full py-4 font-black text-lg bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white uppercase tracking-widest rounded-2xl relative overflow-hidden transition-all shadow-lg active:scale-[0.98] border border-emerald-400/30"
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-3">
+                                ENTER ARENA →
+                            </span>
+                        </button>
+                    )}
                 </div>
 
                 {/* Leaderboard Header */}
@@ -390,7 +413,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         onClick={() => {
                             // Manual Refresh Trigger
                             setIsRefreshing(true);
-                            fetch(`/api/leaderboard/top?limit=50&partition=omega&_t=${Date.now()}`)
+                            fetch(`/api/leaderboard/top?limit=50&partition=cre8core&_t=${Date.now()}`)
                                 .then(res => res.json())
                                 .then(data => { setLeaderboard(data); setIsRefreshing(false); })
                                 .catch(() => setIsRefreshing(false));
@@ -438,7 +461,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                         score: 'text-white font-black text-xl drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]',
                                                         label: 'CURRENT LEADER',
                                                     };
-                                                    if (rank <= 5) return {
+                                                    if (rank <= 6) return {
                                                         row: 'bg-transparent border-b border-white/5 relative',
                                                         bar: 'bg-[#0052FF]/60',
                                                         rankNum: 'text-zinc-500 font-bold',
@@ -501,7 +524,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                                                                     return displayName.startsWith('@') ? displayName.slice(1) : displayName;
                                                                 })()}
                                                             </span>
-                                                        {rank >= 2 && rank <= 5 && (
+                                                        {rank >= 2 && rank <= 6 && (
                                                             <div className="w-3.5 h-3.5 rounded-full bg-[#0052FF] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(0,82,255,0.8)]" title="Prize Winner">
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
                                                             </div>
@@ -531,79 +554,16 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                         })()}
                     </div>
 
-                            {/* OMEGA DISQUALIFIED SECTION */}
-                            <div className="mt-8 pt-6 border-t border-red-500/20 px-4 mb-8">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                                    <h3 className="text-xs font-bold text-red-500 tracking-widest uppercase">Disqualified Players</h3>
-                                </div>
-
-                                <div className="flex flex-col gap-3">
-                                    {[
-                                        {
-                                            address: '0x982C4c6E24D08D5871b075c0c7A1dC79393868Da',
-                                            reason: 'Permanent ban. Flagged for systematic exploitation across multiple events.'
-                                        },
-                                        {
-                                            address: '0x552B03253B49d208417DDD5A1561b9eD888Cf5a8',
-                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
-                                        },
-                                        {
-                                            address: '0xF1B0568A4bEdE00950a47bB537b627ED6c88DFFD',
-                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
-                                        },
-                                        {
-                                            address: '0xFaa9a44859828cc06b15A57310e3403a8CC7B7de',
-                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
-                                        },
-                                        {
-                                            address: '0xd154d0a276434afd53b1cd866ccdf22a57b60e36',
-                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
-                                        },
-                                        {
-                                            address: '0xf2d9b69621f516e0bb463e57f2c1dea26cc904ab',
-                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
-                                        },
-                                        {
-                                            address: '0x146Bf2540FaAa4A2312CEc038a92C9AdC7653D4c',
-                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
-                                        },
-                                        {
-                                            address: '0xD04DF7B1AD7890A1939c724644109b3612F2D549',
-                                            reason: 'Illegitimate score. Backend telemetry indicates impossible resurrection and scoring rates.'
-                                        }
-                                    ].map(blocked => (
-                                        <div key={blocked.address} className="flex flex-col p-3 rounded-xl bg-red-950/30 border border-red-500/30 w-full relative overflow-hidden group">
-                                            <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ef4444_10px,#ef4444_20px)] pointer-events-none"></div>
-
-                                            <div className="flex items-center justify-between relative z-10 w-full mb-3">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="font-mono text-red-500/50 text-[10px] w-4 text-center">X</span>
-                                                    <div className="relative">
-                                                        <img
-                                                            src={`/base-logo.svg`}
-                                                            className="w-8 h-8 rounded-full bg-black/50 object-cover border border-red-500/30 p-1 opacity-50 grayscale"
-                                                            alt="Disqualified Player"
-                                                        />
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-red-400 font-mono text-xl max-w-[200px] whitespace-nowrap overflow-hidden line-through decoration-red-500/50" title={blocked.address}>
-                                                            {blocked.address.slice(0, 6)}...{blocked.address.slice(-4)}
-                                                        </span>
-                                                        <span className="text-[10px] text-red-500/70 font-mono uppercase tracking-wider mt-0.5">
-                                                            DISQUALIFIED FROM OMEGA
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="relative z-10 w-full py-2 px-3 bg-red-500/10 text-red-400 text-[10px] font-mono tracking-wide rounded border border-red-500/20 text-center leading-relaxed">
-                                                <span className="font-bold">REASON:</span> {blocked.reason}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                             {/* CRE8CORE INFO SECTION */}
+                             <div className="mt-8 pt-6 border-t border-zinc-500/20 px-4 mb-8">
+                                 <div className="flex items-center gap-2 mb-3">
+                                     <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                     <h3 className="text-xs font-bold text-blue-500 tracking-widest uppercase">General Directives</h3>
+                                 </div>
+                                 <p className="text-[10px] text-zinc-500 font-mono leading-relaxed">
+                                     Cre8Core Event features a binary outcome. No resurrections allowed. One attempt per entry. Evidence (screen recording) required for top claimants.
+                                 </p>
+                             </div>
                         </>
                     )}
                 </div>
