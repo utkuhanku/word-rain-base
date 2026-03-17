@@ -399,8 +399,8 @@ export default function Lobby({ onStart }: LobbyProps) {
                                             <div className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,1)] animate-pulse" />
                                             <span className="text-[10px] font-black tracking-widest text-blue-400 uppercase font-mono">LIVE NOW</span>
                                         </div>
-                                        <span className="text-[10px] font-black text-white bg-blue-500/20 border border-blue-500/40 px-3 py-1 rounded-full font-mono tracking-widest">
-                                            $200 GIVEAWAY
+                                        <span className="text-[10px] font-black text-white bg-blue-500/20 border border-blue-500/40 px-3 py-1 rounded-full font-mono tracking-widest uppercase">
+                                            PRIZES ON BOUNTY
                                         </span>
                                     </div>
 

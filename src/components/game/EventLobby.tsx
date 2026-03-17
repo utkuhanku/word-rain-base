@@ -90,11 +90,11 @@ const OnboardingOverlay = ({ onClose }: { onClose: () => void }) => {
         },
         {
             title: "CRE8CORE EVENT",
-            desc: "GKASH 🤝 UTKUS. $200 Giveaway on Cre8CoreLabs. Entry: 1 USDC. NO RESURRECTIONS. Highest score wins."
+            desc: "GKASH 🤝 UTKUS COLLAB. Check BOUNTY for prize details and terms. Entry: 1 USDC. NO RESURRECTIONS. Highest score wins."
         },
         {
             title: "READY TO ENTER?",
-            desc: "Connect your wallet, pay 1 USDC entry for Cre8Core, and compete for your share of $200. Only the sharpest minds survive."
+            desc: "Connect your wallet, pay 1 USDC entry, and compete for your share of the rewards. All prizes distributed via BOUNTY. Only the sharpest minds survive."
         }
     ];
 
@@ -334,7 +334,7 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                 </div>
                 <div className="flex bg-[#3B82F6]/10 text-[#3B82F6] px-3 py-1.5 border border-[#3B82F6]/20 rounded-full">
                     <span className="text-[11px] font-bold tracking-widest uppercase font-mono">
-                        $200 GIVEAWAY
+                        CHECK BOUNTY FOR REWARDS
                     </span>
                 </div>
             </div>
@@ -356,12 +356,12 @@ export default function EventLobby({ onBack, onStart }: { onBack: () => void, on
                             </span>
                         </div>
 
-                        <div className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                            $200
+                        <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] py-4">
+                            CHECK BOUNTY
                         </div>
 
-                        <div className="text-[12px] font-mono text-[#3B82F6] font-bold tracking-widest uppercase mt-4 border-t border-white/10 pt-4 w-2/3">
-                            TOP 6 DIVIDE THE SPOILS
+                        <div className="text-[12px] font-mono text-[#3B82F6] font-bold tracking-widest uppercase mt-2 border-t border-white/10 pt-4 w-2/3">
+                            PRIZES & TERMS ON BOUNTY
                         </div>
                         <a 
                             href="https://cre8core.fun/" 
